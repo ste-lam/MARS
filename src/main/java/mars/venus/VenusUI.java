@@ -512,7 +512,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          file.add(fileSave);
          file.add(fileSaveAs);
          file.add(fileSaveAll);
-         if (new mars.mips.dump.DumpFormatLoader().loadDumpFormats().size() > 0) {
+         if (!DumpFormatLoader.loadDumpFormats().isEmpty()) {
             file.add(fileDumpMemory);
          }
          file.addSeparator();
@@ -706,7 +706,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          toolBar.add(Open);
          toolBar.add(Save);
          toolBar.add(SaveAs);
-         if (new mars.mips.dump.DumpFormatLoader().loadDumpFormats().size() > 0) {
+         if (!DumpFormatLoader.loadDumpFormats().isEmpty()) {
             toolBar.add(DumpMemory);
          }
          toolBar.add(Print);

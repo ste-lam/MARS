@@ -9,6 +9,7 @@
    import javax.swing.border.*;
    import java.io.*;
    import java.util.*;
+   import java.util.List;
    import javax.swing.plaf.basic.*;
 	
 	/*
@@ -173,8 +174,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          contents.add(segmentPanel, BorderLayout.WEST);
       	
          // Next, create list of all available dump formats.
-         ArrayList dumpFormats = (new DumpFormatLoader()).loadDumpFormats();
-         formatListSelector = new JComboBox(dumpFormats.toArray());
+         DumpFormat[] dumpFormats = DumpFormatLoader.loadDumpFormats().toArray(new DumpFormat [0]);
+         formatListSelector = new JComboBox<>(dumpFormats);
          formatListSelector.setRenderer(new DumpFormatComboBoxRenderer(formatListSelector));
          formatListSelector.setSelectedIndex(0);  
          JPanel formatPanel = new JPanel(new BorderLayout());

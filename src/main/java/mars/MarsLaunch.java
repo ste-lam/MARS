@@ -7,6 +7,7 @@
    import java.io.*;
    import java.util.*;
    import java.awt.*;
+   import java.util.stream.Collectors;
    import javax.swing.*;
    import javax.swing.JOptionPane;   // KENV 9/8/2004
 
@@ -200,9 +201,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                out.println("Error while attempting to save dump, segment/address-range " + triple[0] + " is invalid!");
                continue;
             }
-            DumpFormatLoader loader = new DumpFormatLoader();
-            ArrayList dumpFormats = loader.loadDumpFormats();
-            DumpFormat format = DumpFormatLoader.findDumpFormatGivenCommandDescriptor(dumpFormats, triple[1]);
+            DumpFormat format = DumpFormatLoader.findDumpFormatGivenCommandDescriptor(triple[1]);
             if (format == null) {
                out.println("Error while attempting to save dump, format " + triple[1] + " was not found!");
                continue;
@@ -778,14 +777,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                segments += ", ";
             }
          }
-         ArrayList dumpFormats = (new DumpFormatLoader()).loadDumpFormats();
-         String formats = "";
-         for (int i=0; i<dumpFormats.size(); i++) {
-            formats += ((DumpFormat) dumpFormats.get(i)).getCommandDescriptor();
-            if (i<dumpFormats.size()-1) {
-               formats += ", ";
-            }
-         }
+
+         String formats = DumpFormatLoader
+                 .loadDumpFormats()
+                 .stream()
+                 .map(DumpFormat::getCommandDescriptor)
+                 .collect(Collectors.joining(", "));
+
          out.println("Usage:  Mars  [options] filename [additional filenames]");
          out.println("  Valid options (not case sensitive, separate by spaces) are:");
          out.println("      a  -- assemble only, do not simulate");
