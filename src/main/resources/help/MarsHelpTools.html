@@ -66,9 +66,9 @@ provides default implementations of everything except the <tt>simulate()</tt> me
 <li>It compiles cleanly into a ".class" file, stored in the 
 <tt>mars/mips/instructions/syscalls</tt> directory.
 </ol>
-MARS will detect all qualifying syscall classes upon startup and the runtime simulator
-will invoke them when the <tt>syscall</tt> instruction is simulated and register <tt>$v0</tt>
-contains the corresponding integer service number.
+MARS will detect all qualifying syscall classes via the Service Provider Interface (SPI) 
+upon startup and the runtime simulator will invoke them when the <tt>syscall</tt> instruction
+is simulated and register <tt>$v0</tt> contains the corresponding integer service number.
 
 <p>Syscalls and syscall number assignments in MARs match those of SPIM for syscalls 1 through 17.
 However if you wish to change syscall number assignments, you may do so by editing the
