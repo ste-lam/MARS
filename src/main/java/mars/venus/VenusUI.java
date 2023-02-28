@@ -639,8 +639,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          menuBar.add(edit);
          menuBar.add(run);
          menuBar.add(settings);
-         JMenu toolMenu = new ToolLoader().buildToolsMenu();
-         if (toolMenu != null) menuBar.add(toolMenu);
+         menuBar.add(ToolLoader.buildToolsMenu());
          menuBar.add(help);
       	
       	// experiment with popup menu for settings. 3 Aug 2006 PS
