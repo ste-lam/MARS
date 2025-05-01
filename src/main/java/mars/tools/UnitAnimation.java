@@ -580,140 +580,54 @@ private int datapatTypeUsed;
 
 //draw lines.
  //method to draw the lines that run from left to right.
- public void printTrackLtoR(Vertex v){
-	 int size;
-	 int[] track;
-	 size = v.getEnd() - v.getInit();
-	 track =  new int[size];
-	 for(int i = 0; i < size; i++)
-		 track[i] = v.getInit()+i;
-	 if(v.isActive() == true){
-		 	v.setFirst_interaction(false);
-			for(int i = 0; i < size; i++){
-				if(track[i] <= v.getCurrent()){
-					g2d.setColor(v.getColor());  
-					g2d.fillRect(track[i], v.getOppositeAxis(), 3, 3);
-				}
-			}	
-			if (v.getCurrent() == track[size-1])
-				v.setActive(false);
-			v.setCurrent(v.getCurrent()+1);	
-	 }
-	  else if(v.isFirst_interaction() == false){
-			 for(int i = 0; i < size ; i++){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(track[i],v.getOppositeAxis(),  3, 3);
-			 }	
-	 }
-	
- }
+public void printTrackLtoR(Vertex v) {
+	int width = Math.abs(v.getInit() - v.getCurrent());
+	g2d.setColor(v.getColor());
+	g2d.fillRect(v.getInit(), v.getOppositeAxis(), 3 + width, 3);
+	if (v.isActive()) {
+		v.setCurrent(v.getCurrent() + 1);
+		v.setActive(v.getCurrent() != v.getEnd());
+	}
+}
 
- //method to draw the lines that run from right to left.
- //public boolean printTrackRtoL(int init, int end ,int currentIndex, Graphics2D g2d, Color color, int otherAxis, 
+//method to draw the lines that run from right to left.
+//public boolean printTrackRtoL(int init, int end ,int currentIndex, Graphics2D g2d, Color color, int otherAxis, 
 //		 boolean active, boolean firstInteraction){
-public void printTrackRtoL(Vertex v){
-	int size;
-	int[] track;
-	size = v.getInit() - v.getEnd();
-	track =  new int[size];
-	
-	for(int i = 0; i < size; i++)
-		track[i] = v.getInit()-i; 
+public void printTrackRtoL(Vertex v) {
+	int width = Math.abs(v.getInit() - v.getCurrent());
+	g2d.setColor(v.getColor());
+	g2d.fillRect(v.getCurrent(), v.getOppositeAxis(), 3 + width, 3);
+	if (v.isActive()) {
+		v.setCurrent(v.getCurrent() - 1);
+		v.setActive(v.getCurrent() != v.getEnd());
+	}
+}
 
-	if(v.isActive() == true){
-		v.setFirst_interaction(false);
-		for(int i = 0; i < size; i++){
-			if(track[i] >= v.getCurrent()){
-				g2d.setColor(v.getColor());  
-				g2d.fillRect(track[i], v.getOppositeAxis(), 3, 3);
-			}
-		}
-		if (v.getCurrent() == track[size-1])
-			v.setActive(false);
-		
-		v.setCurrent(v.getCurrent()-1);	
-	 }
-	 else if(v.isFirst_interaction() == false){
-			for(int i = 0; i < size ; i++){
-				g2d.setColor(v.getColor());  
-				g2d.fillRect(track[i],v.getOppositeAxis(),  3, 3);
-			 }
-	 }
- }
-
- //method to draw the lines that run from down to top.
+//method to draw the lines that run from down to top.
 // public boolean printTrackDtoU(int init, int end ,int currentIndex, Graphics2D g2d, Color color, int otherAxis, 
 //		 boolean active, boolean firstInteraction){
- public void printTrackDtoU(Vertex v){	 
-	 int size;
-	 int[] track;
-
-	 if(v.getInit() > v.getEnd()){
-		 size = v.getInit() - v.getEnd();
-		 track =  new int[size];
-		 for(int i = 0; i < size; i++)
-			 track[i] = v.getInit()-i;
-	 }
-	 else{
-		 size = v.getEnd() - v.getInit();
-		 track =  new int[size];
-		 for(int i = 0; i < size; i++)
-			 track[i] = v.getInit()+i;
-	 }
-
-	if(v.isActive() == true){
-		 v.setFirst_interaction(false);
-		 for(int i = 0; i < size; i++){
-			 if(track[i] >= v.getCurrent()){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);	
-			 }
-		 }
-		 if (v.getCurrent() == track[size-1])
-			 v.setActive(false);
-		 v.setCurrent(v.getCurrent()-1);	
-
-	 }
-	  else if(v.isFirst_interaction() == false){
-			 for(int i = 0; i < size; i++){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);
-			 }
-	 }
- }
- //method to draw the lines that run from top to down.
+public void printTrackDtoU(Vertex v) {
+	int height = Math.abs(v.getCurrent() - v.getInit());
+	g2d.setColor(v.getColor());
+	g2d.fillRect(v.getOppositeAxis(), v.getCurrent(), 3, 3 + height);
+	if (v.isActive()) {
+		v.setCurrent(v.getCurrent() - 1);
+		v.setActive(v.getCurrent() != v.getEnd());
+	}
+}
+ 
+//method to draw the lines that run from top to down.
 // public boolean printTrackUtoD(int init, int end ,int currentIndex, Graphics2D g2d, Color color, int otherAxis, 
 //		 boolean active,  boolean firstInteraction){
- public void printTrackUtoD(Vertex v){
-	 	 
-	 int size;
-	 int[] track;
-	 size = v.getEnd() - v.getInit();
-	 track =  new int[size];
-	 
-	 for(int i = 0; i < size; i++)
-		 track[i] = v.getInit()+i;
-
-	 if(v.isActive() == true){
-		 v.setFirst_interaction(false);
-		 for(int i = 0; i < size; i++){
-			 if(track[i] <= v.getCurrent()){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);	
-			 }
-			 	
-		 }
-		 if (v.getCurrent() == track[size-1]) 
-			 v.setActive(false);
-		 v.setCurrent(v.getCurrent()+1);
-	 }
-	  else if(v.isFirst_interaction() == false){
-			 for(int i = 0; i < size; i++){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);
-			 }
-	 }
- }
+public void printTrackUtoD(Vertex v) {
+	int height = Math.abs(v.getCurrent() - v.getInit());
+	g2d.setColor(v.getColor());
+	g2d.fillRect(v.getOppositeAxis(), v.getInit(), 3, 3 + height);
+	if (v.isActive()) {
+		v.setCurrent(v.getCurrent() + 1);
+		v.setActive(v.getCurrent() != v.getEnd());
+	}
+}
 
 
  //convert binnary value to integer.
