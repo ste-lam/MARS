@@ -1,23 +1,15 @@
 package mars.tools;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.MouseInfo;
-import java.awt.PointerInfo;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -26,7 +18,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.xml.parsers.DocumentBuilder;
@@ -578,142 +569,22 @@ private int datapatTypeUsed;
 		 g2d.drawImage(im, x, y, this);
  } 
 
-//draw lines.
- //method to draw the lines that run from left to right.
- public void printTrackLtoR(Vertex v){
-	 int size;
-	 int[] track;
-	 size = v.getEnd() - v.getInit();
-	 track =  new int[size];
-	 for(int i = 0; i < size; i++)
-		 track[i] = v.getInit()+i;
-	 if(v.isActive() == true){
-		 	v.setFirst_interaction(false);
-			for(int i = 0; i < size; i++){
-				if(track[i] <= v.getCurrent()){
-					g2d.setColor(v.getColor());  
-					g2d.fillRect(track[i], v.getOppositeAxis(), 3, 3);
-				}
-			}	
-			if (v.getCurrent() == track[size-1])
-				v.setActive(false);
-			v.setCurrent(v.getCurrent()+1);	
-	 }
-	  else if(v.isFirst_interaction() == false){
-			 for(int i = 0; i < size ; i++){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(track[i],v.getOppositeAxis(),  3, 3);
-			 }	
-	 }
-	
- }
 
- //method to draw the lines that run from right to left.
- //public boolean printTrackRtoL(int init, int end ,int currentIndex, Graphics2D g2d, Color color, int otherAxis, 
-//		 boolean active, boolean firstInteraction){
-public void printTrackRtoL(Vertex v){
-	int size;
-	int[] track;
-	size = v.getInit() - v.getEnd();
-	track =  new int[size];
-	
-	for(int i = 0; i < size; i++)
-		track[i] = v.getInit()-i; 
-
-	if(v.isActive() == true){
-		v.setFirst_interaction(false);
-		for(int i = 0; i < size; i++){
-			if(track[i] >= v.getCurrent()){
-				g2d.setColor(v.getColor());  
-				g2d.fillRect(track[i], v.getOppositeAxis(), 3, 3);
-			}
-		}
-		if (v.getCurrent() == track[size-1])
-			v.setActive(false);
-		
-		v.setCurrent(v.getCurrent()-1);	
-	 }
-	 else if(v.isFirst_interaction() == false){
-			for(int i = 0; i < size ; i++){
-				g2d.setColor(v.getColor());  
-				g2d.fillRect(track[i],v.getOppositeAxis(),  3, 3);
-			 }
-	 }
- }
-
- //method to draw the lines that run from down to top.
-// public boolean printTrackDtoU(int init, int end ,int currentIndex, Graphics2D g2d, Color color, int otherAxis, 
-//		 boolean active, boolean firstInteraction){
- public void printTrackDtoU(Vertex v){	 
-	 int size;
-	 int[] track;
-
-	 if(v.getInit() > v.getEnd()){
-		 size = v.getInit() - v.getEnd();
-		 track =  new int[size];
-		 for(int i = 0; i < size; i++)
-			 track[i] = v.getInit()-i;
-	 }
-	 else{
-		 size = v.getEnd() - v.getInit();
-		 track =  new int[size];
-		 for(int i = 0; i < size; i++)
-			 track[i] = v.getInit()+i;
-	 }
-
-	if(v.isActive() == true){
-		 v.setFirst_interaction(false);
-		 for(int i = 0; i < size; i++){
-			 if(track[i] >= v.getCurrent()){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);	
-			 }
-		 }
-		 if (v.getCurrent() == track[size-1])
-			 v.setActive(false);
-		 v.setCurrent(v.getCurrent()-1);	
-
-	 }
-	  else if(v.isFirst_interaction() == false){
-			 for(int i = 0; i < size; i++){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);
-			 }
-	 }
- }
- //method to draw the lines that run from top to down.
-// public boolean printTrackUtoD(int init, int end ,int currentIndex, Graphics2D g2d, Color color, int otherAxis, 
-//		 boolean active,  boolean firstInteraction){
- public void printTrackUtoD(Vertex v){
-	 	 
-	 int size;
-	 int[] track;
-	 size = v.getEnd() - v.getInit();
-	 track =  new int[size];
-	 
-	 for(int i = 0; i < size; i++)
-		 track[i] = v.getInit()+i;
-
-	 if(v.isActive() == true){
-		 v.setFirst_interaction(false);
-		 for(int i = 0; i < size; i++){
-			 if(track[i] <= v.getCurrent()){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);	
-			 }
-			 	
-		 }
-		 if (v.getCurrent() == track[size-1]) 
-			 v.setActive(false);
-		 v.setCurrent(v.getCurrent()+1);
-	 }
-	  else if(v.isFirst_interaction() == false){
-			 for(int i = 0; i < size; i++){
-				 g2d.setColor(v.getColor());  
-				 g2d.fillRect(v.getOppositeAxis(), track[i], 3, 3);
-			 }
-	 }
- }
+    //method to draw the lines
+    public void printTrack(Vertex v) {
+        int start = Math.min(v.getInit(), v.getCurrent());
+        int dist = Math.abs(v.getCurrent() - v.getInit());
+        g2d.setColor(v.getColor());
+        if (v.isMovingXaxis()) {
+            g2d.fillRect(start, v.getOppositeAxis(), dist + 3, 3);
+        } else {
+            g2d.fillRect(v.getOppositeAxis(), start, 3, dist + 3);
+        }
+        if (v.isActive()) {
+            v.setCurrent(v.getCurrent() + Integer.signum(v.getEnd() - v.getInit()));
+            v.setActive(v.getCurrent() != v.getEnd());
+        }
+    }
 
 
  //convert binnary value to integer.
@@ -728,100 +599,40 @@ public void printTrackRtoL(Vertex v){
 	 
 	 return Integer.toString(value);
  }
- 
- //set and execute the information about the current position of each line of information in the animation,
- //verifies the previous status of the animation and increment the position of each line that interconnect the unit function.
- private void executeAnimation(Graphics g){
-	 g2d = (Graphics2D)g; 
-	 Vertex vert;
-	 for(int i = 0; i < vertexTraversed.size(); i++){
-		 vert = vertexTraversed.get(i);
-		 if(vert.isMovingXaxis == true){
-			 if(vert.getDirection() == vert.movingLeft){
-				 printTrackLtoR(vert);
-				 if(vert.isActive() == false){
-					 int j = vert.getTargetVertex().size();
-					 Vertex tempVertex;
-					 for(int k = 0; k < j; k++){
-						 tempVertex = outputGraph.get(vert.getNumIndex()).get(k);
-						 Boolean hasThisVertex = false;
-						 for(int m = 0 ; m < vertexTraversed.size(); m++){
-							 if(tempVertex.getNumIndex() == vertexTraversed.get(m).getNumIndex())
-								 hasThisVertex = true;
-						 }
-						 if(hasThisVertex == false){
-							 outputGraph.get(vert.getNumIndex()).get(k).setActive(true);
-							 vertexTraversed.add( outputGraph.get(vert.getNumIndex()).get(k));
-						 } 
-					 }
-				 }					 
-			 }
-			 else{
-				 printTrackRtoL(vert);
-				 if(vert.isActive() == false){
-					 int j = vert.getTargetVertex().size();
-					 Vertex tempVertex;
-					 for(int k = 0; k < j; k++){
-						 tempVertex = outputGraph.get(vert.getNumIndex()).get(k);
-						 Boolean hasThisVertex = false;
-						 for(int m = 0 ; m < vertexTraversed.size(); m++){
-							 if(tempVertex.getNumIndex() == vertexTraversed.get(m).getNumIndex())
-								 hasThisVertex = true;
-						 }
-						 if(hasThisVertex == false){
-							 outputGraph.get(vert.getNumIndex()).get(k).setActive(true);
-							 vertexTraversed.add( outputGraph.get(vert.getNumIndex()).get(k));
-						 } 
-					 }
-				 }
-			 }
-		 } //end of condition of X axis
-		 else{
-			 if(vert.getDirection() == vert.movingDownside){
-				 if(vert.isText == true)
-					 ;
-				 else
-					 printTrackDtoU(vert);
-					
-					 if(vert.isActive() == false){
-						 int j = vert.getTargetVertex().size();
-						 Vertex tempVertex;
-						 for(int k = 0; k < j; k++){
-							 tempVertex = outputGraph.get(vert.getNumIndex()).get(k);
-							 Boolean hasThisVertex = false;
-							 for(int m = 0 ; m < vertexTraversed.size(); m++){
-								 if(tempVertex.getNumIndex() == vertexTraversed.get(m).getNumIndex())
-									 hasThisVertex = true;
-							 }
-							 if(hasThisVertex == false){
-								 outputGraph.get(vert.getNumIndex()).get(k).setActive(true);
-								 vertexTraversed.add( outputGraph.get(vert.getNumIndex()).get(k));
-							 } 
-						 }
-					 }
-				 
-			 }
-			 else{
-				 printTrackUtoD(vert);
-				 if(vert.isActive() == false){
-					 int j = vert.getTargetVertex().size();
-					 Vertex tempVertex;
-					 for(int k = 0; k < j; k++){
-						 tempVertex = outputGraph.get(vert.getNumIndex()).get(k);
-						 Boolean hasThisVertex = false;
-						 for(int m = 0 ; m < vertexTraversed.size(); m++){
-							 if(tempVertex.getNumIndex() == vertexTraversed.get(m).getNumIndex())
-								 hasThisVertex = true;
-						 }
-						 if(hasThisVertex == false){
-							 outputGraph.get(vert.getNumIndex()).get(k).setActive(true);
-							 vertexTraversed.add( outputGraph.get(vert.getNumIndex()).get(k));
-						 } 
-					 }
-				 }
-			 }
-		 }
-	 }
- }
+
+    //set and execute the information about the current position of each line of information in the animation,
+    //verifies the previous status of the animation and increment the position of each line that interconnect the unit function.
+    private void executeAnimation(Graphics g) {
+        g2d = (Graphics2D) g;
+        for (int i = 0; i < vertexTraversed.size(); i++) {
+            Vertex vert = vertexTraversed.get(i);
+            if (vert.isText && (vert.getDirection() == Vertex.movingDownside)) {
+                ;
+            } else {
+                printTrack(vert);
+            }
+
+            if (vert.isActive()) {
+                continue;
+            }
+
+            int j = vert.getTargetVertex().size();
+            Vector<Vertex> vertices = outputGraph.get(vert.getNumIndex());
+            for (int k = 0; k < j; k++) {
+                Vertex tempVertex = vertices.get(k);
+                boolean addVertex = true;
+                for (Vertex vertex : vertexTraversed) {
+                    if (tempVertex.getNumIndex() == vertex.getNumIndex()) {
+                        addVertex = false;
+                        break;
+                    }
+                }
+                if (addVertex) {
+                    tempVertex.setActive(true);
+                    vertexTraversed.add(tempVertex);
+                }
+            }
+        }
+    }
 
 }
