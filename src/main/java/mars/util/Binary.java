@@ -41,8 +41,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     // Using int value 0-15 as index, yields equivalent hex digit as char.
       private static char[] chars = 
                    {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-    // Use this to produce String equivalent of unsigned int value (add it to int value, result is long)
-      private static final long UNSIGNED_BASE = (long)0x7FFFFFFF + (long)0x7FFFFFFF +(long)2; //0xFFFFFFFF+1
    
     /**
      * Translate int value into a String consisting of '1's and '0's.
@@ -254,64 +252,43 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }  
    
     /**
-     * Prefix a hexadecimal-indicating string "0x" to the string which is 
+     * Prefix a hexadecimal-indicating string "0x" to the string which is
      * returned by the method "Integer.toHexString". Prepend leading zeroes
      * to that string as necessary to make it always eight hexadecimal digits.
      *
      * @param d The int value to convert.
      * @return String containing '0', '1', ...'F' which form hexadecimal equivalent of int.
      */
-       public static String intToHexString(int d)
-      {
-         String leadingZero = new String("0");
-         String leadingX = new String("0x");
-         String t = Integer.toHexString(d);
-         while (t.length() < 8)
-            t = leadingZero.concat(t);
-            
-         t = leadingX.concat(t);   
-         return t;
-      }
-   
+    public static String intToHexString(int d) {
+        return String.format("0x%08x", d);
+    }
+
     /**
      * Returns a 6 character string representing the 16-bit hexadecimal equivalent of the
-     * given integer value.  First two characters are "0x".  It assumes value will "fit" 
-     * in 16 bits.  If non-negative, prepend leading zeroes to that string as necessary 
+     * given integer value.  First two characters are "0x".  It assumes value will "fit"
+     * in 16 bits.  If non-negative, prepend leading zeroes to that string as necessary
      * to make it always four hexadecimal digits.  If negative, chop off the first
      * four 'f' digits so result is always four hexadecimal digits
      *
      * @param d The int value to convert.
      * @return String containing '0', '1', ...'F' which form hexadecimal equivalent of int.
      */
-       public static String intToHalfHexString(int d)
-      {
-         String leadingZero = new String("0");
-         String leadingX = new String("0x");
-         String t = Integer.toHexString(d);
-         if (t.length() > 4) {
-            t = t.substring(t.length()-4, t.length());
-         }
-         while (t.length() < 4)
-            t = leadingZero.concat(t);
-            
-         t = leadingX.concat(t);   
-         return t;
-      }
-   
-   
-   
+    public static String intToHalfHexString(int d) {
+        return String.format("0x%04x", d & 0xFFFF);
+    }
+
+
     /**
-     * Prefix a hexadecimal-indicating string "0x" to the string equivalent to the 
+     * Prefix a hexadecimal-indicating string "0x" to the string equivalent to the
      * hexadecimal value in the long parameter. Prepend leading zeroes
      * to that string as necessary to make it always sixteen hexadecimal digits.
      *
      * @param value The long value to convert.
      * @return String containing '0', '1', ...'F' which form hexadecimal equivalent of long.
      */
-   
-       public static String longToHexString(long value) {
-         return binaryStringToHexString(longToBinaryString(value));
-      }
+    public static String longToHexString(long value) {
+        return String.format("0x%016x", value);
+    }
    
    
     /**
@@ -321,7 +298,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @return String which forms unsigned 32 bit equivalent of int.
      */
        public static String unsignedIntToIntString(int d) {
-         return (d >= 0) ? Integer.toString(d) : Long.toString(UNSIGNED_BASE+d);
+         return Integer.toUnsignedString(d);
       }
    
     /**
