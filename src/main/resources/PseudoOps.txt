@@ -123,21 +123,23 @@ ori $t1,100000	lui $1, VHL2	ori $1, $1, VL2U	or RG1, RG1, $1	#OR Immediate : set
 xori $t1,100000	lui $1, VHL2	ori $1, $1, VL2U	xor RG1, RG1, $1	#XOR Immediate : set $t1 to ($t1 bitwise-exclusive-OR 32-bit immediate)
 
 # Note: most of the expansions in this group were rewritten for Release 3.4.1 to remove internal branching.
-seq $t1,$t2,$t3	subu RG1, RG2, RG3	ori $1, $0, 1	sltu RG1, RG1, $1	#Set EQual : if $t2 equal to $t3 then set $t1 to 1 else 0
-seq $t1,$t2,-100	addi $1, $0, VL3	subu RG1, RG2, $1	ori $1, $0, 1	sltu RG1, RG1, $1	#Set EQual : if $t2 equal to 16-bit immediate then set $t1 to 1 else 0
-seq $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	subu RG1, RG2, $1	ori $1, $0, 1	sltu RG1, RG1, $1	#Set EQual : if $t2 equal to 32-bit immediate then set $t1 to 1 else 0
+seq $t1,$t2,$t3	xor RG1, RG2, RG3	sltiu RG1, RG1, 1	#Set EQual : if $t2 equal to $t3 then set $t1 to 1 else 0
+seq $t1,$t2,100	xori RG1, RG2, VL3	sltiu RG1, RG1, 1	#Set EQual : if $t2 equal to 16-bit unsigned immediate then set $t1 to 1 else 0
+seq $t1,$t2,-100	addiu $1, $0, VL3	xor RG1, $1, RG2	sltiu RG1, RG1, 1	#Set EQual : if $t2 equal to 16-bit signed immediate then set $t1 to 1 else 0
+seq $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	xor RG1, $1, RG2	sltiu RG1, RG1, 1	#Set EQual : if $t2 equal to 32-bit immediate then set $t1 to 1 else 0
 
-sne $t1,$t2,$t3	subu RG1, RG2, RG3	sltu RG1, $0, RG1	#Set Not Equal : if $t2 not equal to $t3 then set $t1 to 1 else 0
-sne $t1,$t2,-100	addi $1, $0, VL3	subu RG1, RG2, $1	sltu RG1, $0, RG1	#Set Not Equal : if $t2 not equal to 16-bit immediate then set $t1 to 1 else 0
-sne $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	subu RG1, RG2, $1	sltu RG1, $0, RG1	#Set Not Equal : if $t2 not equal to 32-bit immediate then set $t1 to 1 else 0
+sne $t1,$t2,$t3	xor RG1, RG2, RG3	sltu RG1, $0, RG1	#Set Not Equal : if $t2 not equal to $t3 then set $t1 to 1 else 0
+sne $t1,$t2,100	xori RG1, RG2, VL3	sltu RG1, $0, RG1	#Set Not Equal : if $t2 not equal to 16-bit unsigned immediate then set $t1 to 1 else 0
+sne $t1,$t2,-100	addiu $1, $0, VL3	xor RG1, $1, RG2	sltu RG1, $0, RG1	#Set Not Equal : if $t2 not equal to 16-bit signed immediate then set $t1 to 1 else 0
+sne $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	xor RG1, $1, RG2	sltu RG1, $0, RG1	#Set Not Equal : if $t2 not equal to 32-bit immediate then set $t1 to 1 else 0
 
-sge $t1,$t2,$t3	slt RG1, RG2, RG3	ori $1, $0, 1	subu RG1, $1, RG1	#Set Greater or Equal : if $t2 greater or equal to $t3 then set $t1 to 1 else 0
-sge $t1,$t2,-100	addi $1, $0, VL3	slt RG1, RG2, $1	ori $1, $0, 1	subu RG1, $1, RG1	#Set Greater or Equal : if $t2 greater or equal to 16-bit immediate then set $t1 to 1 else 0
-sge $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	slt RG1, RG2, $1	ori $1, $0, 1	subu RG1, $1, RG1	#Set Greater or Equal : if $t2 greater or equal to 32-bit immediate then set $t1 to 1 else 0
+sge $t1,$t2,$t3	slt RG1, RG2, RG3	xori RG1, RG1, 1	#Set Greater or Equal : if $t2 greater or equal to $t3 then set $t1 to 1 else 0
+sge $t1,$t2,-100	addi $1, $0, VL3	slt RG1, RG2, $1	xori RG1, RG1, 1	#Set Greater or Equal : if $t2 greater or equal to 16-bit immediate then set $t1 to 1 else 0
+sge $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	slt RG1, RG2, $1	xori RG1, RG1, 1	#Set Greater or Equal : if $t2 greater or equal to 32-bit immediate then set $t1 to 1 else 0
 
-sgeu $t1,$t2,$t3	sltu RG1, RG2, RG3	ori $1, $0, 1	subu RG1, $1, RG1	#Set Greater or Equal Unsigned : if $t2 greater or equal to $t3 (unsigned compare) then set $t1 to 1 else 0
-sgeu $t1,$t2,-100	addi $1, $0, VL3	sltu RG1, RG2, $1	ori $1, $0, 1	subu RG1, $1, RG1	#Set Greater or Equal Unsigned : if $t2 greater or equal to 16-bit immediate (unsigned compare) then set $t1 to 1 else 0
-sgeu $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	sltu RG1, RG2, $1	ori $1, $0, 1	subu RG1, $1, RG1	#Set Greater or Equal Unsigned : if $t2 greater or equal to 32-bit immediate (unsigned compare) then set $t1 to 1 else 0
+sgeu $t1,$t2,$t3	sltu RG1, RG2, RG3	xori RG1, RG1, 1	#Set Greater or Equal Unsigned : if $t2 greater or equal to $t3 (unsigned compare) then set $t1 to 1 else 0
+sgeu $t1,$t2,-100	addi $1, $0, VL3	sltu RG1, RG2, $1	xori RG1, RG1, 1	#Set Greater or Equal Unsigned : if $t2 greater or equal to 16-bit immediate (unsigned compare) then set $t1 to 1 else 0
+sgeu $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	sltu RG1, RG2, $1	xori RG1, RG1, 1	#Set Greater or Equal Unsigned : if $t2 greater or equal to 32-bit immediate (unsigned compare) then set $t1 to 1 else 0
 
 sgt $t1,$t2,$t3	slt RG1, RG3, RG2	#Set Greater Than : if $t2 greater than $t3 then set $t1 to 1 else 0
 sgt $t1,$t2,-100	addi $1, $0, VL3	slt RG1, $1, RG2	#Set Greater Than : if $t2 greater than 16-bit immediate then set $t1 to 1 else 0
@@ -147,13 +149,13 @@ sgtu $t1,$t2,$t3	sltu RG1, RG3, RG2	#Set Greater Than Unsigned : if $t2 greater 
 sgtu $t1,$t2,-100	addi $1, $0, VL3	sltu RG1, $1, RG2	#Set Greater Than Unsigned : if $t2 greater than 16-bit immediate (unsigned compare) then set $t1 to 1 else 0
 sgtu $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	sltu RG1, $1, RG2	#Set Greater Than Unsigned : if $t2 greater than 32-bit immediate (unsigned compare) then set $t1 to 1 else 0
 
-sle $t1,$t2,$t3	slt RG1, RG3, RG2	ori $1, $0, 1	subu RG1, $1, RG1	#Set Less or Equal : if $t2 less or equal to $t3 then set $t1 to 1 else 0
-sle $t1,$t2,-100	addi $1, $0, VL3	slt RG1, $1, RG2	ori $1, $0, 1	subu RG1, $1, RG1	#Set Less or Equal : if $t2 less or equal to 16-bit immediate then set $t1 to 1 else 0
-sle $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	slt RG1, $1, RG2	ori $1, $0, 1	subu RG1, $1, RG1	#Set Less or Equal : if $t2 less or equal to 32-bit immediate then set $t1 to 1 else 0
+sle $t1,$t2,$t3	slt RG1, RG3, RG2	xori RG1, RG1, 1	#Set Less or Equal : if $t2 less or equal to $t3 then set $t1 to 1 else 0
+sle $t1,$t2,-100	addi $1, $0, VL3	slt RG1, $1, RG2	xori RG1, RG1, 1	#Set Less or Equal : if $t2 less or equal to 16-bit immediate then set $t1 to 1 else 0
+sle $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	slt RG1, $1, RG2	xori RG1, RG1, 1	#Set Less or Equal : if $t2 less or equal to 32-bit immediate then set $t1 to 1 else 0
 
-sleu $t1,$t2,$t3	sltu RG1, RG3, RG2	ori $1, $0, 1	subu RG1, $1, RG1	#Set Less or Equal Unsigned: if $t2 less or equal to $t3 (unsigned compare) then set $t1 to 1 else 0
-sleu $t1,$t2,-100	addi $1, $0, VL3	sltu RG1, $1, RG2	ori $1, $0, 1	subu RG1, $1, RG1	#Set Less or Equal Unsigned: if $t2 less or equal to 16-bit immediate (unsigned compare) then set $t1 to 1 else 0
-sleu $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	sltu RG1, $1, RG2	ori $1, $0, 1	subu RG1, $1, RG1	#Set Less or Equal Unsigned: if $t2 less or equal to 32-bit immediate (unsigned compare) then set $t1 to 1 else 0
+sleu $t1,$t2,$t3	sltu RG1, RG3, RG2	xori RG1, RG1, 1	#Set Less or Equal Unsigned: if $t2 less or equal to $t3 (unsigned compare) then set $t1 to 1 else 0
+sleu $t1,$t2,-100	addi $1, $0, VL3	sltu RG1, $1, RG2	xori RG1, RG1, 1	#Set Less or Equal Unsigned: if $t2 less or equal to 16-bit immediate (unsigned compare) then set $t1 to 1 else 0
+sleu $t1,$t2,100000	lui $1, VHL3	ori $1, $1, VL3U	sltu RG1, $1, RG2	xori RG1, RG1, 1	#Set Less or Equal Unsigned: if $t2 less or equal to 32-bit immediate (unsigned compare) then set $t1 to 1 else 0
 
 
 move $t1,$t2	addu RG1, $0, RG2	#MOVE : Set $t1 to contents of $t2
