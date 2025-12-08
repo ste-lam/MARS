@@ -83,137 +83,7 @@ private int datapatTypeUsed;
  
  private BufferedImage datapath;
 
- class Vertex {
-		private int numIndex;
-	   	private int init;
-	   	private int end;
-	   	private int current;
-	   	private String name;
-	   	public static final int movingUpside = 1;
-	   	public static final int movingDownside = 2;
-	   	public static final int movingLeft = 3;
-	   	public static final int movingRight = 4;
-	   	public int direction;
-	   	public int oppositeAxis;
-	   	private boolean isMovingXaxis;
-	   	private Color color;
-	   	private boolean first_interaction;
-	   	private boolean active;
-	   	private boolean isText;
-	   	private ArrayList<Integer> targetVertex;
-	   	
-	   	public Vertex(int index, int init, int end, String name, int oppositeAxis, boolean isMovingXaxis, 
-	   			String listOfColors, String listTargetVertex, boolean isText){
-	   		this.numIndex = index;
-	   		this.init = init;
-	   		this.current = this.init;
-	   		this.end = end; 
-	   		this.name = name;
-	   		this.oppositeAxis = oppositeAxis;
-	   		this.isMovingXaxis = isMovingXaxis;
-	   		this.first_interaction = true;
-	   		this.active = false;
-	   		this.isText = isText;
-	   		this.color = new Color(0,153,0);
-	   		if(isMovingXaxis == true){
-	   			if( init < end)
-	   				direction = movingLeft;
-	   			else 
-	   				direction = movingRight;
-	   			
-	   		}
-	   		else{
-	   			if( init < end)
-	   				direction = movingUpside;
-	   			else 
-	   				direction = movingDownside;
-	   		}
-	   		String[] list =  listTargetVertex.split("#");
-	   		targetVertex = new ArrayList<Integer>();
-	   		for(int i = 0; i < list.length; i++){
-	   			targetVertex.add(Integer.parseInt(list[i]));
-	   		//	System.out.println("Adding " + i + " " +  Integer.parseInt(list[i])+ " in target");
-	   		}
-	   		String[] listColor =  listOfColors.split("#");
-	   		this.color = new Color(Integer.parseInt(listColor[0]) , Integer.parseInt(listColor[1]),  Integer.parseInt(listColor[2]) );
-	   	}
-	 	
-	   	public int getDirection(){
-	   		return direction;
-	   	}
-	   	
-		public boolean isText(){
-	   		return this.isText;
-	   	}
-
-
-		public ArrayList<Integer> getTargetVertex() {
-			return targetVertex;
-		}
-
-		public int getNumIndex() {
-			return numIndex;
-		}
-		public void setNumIndex(int numIndex) {
-			this.numIndex = numIndex;
-		}
-		public int getInit() {
-			return init;
-		}
-		public void setInit(int init) {
-			this.init = init;
-		}
-		public int getEnd() {
-			return end;
-		}
-		public void setEnd(int end) {
-			this.end = end;
-		}
-		public int getCurrent() {
-			return current;
-		}
-		public void setCurrent(int current) {
-			this.current = current;
-		}
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public int getOppositeAxis() {
-			return oppositeAxis;
-		}
-		public void setOppositeAxis(int oppositeAxis) {
-			this.oppositeAxis = oppositeAxis;
-		}
-		public boolean isMovingXaxis() {
-			return isMovingXaxis;
-		}
-		public void setMovingXaxis(boolean isMovingXaxis) {
-			this.isMovingXaxis = isMovingXaxis;
-		}
-		public Color getColor() {
-			return color;
-		}
-		public void setColor(Color color) {
-			this.color = color;
-		}
-		public boolean isFirst_interaction() {
-			return first_interaction;
-		}
-		public void setFirst_interaction(boolean first_interaction) {
-			this.first_interaction = first_interaction;
-		}
-		public boolean isActive() {
-			return active;
-		}
-		public void setActive(boolean active) {
-			this.active = active;
-		}
-	}
- 
- public UnitAnimation(String instructionBinary, int datapathType)
+    public UnitAnimation(String instructionBinary, int datapathType)
  {
 	 datapatTypeUsed = datapathType; 
 	 cursorInIM = false;
@@ -570,23 +440,6 @@ private int datapatTypeUsed;
  } 
 
 
-    //method to draw the lines
-    public void printTrack(Vertex v) {
-        int start = Math.min(v.getInit(), v.getCurrent());
-        int dist = Math.abs(v.getCurrent() - v.getInit());
-        g2d.setColor(v.getColor());
-        if (v.isMovingXaxis()) {
-            g2d.fillRect(start, v.getOppositeAxis(), dist + 3, 3);
-        } else {
-            g2d.fillRect(v.getOppositeAxis(), start, 3, dist + 3);
-        }
-        if (v.isActive()) {
-            v.setCurrent(v.getCurrent() + Integer.signum(v.getEnd() - v.getInit()));
-            v.setActive(v.getCurrent() != v.getEnd());
-        }
-    }
-
-
  //convert binnary value to integer.
  public String parseBinToInt(String code){
 	 int value = 0;
@@ -606,10 +459,10 @@ private int datapatTypeUsed;
         g2d = (Graphics2D) g;
         for (int i = 0; i < vertexTraversed.size(); i++) {
             Vertex vert = vertexTraversed.get(i);
-            if (vert.isText && (vert.getDirection() == Vertex.movingDownside)) {
+            if (vert.isText() && (vert.getDirection() == Vertex.movingDownside)) {
                 ;
             } else {
-                printTrack(vert);
+                vert.drawVertex(g2d);
             }
 
             if (vert.isActive()) {
