@@ -58,7 +58,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public ArrayList loadDumpFormats() {
          // The list will be populated only the first time this method is called.
          if (formatList == null) {
-            formatList = new ArrayList();
+            formatList = new ArrayList<>();
          // grab all class files in the dump directory
             ArrayList candidates = FilenameFinder.getFilenameList(this.getClass( ).getClassLoader(),
                                               DUMP_DIRECTORY_PATH, CLASS_EXTENSION);

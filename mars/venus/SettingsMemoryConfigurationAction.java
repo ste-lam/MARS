@@ -264,7 +264,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          	// results.  There can be duplicate addresses, so I concatenate the name
          	// onto the address to make each key unique.  Then slice off the name upon
          	// extraction. 
-            TreeMap treeSortedByAddress = new TreeMap();
+            TreeMap treeSortedByAddress = new TreeMap<>();
             for (int i=0; i<configurationItemValues.length; i++) {
                treeSortedByAddress.put(Binary.intToHexString(configurationItemValues[i])+configurationItemNames[i], configurationItemNames[i]);
             }

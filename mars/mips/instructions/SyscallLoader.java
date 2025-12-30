@@ -58,11 +58,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       *  in Java".  Also see the "loadMarsTools()" method from ToolLoader class.
       */
        void loadSyscalls() {
-         syscallList = new ArrayList();
+         syscallList = new ArrayList<>();
          // grab all class files in the same directory as Syscall
          ArrayList candidates = FilenameFinder.getFilenameList(this.getClass( ).getClassLoader(),
                                               SYSCALLS_DIRECTORY_PATH, CLASS_EXTENSION);
-		   HashMap syscalls = new HashMap();
+		   HashMap syscalls = new HashMap<>();
          for( int i = 0; i < candidates.size(); i++) {
             String file = (String) candidates.get(i); 
 				// Do not add class if already encountered (happens if run in MARS development directory)

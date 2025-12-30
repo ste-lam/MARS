@@ -130,7 +130,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             }
       	
          initializeBaseAddressChoices();      	      	
-         baseAddressSelector = new JComboBox();
+         baseAddressSelector = new JComboBox<>();
          baseAddressSelector.setModel(new CustomComboBoxModel(displayBaseAddressChoices));
          baseAddressSelector.setEditable(false);
          baseAddressSelector.setSelectedIndex(defaultBaseAddressIndex);

@@ -189,7 +189,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	// Read assembly language file extensions from properties file.  Resulting
    	// string is tokenized into array list (assume StringTokenizer default delimiters).
        private static ArrayList getFileExtensions() {
-         ArrayList extensionsList = new ArrayList();
+         ArrayList extensionsList = new ArrayList<>();
          String extensions = getPropertyEntry(configPropertiesFile,"Extensions");
          if (extensions != null) {
             StringTokenizer st = new StringTokenizer(extensions); 
@@ -208,7 +208,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 * of a class that implements MarsTool.  If none, returns empty list.
    	 */
        public static ArrayList getExternalTools() {
-         ArrayList toolsList = new ArrayList();
+         ArrayList toolsList = new ArrayList<>();
          String delimiter = ";";
          String tools = getPropertyEntry(configPropertiesFile,"ExternalTools");
          if (tools != null) {
@@ -236,7 +236,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 * @return ArrayList of SyscallNumberOverride objects
    	 */
        public ArrayList getSyscallOverrides() {
-         ArrayList overrides = new ArrayList();
+         ArrayList overrides = new ArrayList<>();
          Properties properties = PropertiesFile.loadPropertiesFromFile(syscallPropertiesFile);
          Enumeration keys = properties.keys();
          while (keys.hasMoreElements()) {

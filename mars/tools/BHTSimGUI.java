@@ -216,22 +216,22 @@ public class BHTSimGUI extends JPanel {
 	private JPanel buildConfigPanel() {
 		JPanel panel = new JPanel();
 		
-		Vector sizes = new Vector();
+		Vector sizes = new Vector<>();
 		sizes.add(8);
 		sizes.add(16);
 		sizes.add(32);
 		
-		Vector bits = new Vector();
+		Vector bits = new Vector<>();
 		bits.add(1);
 		bits.add(2);
 		
-		Vector initVals = new Vector();		
+		Vector initVals = new Vector<>();		
 		initVals.add(BHTSimGUI.BHT_DO_NOT_TAKE_BRANCH);
 		initVals.add(BHTSimGUI.BHT_TAKE_BRANCH);		
 		
-		m_cbBHTentries = new JComboBox(sizes);
-		m_cbBHThistory = new JComboBox(bits);
-		m_cbBHTinitVal = new JComboBox(initVals);
+		m_cbBHTentries = new JComboBox<>(sizes);
+		m_cbBHThistory = new JComboBox<>(bits);
+		m_cbBHTinitVal = new JComboBox<>(initVals);
 		
 		panel.add(new JLabel("# of BHT entries"));
 		panel.add(m_cbBHTentries);

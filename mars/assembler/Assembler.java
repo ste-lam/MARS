@@ -193,7 +193,7 @@
          accumulatedDataSegmentForwardReferences = new DataSegmentForwardReferences();
          Globals.symbolTable.clear();
          Globals.memory.clear();
-         this.machineList = new ArrayList();
+         this.machineList = new ArrayList<>();
          this.errors = new ErrorList(); 
          if (Globals.debug)
             System.out.println("Assembler first pass begins:");
@@ -452,7 +452,7 @@
       private ArrayList<ProgramStatement> parseLine(TokenList tokenList, String source,
        	int sourceLineNumber, boolean extendedAssemblerEnabled) { 
       	
-         ArrayList<ProgramStatement> ret = new ArrayList<ProgramStatement>();
+         ArrayList<ProgramStatement> ret = new ArrayList<>();
       
          ProgramStatement programStatement;
          TokenList tokens = this.stripComment(tokenList);
@@ -1430,7 +1430,7 @@
          private ArrayList forwardReferenceList;
       
          private DataSegmentForwardReferences() {
-            forwardReferenceList = new ArrayList();
+            forwardReferenceList = new ArrayList<>();
          }
       
          private int size() {

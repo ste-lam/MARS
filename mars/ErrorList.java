@@ -54,7 +54,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    **/
    
        public ErrorList() {
-         messages = new ArrayList();
+         messages = new ArrayList<>();
          errorCount = 0;
          warningCount = 0;
       }

@@ -165,7 +165,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
       	
       	// Create segment selector.  First element selected by default.
-         segmentListSelector = new JComboBox(segmentListArray);
+         segmentListSelector = new JComboBox<>(segmentListArray);
          segmentListSelector.setSelectedIndex(0);  
          JPanel segmentPanel = new JPanel(new BorderLayout());
          segmentPanel.add(new Label("Memory Segment"), BorderLayout.NORTH);
@@ -174,7 +174,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       	
          // Next, create list of all available dump formats.
          ArrayList dumpFormats = (new DumpFormatLoader()).loadDumpFormats();
-         formatListSelector = new JComboBox(dumpFormats.toArray());
+         formatListSelector = new JComboBox<>(dumpFormats.toArray());
          formatListSelector.setRenderer(new DumpFormatComboBoxRenderer(formatListSelector));
          formatListSelector.setSelectedIndex(0);  
          JPanel formatPanel = new JPanel(new BorderLayout());

@@ -46,7 +46,7 @@ public class TokenList implements Cloneable {
 	 * Constructor for objects of class TokenList
 	 */
 	public TokenList() {
-        tokenList = new ArrayList();
+        tokenList = new ArrayList<>();
 		  processedLine = ""; // DPS 03-Jan-2013
 	}
 	

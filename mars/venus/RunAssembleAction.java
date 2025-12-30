@@ -83,7 +83,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                                new File(FileStatus.getName()).getParent(), Globals.fileExtensions);
                } 
                else {
-                  filesToAssemble = new ArrayList();
+                  filesToAssemble = new ArrayList<>();
                   filesToAssemble.add(FileStatus.getName());  
                }
                String exceptionHandler = null;

@@ -57,7 +57,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      */
        public ProgramArgumentList(String args) {
          StringTokenizer st = new StringTokenizer(args);
-         programArgumentList = new ArrayList(st.countTokens());
+         programArgumentList = new ArrayList<>(st.countTokens());
          while (st.hasMoreTokens()) {
             programArgumentList.add(st.nextToken());
          }
@@ -81,7 +81,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *   elements are assumed to contain an argument.
      */	 
        public ProgramArgumentList(String[] list, int startPosition) {
-         programArgumentList = new ArrayList(list.length-startPosition);
+         programArgumentList = new ArrayList<>(list.length-startPosition);
          for (int i=startPosition; i<list.length; i++) {
             programArgumentList.add(list[i]);
          }
@@ -106,10 +106,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      */	 
        public ProgramArgumentList(ArrayList list, int startPosition) {
          if (list == null || list.size() < startPosition) {
-            programArgumentList = new ArrayList(0);
+            programArgumentList = new ArrayList<>(0);
          } 
          else {
-            programArgumentList = new ArrayList(list.size()-startPosition);
+            programArgumentList = new ArrayList<>(list.size()-startPosition);
             for (int i=startPosition; i<list.size(); i++) {
                programArgumentList.add(list.get(i));
             }

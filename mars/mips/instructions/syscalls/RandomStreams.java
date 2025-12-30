@@ -39,5 +39,5 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     public class RandomStreams {
       /** Collection of pseudorandom number streams available for use in Rand-type syscalls.
        * The streams are by default not seeded. */
-		 static final HashMap randomStreams = new HashMap();
+		 static final HashMap randomStreams = new HashMap<>();
    }

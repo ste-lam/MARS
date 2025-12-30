@@ -70,9 +70,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    */
        public MacroPool(MIPSprogram mipsProgram) {
          this.program = mipsProgram;
-         macroList = new ArrayList<Macro>();
-         callStack=new ArrayList<Integer>();
-         callStackOrigLines=new ArrayList<Integer>();
+         macroList = new ArrayList<>();
+         callStack = new ArrayList<>();
+         callStackOrigLines = new ArrayList<>();
          current = null;
          counter = 0;
       }

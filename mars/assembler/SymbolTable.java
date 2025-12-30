@@ -52,7 +52,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 */
        public SymbolTable(String filename) {
          this.filename = filename;
-         this.table = new ArrayList();
+         this.table = new ArrayList<>();
       }    
    	/**
    	  *  Adds a Symbol object into the array of Symbols.
@@ -178,7 +178,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	  **/
       
        public ArrayList getDataSymbols(){
-         ArrayList list= new ArrayList();
+         ArrayList list= new ArrayList<>();
          for(int i=0; i<table.size(); i++){
             if(((Symbol)table.get(i)).getType()){
                list.add(table.get(i));
@@ -194,7 +194,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	  **/
       
        public ArrayList getTextSymbols(){
-         ArrayList list= new ArrayList();
+         ArrayList list= new ArrayList<>();
          for(int i=0; i<table.size(); i++){
             if(!((Symbol)table.get(i)).getType()){
                list.add(table.get(i));
@@ -209,7 +209,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	  **/
       
        public ArrayList getAllSymbols(){
-         ArrayList list= new ArrayList();
+         ArrayList list= new ArrayList<>();
          for(int i=0; i<table.size(); i++){
             list.add(table.get(i));
          }
@@ -230,7 +230,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    		**/
    	 
        public void clear(){
-         table= new ArrayList();
+         table= new ArrayList<>();
       }
    	
    /**

@@ -85,7 +85,7 @@
    
       static
       {
-         actions = new Hashtable();
+         actions = new Hashtable<>();
          actions.put("backspace",BACKSPACE);
          actions.put("backspace-word",BACKSPACE_WORD);
          actions.put("delete",DELETE);

@@ -635,7 +635,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
          displayPanel.add(displayScrollPane);
          displayOptions = new JPanel();
-         delayTechniqueChooser = new JComboBox(delayTechniques);
+         delayTechniqueChooser = new JComboBox<>(delayTechniques);
          delayTechniqueChooser.setToolTipText("Technique for determining simulated transmitter device processing delay");
          delayTechniqueChooser.addActionListener(
                new ActionListener() {

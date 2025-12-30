@@ -279,7 +279,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    				 
        /////////////////////////////////////////////////////////////////////////////
        private JScrollPane createMipsDirectivesHelpPane() {
-         Vector exampleList = new Vector();
+         Vector exampleList = new Vector<>();
          String blanks = "            ";  // 12 blanks
          Directives direct;
          Iterator it = Directives.getDirectiveList().iterator();
@@ -290,7 +290,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                      			  + direct.getDescription());
          }
          Collections.sort(exampleList);
-         JList examples = new JList(exampleList);
+         JList examples = new JList<>(exampleList);
          JScrollPane mipsScrollPane = new JScrollPane(examples,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); 
          examples.setFont(new Font("Monospaced",Font.PLAIN,12));
@@ -300,7 +300,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 ////////////////////////////////////////////////////////////////////////////
        private JScrollPane createMipsInstructionHelpPane(String instructionClassName) {
          ArrayList instructionList = Globals.instructionSet.getInstructionList();
-         Vector exampleList = new Vector(instructionList.size());
+         Vector exampleList = new Vector<>(instructionList.size());
          Iterator it = instructionList.iterator();
          Instruction instr;
          String blanks = "                        ";  // 24 blanks
@@ -319,7 +319,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                }
          }
          Collections.sort(exampleList);
-         JList examples = new JList(exampleList);
+         JList examples = new JList<>(exampleList);
          JScrollPane mipsScrollPane = new JScrollPane(examples,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); 
          examples.setFont(new Font("Monospaced",Font.PLAIN,12));

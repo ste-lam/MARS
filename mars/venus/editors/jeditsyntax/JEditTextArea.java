@@ -1840,7 +1840,7 @@ public class JEditTextArea extends JComponent
       private Component center;
       private Component right;
       private Component bottom;
-      private Vector leftOfScrollBar = new Vector();
+      private Vector leftOfScrollBar = new Vector<>();
    }
 
    static class CaretBlinker implements ActionListener

@@ -536,7 +536,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          scribblerSettings.setBorder(new TitledBorder("Scribbler"));
          Box scribblerSettingsBox = Box.createHorizontalBox();
          scribblerSettings.add(scribblerSettingsBox);
-         lineWidthSetting = new JComboBox(scribblerLineWidthSettings);
+         lineWidthSetting = new JComboBox<>(scribblerLineWidthSettings);
          lineWidthSetting.setToolTipText(SETTINGS_SCRIBBLER_WIDTH_TOOLTIP_TEXT);
          lineWidthSetting.setSelectedIndex(((Magnifier)getOwner()).scribblerSettings.getLineWidth()-1);
          lineColorSetting = new JButton("   ");

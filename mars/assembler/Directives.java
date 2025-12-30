@@ -42,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     public final class Directives {
    
-      private static ArrayList directiveList = new ArrayList();
+      private static ArrayList directiveList = new ArrayList<>();
       public static final Directives DATA   = new Directives(".data", "Subsequent items stored in Data segment at next available address");
       public static final Directives TEXT   = new Directives(".text", "Subsequent items (instructions) stored in Text segment at next available address");
       public static final Directives WORD   = new Directives(".word", "Store the listed value(s) as 32 bit words on word boundary");
@@ -116,7 +116,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          for (int i=0; i<directiveList.size(); i++) {
             if (((Directives) directiveList.get(i)).descriptor.toLowerCase().startsWith(str.toLowerCase())) {
                if (matches == null) {
-                  matches = new ArrayList();
+                  matches = new ArrayList<>();
                }
                matches.add(directiveList.get(i));
             }

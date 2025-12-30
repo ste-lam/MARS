@@ -165,7 +165,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
    	//
        private JScrollPane generateLabelScrollPane() {
-         listOfLabelsForSymbolTable = new ArrayList();
+         listOfLabelsForSymbolTable = new ArrayList<>();
          listOfLabelsForSymbolTable.add(new LabelsForSymbolTable(null));// global symtab
          ArrayList MIPSprogramsAssembled = RunAssembleAction.getMIPSprogramsToAssemble();
          Box allSymtabTables = Box.createVerticalBox();
@@ -173,7 +173,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             listOfLabelsForSymbolTable.add(new LabelsForSymbolTable(
                         (MIPSprogram) MIPSprogramsAssembled.get(i)));
          }
-         ArrayList tableNames = new ArrayList();
+         ArrayList tableNames = new ArrayList<>();
          JTableHeader tableHeader = null;
          for (int i=0; i<listOfLabelsForSymbolTable.size(); i++) {
             LabelsForSymbolTable symtab = (LabelsForSymbolTable)listOfLabelsForSymbolTable.get(i);
@@ -332,7 +332,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                symbols = symbolTable.getDataSymbols();
             } 
             else {
-               symbols = new ArrayList();
+               symbols = new ArrayList<>();
             }
             Collections.sort(symbols, tableSortComparator); // DPS 25 Dec 2008
             labelData = new Object[symbols.size()][2];

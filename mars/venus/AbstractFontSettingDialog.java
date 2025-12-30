@@ -93,7 +93,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       	// with a horizontal line separating the two groups.
          String[][] fullList = { commonFontFamilies, allFontFamilies };
 		
-         fontFamilySelector = new JComboBox(makeVectorData(fullList));
+         fontFamilySelector = new JComboBox<>(makeVectorData(fullList));
          fontFamilySelector.setRenderer(new ComboBoxRenderer());
          fontFamilySelector.addActionListener(new BlockComboListener(fontFamilySelector));
          fontFamilySelector.setSelectedItem(currentFont.getFamily());
@@ -102,7 +102,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          fontFamilySelector.setToolTipText("Short list of common font families followed by complete list.");
       	
          String[] fontStyles = EditorFont.getFontStyleStrings();
-         fontStyleSelector = new JComboBox(fontStyles);
+         fontStyleSelector = new JComboBox<>(fontStyles);
          fontStyleSelector.setSelectedItem(EditorFont.styleIntToStyleString(currentFont.getStyle()));
          fontStyleSelector.setEditable(false);
          fontStyleSelector.setToolTipText("List of available font styles.");
@@ -219,7 +219,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    // the arrays with a separator between each.
        private Vector makeVectorData(String[][] str) {
          boolean needSeparator = false;
-         Vector data = new Vector();
+         Vector data = new Vector<>();
          for (int i=0;i<str.length;i++) {
             if (needSeparator) {
                data.addElement(SEPARATOR);

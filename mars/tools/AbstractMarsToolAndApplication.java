@@ -714,7 +714,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                                new File(fileToAssemble).getParent(), Globals.fileExtensions);
             } 
             else {
-               filesToAssemble = new ArrayList();
+               filesToAssemble = new ArrayList<>();
                filesToAssemble.add(fileToAssemble);
             }
             ArrayList programsToAssemble = null;

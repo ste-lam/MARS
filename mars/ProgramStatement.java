@@ -672,7 +672,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          private ArrayList list;
       
           BasicStatementList() {
-            list = new ArrayList();
+            list = new ArrayList<>();
          }
       
           void addString(String string) {

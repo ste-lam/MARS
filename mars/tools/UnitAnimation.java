@@ -138,7 +138,7 @@ private int datapatTypeUsed;
 	   				direction = movingDownside;
 	   		}
 	   		String[] list =  listTargetVertex.split("#");
-	   		targetVertex = new ArrayList<Integer>();
+	   		targetVertex = new ArrayList<>();
 	   		for(int i = 0; i < list.length; i++){
 	   			targetVertex.add(Integer.parseInt(list[i]));
 	   		//	System.out.println("Adding " + i + " " +  Integer.parseInt(list[i])+ " in target");
@@ -240,13 +240,13 @@ private int datapatTypeUsed;
 	 // load and initialise the images
 	 initImages();
 	  
-	 vertexList = new ArrayList<Vertex>();
+	 vertexList = new ArrayList<>();
 	 counter = 0;
 	 justStarted = true;
 	 instructionCode = instructionBinary;
 	 
 	 //declaration of labels definition.
-	 registerEquivalenceTable = new  HashMap<String, String>();
+	 registerEquivalenceTable = new HashMap<>();
 	 
 	 countRegLabel = 400;
 	 countALULabel = 380;
@@ -359,15 +359,15 @@ private int datapatTypeUsed;
 				}
 			}
 			//loading matrix of control of vertex.
-			outputGraph = new Vector<Vector<Vertex>>();
-			vertexTraversed = new ArrayList<Vertex>();
+            outputGraph = new Vector<>();
+            vertexTraversed = new ArrayList<>();
 			int size = vertexList.size();
 			Vertex vertex;
 			ArrayList<Integer> targetList;
 			for(int i = 0; i < vertexList.size(); i++){
 				vertex = vertexList.get(i);
 				targetList = vertex.getTargetVertex();
-				Vector<Vertex> vertexOfTargets = new Vector<Vertex>();
+                Vector<Vertex> vertexOfTargets = new Vector<>();
 				for(int k = 0; k < targetList.size(); k++){
 					vertexOfTargets.add(vertexList.get(targetList.get(k)));
 				}
@@ -463,15 +463,15 @@ private int datapatTypeUsed;
 				}
 			}
 			//loading matrix of control of vertex.
-			outputGraph = new Vector<Vector<Vertex>>();
-			vertexTraversed = new ArrayList<Vertex>();
+			outputGraph = new Vector<>();
+			vertexTraversed = new ArrayList<>();
 			int size = vertexList.size();
 			Vertex vertex;
 			ArrayList<Integer> targetList;
 			for(int i = 0; i < vertexList.size(); i++){
 				vertex = vertexList.get(i);
 				targetList = vertex.getTargetVertex();
-				Vector<Vertex> vertexOfTargets = new Vector<Vertex>();
+				Vector<Vertex> vertexOfTargets = new Vector<>();
 				for(int k = 0; k < targetList.size(); k++){
 					vertexOfTargets.add(vertexList.get(targetList.get(k)));
 				}

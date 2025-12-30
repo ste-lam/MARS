@@ -80,7 +80,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
        public void setSourceLineList(ArrayList<SourceLine> sourceLineList) { 
          this.sourceLineList = sourceLineList; 
-         sourceList = new ArrayList();
+         sourceList = new ArrayList<>();
          for (SourceLine sl : sourceLineList) {
             sourceList.add(sl.getSource());
          } 
@@ -213,7 +213,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
        public void readSource(String file) throws ProcessingException {
          this.filename = file;
-         this.sourceList = new ArrayList();
+         this.sourceList = new ArrayList<>();
          ErrorList errors = null;
          BufferedReader inputFile;
          String line;

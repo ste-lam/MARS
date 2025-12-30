@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       public static ArrayList dumpTriples = null;
       
       /** A mapping from segments names (like ".text") to the base and limit for that segment. */
-      private static final HashMap segmentBoundMap = new HashMap();
+      private static final HashMap segmentBoundMap = new HashMap<>();
       
       private static final String[] segmentNames = { ".text", ".data" };
       private static int[] baseAddresses = new int[2];

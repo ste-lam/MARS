@@ -148,9 +148,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             instructionCount = 0;
             assembleErrorExitCode = 0;
             simulateErrorExitCode = 0;
-            registerDisplayList = new ArrayList();
-            memoryDisplayList = new ArrayList();
-            filenameList = new ArrayList();
+            registerDisplayList = new ArrayList<>();
+            memoryDisplayList = new ArrayList<>();
+            filenameList = new ArrayList<>();
             MemoryConfigurations.setCurrentConfiguration(MemoryConfigurations.getDefaultConfiguration());
          	// do NOT use Globals.program for command line MARS -- it triggers 'backstep' log.
             code = new MIPSprogram();  
@@ -279,7 +279,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          	// that will become "argc" and "argv" for the MIPS program.
             if (inProgramArgumentList) {
                if (programArgumentList == null) {
-                  programArgumentList = new ArrayList();
+                  programArgumentList = new ArrayList<>();
                }
                programArgumentList.add(args[i]);
                continue;
@@ -305,7 +305,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                } 
                else {
                   if (dumpTriples == null) 
-                     dumpTriples = new ArrayList();
+                     dumpTriples = new ArrayList<>();
                   dumpTriples.add(new String[] {args[++i], args[++i], args[++i]});
                   //simulate = false;
                }
