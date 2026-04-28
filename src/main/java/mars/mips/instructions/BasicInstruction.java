@@ -28,6 +28,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 (MIT license, http://www.opensource.org/licenses/mit-license.html)
  */
 
+import java.util.EnumSet;
+
 /**
  * Class to represent a basic instruction in the MIPS instruction set.
  * Basic instruction means it translates directly to a 32-bit binary machine
@@ -68,20 +70,65 @@ public class BasicInstruction extends Instruction {
 	 * It can also be used at runtime to match a binary machine instruction to the correct
 	 * instruction simulator -- it needs to match all and only the 0's and 1's.
 	 */
-	public BasicInstruction(String example, String description, BasicInstructionFormat instrFormat, 
-	                 String operMask, SimulationCode simCode) {
-        this.exampleFormat = example;
-        this.mnemonic = this.extractOperator(example);
-        this.description = description;
-        this.instructionFormat = instrFormat;
-        this.operationMask = operMask.replaceAll(" ",""); // squeeze out any/all spaces
-		  if (operationMask.length() != Instruction.INSTRUCTION_LENGTH_BITS) {
-		        System.out.println(example+" mask not "+Instruction.INSTRUCTION_LENGTH_BITS+" bits!");
-				 }
-        this.simulationCode = simCode;
+	public BasicInstruction(String example, String description, BasicInstructionFormat instrFormat,
+	                        String operMask, SimulationCode simCode) {
+		this(example, description, instrFormat, EnumSet.noneOf(Property.class), operMask, simCode);
+	}
+
+	public BasicInstruction(String example, String description, BasicInstructionFormat instrFormat,
+	                        EnumSet<Property> properties, String operMask, SimulationCode simCode) {
+		this.exampleFormat = example;
+		this.mnemonic = this.extractOperator(example);
+		this.description = description;
+		this.instructionFormat = instrFormat;
+		this.operationMask = operMask.replaceAll(" ",""); // squeeze out any/all spaces
+		if (operationMask.length() != Instruction.INSTRUCTION_LENGTH_BITS) {
+			System.out.println(example+" mask not "+Instruction.INSTRUCTION_LENGTH_BITS+" bits!");
+		}
+		this.simulationCode = simCode;
 
 		this.opcodeMask = (int) Long.parseLong(this.operationMask.replaceAll("[01]", "1").replaceAll("[^01]", "0"), 2);
 		this.opcodeMatch = (int) Long.parseLong(this.operationMask.replaceAll("[^1]", "0"), 2);
+		this.properties = properties;
+
+		// add properties based on opcode field
+		switch ((opcodeMatch >>> 26)) {
+			case 0b000_010:
+			case 0b000_011:
+			case 0b000_100:
+			case 0b000_101:
+			case 0b000_110:
+			case 0b000_111:
+				this.properties.add(Property.PROCESSOR);
+				this.properties.add(Property.CONTROL_TRANSFER_INSTRUCTION);
+				this.properties.add(Property.DELAY_SLOT);
+				break;
+				
+			case 0b010_000:
+				this.properties.add(Property.COPROCESSOR_0);
+				break;
+				
+			case 0b010_001:
+			case 0b010_011:
+				this.properties.add(Property.COPROCESSOR_1);
+				break;
+				
+			case 0b110_001:
+			case 0b110_101:
+			case 0b111_001:
+			case 0b111_101:
+				this.properties.add(Property.PROCESSOR);
+				this.properties.add(Property.COPROCESSOR_1);
+				break;
+				
+			case 0b010_010:
+				this.properties.add(Property.COPROCESSOR_2);
+				break;
+				
+			default:
+				this.properties.add(Property.PROCESSOR);
+				break;
+		}
 	}
 	
 	  // Temporary constructor so that instructions without description yet will compile.

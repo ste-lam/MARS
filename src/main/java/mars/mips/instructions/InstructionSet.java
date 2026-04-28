@@ -6,7 +6,9 @@
    import mars.util.*;
    import java.util.*;
    import java.io.*;
-	
+
+   import static mars.mips.instructions.Instruction.Property.*;
+
 	/*
 Copyright (c) 2003-2013,  Pete Sanderson and Kenneth Vollmar
 
@@ -893,6 +895,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("bgez $t1,label",
                 "Branch if greater than or equal to zero : Branch to statement at label's address if $t1 is greater than or equal to zero",
             	 BasicInstructionFormat.I_BRANCH_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "000001 fffff 00001 ssssssssssssssss",
                 new SimulationCode()
                {
@@ -909,6 +912,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("bgezal $t1,label",
                 "Branch if greater then or equal to zero and link : Set $ra to the Program Counter (Return Address). If $t1 is greater than or equal to zero, then branch to statement at label's address",
             	 BasicInstructionFormat.I_BRANCH_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "000001 fffff 10001 ssssssssssssssss",
                 new SimulationCode()
                {
@@ -961,6 +965,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("bltz $t1,label",
                 "Branch if less than zero : Branch to statement at label's address if $t1 is less than zero",
             	 BasicInstructionFormat.I_BRANCH_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "000001 fffff 00000 ssssssssssssssss",
                 new SimulationCode()
                {
@@ -977,6 +982,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("bltzal $t1,label",
                 "Branch if less than zero and link : Set $ra to the Program Counter (Return Address). If $t1 is less than or equal to zero, then branch to statement at label's address",
             	 BasicInstructionFormat.I_BRANCH_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "000001 fffff 10000 ssssssssssssssss",
                 new SimulationCode()
                {
@@ -1221,6 +1227,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("jr $t1", 
             	 "Jump register unconditionally : Jump to statement whose address is in $t1",
             	 BasicInstructionFormat.R_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "000000 fffff 00000 00000 00000 001000",
                 new SimulationCode()
                {
@@ -1250,6 +1257,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("jalr $t1,$t2",
                 "Jump and link register : Set $t1 to Program Counter (return address) then jump to statement whose address is in $t2",
             	 BasicInstructionFormat.R_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "000000 sssss 00000 fffff 00000 001001",
                 new SimulationCode()
                {
@@ -1992,6 +2000,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("bc1t 1,label",
                 "Branch if specified FP condition flag true (BC1T, not BCLT) : If Coprocessor 1 condition flag specified by immediate is true (one) then branch to statement at label's address",
             	 BasicInstructionFormat.I_BRANCH_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "010001 01000 fff 01 ssssssssssssssss",
                 new SimulationCode()
                {
@@ -2025,6 +2034,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("bc1f 1,label",
                 "Branch if specified FP condition flag false (BC1F, not BCLF) : If Coprocessor 1 condition flag specified by immediate is false (zero) then branch to statement at label's address",
             	 BasicInstructionFormat.I_BRANCH_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION, DELAY_SLOT),
                 "010001 01000 fff 00 ssssssssssssssss",
                 new SimulationCode()
                {
@@ -3053,6 +3063,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 new BasicInstruction("eret", 
             	 "Exception return : Set Program Counter to Coprocessor 0 EPC register value, set Coprocessor Status register bit 1 (exception level) to zero",
             	 BasicInstructionFormat.R_FORMAT,
+                 EnumSet.of(CONTROL_TRANSFER_INSTRUCTION),
                 "010000 1 0000000000000000000 011000",
                 new SimulationCode()
                {
