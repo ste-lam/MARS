@@ -1,4 +1,5 @@
 package mars.mips.instructions;
+import java.util.EnumSet;
 
 /*
 Copyright (c) 2003-2013,  Pete Sanderson and Kenneth Vollmar
@@ -45,6 +46,107 @@ public class BasicInstruction extends Instruction {
 
 	private int opcodeMask;  // integer with 1's where constants required (0/1 become 1, f/s/t become 0)
 	private int opcodeMatch; // integer matching constants required (0/1 become 0/1, f/s/t become 0)
+
+
+	private static EnumSet<Property> getProperties(final int pattern) {
+		// From:
+		//     MIPS® Architecture For Programmers
+		//     Volume II-A: The MIPS64® Instruction
+		//     Set Reference Manual
+		// Control Transfer Instructions (CTIs) should not be placed in branch delay slots or Release 6 forbidden slots. 
+		// CTIs include all branches and jumps, NAL, ERET, ERETNC, DERET, WAIT, and PAUSE.
+
+		EnumSet<Property> properties = EnumSet.noneOf(Property.class);
+
+		final int opcode = pattern >>> 26;
+		final int rtField = (pattern >>> 16) & 0x1F;
+		final int functField = pattern & 0x3F;
+
+		// add properties based on opcode field
+		switch (opcode) {
+			// SPECIAL
+			case 0b000_000:
+				properties.add(Property.PROCESSOR);
+				switch (functField) {
+					case 0b001_000: // jr
+					case 0b001_001: // jalr
+						properties.add(Property.CONTROL_TRANSFER_INSTRUCTION);
+						properties.add(Property.DELAY_SLOT);
+						break;
+				}
+				break;
+
+			// REGIMM
+			case 0b000_001:
+				properties.add(Property.PROCESSOR);
+				switch (rtField) {
+					case 0b00_000: // bltz
+					case 0b00_001: // bgez
+					case 0b10_000: // bltzal
+					case 0b10_001: // bgezal
+						properties.add(Property.CONTROL_TRANSFER_INSTRUCTION);
+						properties.add(Property.DELAY_SLOT);
+				}
+				break;
+
+			case 0b000_010: // j
+			case 0b000_011: // jal
+			case 0b000_100: // beq
+			case 0b000_101: // bne
+			case 0b000_110: // blez
+			case 0b000_111: // bgtz
+				properties.add(Property.PROCESSOR);
+				properties.add(Property.CONTROL_TRANSFER_INSTRUCTION);
+				properties.add(Property.DELAY_SLOT);
+				break;
+
+			case 0b010_100: // beql
+			case 0b010_101: // bnel
+			case 0b010_110: // blezl
+			case 0b010_111: // bgtzl
+				properties.add(Property.PROCESSOR);
+				properties.add(Property.CONTROL_TRANSFER_INSTRUCTION);
+				properties.add(Property.DELAY_SLOT);
+				properties.add(Property.NULLIFY_ON_FALSE);
+				break;
+
+			case 0b010_000:
+				properties.add(Property.COPROCESSOR_0);
+				switch (pattern) {
+					case 0b010000_1_0000000000000000000_011000: // eret
+					case 0b010000_1_0000000000000000000_011111: // deret
+					case 0b010000_1_0000000000000000001_011000: // eretnc
+						properties.add(Property.CONTROL_TRANSFER_INSTRUCTION);
+						break;
+				}
+				break;
+
+			case 0b010_001:
+			case 0b010_011:
+				properties.add(Property.COPROCESSOR_1);
+				break;
+
+			case 0b110_001:
+			case 0b110_101:
+			case 0b111_001:
+			case 0b111_101:
+				properties.add(Property.PROCESSOR);
+				properties.add(Property.COPROCESSOR_1);
+				break;
+
+			case 0b010_010:
+				properties.add(Property.COPROCESSOR_2);
+				break;
+
+			default:
+				properties.add(Property.PROCESSOR);
+				break;
+		}
+
+		return properties;
+	}
+
+
 	/**
 	 * BasicInstruction constructor.
 	 * 
@@ -82,6 +184,7 @@ public class BasicInstruction extends Instruction {
 
 		this.opcodeMask = (int) Long.parseLong(this.operationMask.replaceAll("[01]", "1").replaceAll("[^01]", "0"), 2);
 		this.opcodeMatch = (int) Long.parseLong(this.operationMask.replaceAll("[^1]", "0"), 2);
+		this.properties = getProperties(opcodeMatch);
 	}
 	
 	  // Temporary constructor so that instructions without description yet will compile.
