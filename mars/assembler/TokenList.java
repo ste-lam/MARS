@@ -170,12 +170,9 @@ public class TokenList implements Cloneable {
 	// but the List itself has to be cloned separately -- otherwise clone will have
 	// alias to original token list!!
     public Object clone() {
-        try {
-            TokenList t = (TokenList) super.clone();
-            t.tokenList = (ArrayList) tokenList.clone();
-            return t;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
+		TokenList t = new TokenList();
+		t.processedLine = processedLine;
+		t.tokenList.addAll(tokenList);
+		return t;
     }
 }
