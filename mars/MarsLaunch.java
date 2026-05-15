@@ -6,7 +6,6 @@
    import mars.simulator.*;
    import java.io.*;
    import java.util.*;
-   import java.awt.*;
    import javax.swing.*;
    import javax.swing.JOptionPane;   // KENV 9/8/2004
 
@@ -260,8 +259,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          String noCopyrightSwitch = "nc";
          String displayMessagesToErrSwitch = "me";
          boolean argsOK = true;
-         boolean inProgramArgumentList = false;
-         programArgumentList = null;
+         programArgumentList = Collections.emptyList();
          if (args.length == 0) 
             return true; // should not get here...
          // If the option to display MARS messages to standard erro is used,
@@ -274,20 +272,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             return false;					
          } 
          for (int i=0; i<args.length; i++) {
-            // We have seen "pa" switch, so all remaining args are program args
+            // We hit "pa" switch, so all remaining args are program args
          	// that will become "argc" and "argv" for the MIPS program.
-            if (inProgramArgumentList) {
-               if (programArgumentList == null) {
-                  programArgumentList = new ArrayList<>();
-               }
-               programArgumentList.add(args[i]);
-               continue;
-            }
-         	// Once we hit "pa", all remaining command args are assumed
-         	// to be program arguments.
             if (args[i].toLowerCase().equals("pa")) {
-               inProgramArgumentList = true;
-               continue;
+               programArgumentList = Arrays.asList(args).subList(i + 1, args.length);
+               break;
             }
          	// messages-to-standard-error switch already processed, so ignore.
             if (args[i].toLowerCase().equals(displayMessagesToErrSwitch)) {

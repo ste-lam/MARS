@@ -69,7 +69,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *  @param list  Array of String, each element containing one argument
      */	 
        public ProgramArgumentList(String[] list) {
-         this(list, 0);
+         this(Arrays.asList(list));
       }
     
     /**
@@ -81,18 +81,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *   elements are assumed to contain an argument.
      */	 
        public ProgramArgumentList(String[] list, int startPosition) {
-         programArgumentList = new ArrayList<>(list.length-startPosition);
-         for (int i=startPosition; i<list.length; i++) {
-            programArgumentList.add(list[i]);
-         }
+         this(Arrays.asList(list), startPosition);
       }
     /**
      *  Constructor that gets list from List of String, one argument per element.
      *
      *  @param list  List of String, each element containing one argument
      */
-       public ProgramArgumentList(ArrayList list) {
-         this(list, 0);
+       public ProgramArgumentList(List<String> list) {
+         if (list == null || list.isEmpty()) {
+            programArgumentList = new ArrayList<>(0);
+         } 
+         else {
+            programArgumentList = new ArrayList<>(list);
+         }
       }  
     
    
@@ -104,16 +106,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *  @param startPosition Index of array element containing the first argument; all remaining
      *   elements are assumed to contain an argument.
      */	 
-       public ProgramArgumentList(ArrayList list, int startPosition) {
-         if (list == null || list.size() < startPosition) {
-            programArgumentList = new ArrayList<>(0);
-         } 
-         else {
-            programArgumentList = new ArrayList<>(list.size()-startPosition);
-            for (int i=startPosition; i<list.size(); i++) {
-               programArgumentList.add(list.get(i));
-            }
-         }
+       public ProgramArgumentList(List<String> list, int startPosition) {
+         this(list.subList(startPosition, list.size()));
       }
    
    	
