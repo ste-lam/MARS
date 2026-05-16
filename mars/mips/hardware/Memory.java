@@ -1218,9 +1218,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    // is from command mode, Globals.program is null but still want ability to observe.
        private void notifyAnyObservers(int type, int address, int length, int value) {
          if ((Globals.program != null || Globals.getGui()==null) && this.observables.size() > 0) {
+            MemoryAccessNotice notice = new MemoryAccessNotice(type, address, length, value);
             for (MemoryObservable mo: observables) {
                if (mo.match(address)) {
-                  mo.notifyObserver(new MemoryAccessNotice(type, address, length, value));
+                  mo.notifyObserver(notice);
                }
             }
          } 		

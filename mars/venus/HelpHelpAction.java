@@ -314,7 +314,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                   System.out.println(cnfe+" "+instructionClassName);
                }
          }
-         Collections.sort(exampleList);
+         exampleList.sort(null);
          JList<String> examples = new JList<>(exampleList);
          JScrollPane mipsScrollPane = new JScrollPane(examples,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); 

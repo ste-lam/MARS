@@ -3089,7 +3089,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				matchMap.put(match, basic);
 			}
 		 }
-		 Collections.sort(matchMaps);
+		 matchMaps.sort(null);
 		 this.opcodeMatchMaps = matchMaps;
       }
 

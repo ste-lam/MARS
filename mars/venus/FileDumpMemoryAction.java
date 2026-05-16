@@ -270,7 +270,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	// Display tool tip for dump format list items.  Got the technique from
    	// http://forum.java.sun.com/thread.jspa?threadID=488762&messageID=2292482
    	
-       private class DumpFormatComboBoxRenderer extends BasicComboBoxRenderer {
+       private static class DumpFormatComboBoxRenderer extends BasicComboBoxRenderer {
          private JComboBox<DumpFormat> myMaster;
       	 
           public DumpFormatComboBoxRenderer(JComboBox<DumpFormat> myMaster) {

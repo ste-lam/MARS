@@ -1,13 +1,11 @@
    package mars;
-	
-   import mars.venus.*;
+
    import mars.assembler.*;
    import mars.simulator.*;
    import mars.mips.hardware.*;
 	
    import java.util.*;
    import java.io.*;
-   import java.awt.event.*;
    import javax.swing.*;
 
 /*
@@ -243,7 +241,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.tokenizer = new Tokenizer();
          this.tokenList = tokenizer.tokenize(this);
          this.localSymbolTable = new SymbolTable(this.filename); // prepare for assembly
-         return;
       }
    
    /**

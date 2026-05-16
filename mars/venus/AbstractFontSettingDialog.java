@@ -264,7 +264,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
    
    // Required listener to handle the separator bar.
-       private class BlockComboListener implements ActionListener {
+       private static class BlockComboListener implements ActionListener {
          JComboBox<String> combo;
          Object currentItem;
       

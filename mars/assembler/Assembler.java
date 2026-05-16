@@ -1,8 +1,6 @@
    package mars.assembler;
 
-   import java.util.ArrayList;
-   import java.util.Collections;
-   import java.util.Comparator;
+   import java.util.*;
 
    import mars.ErrorList;
    import mars.ErrorMessage;
@@ -118,9 +116,7 @@
     **/
       public List<ProgramStatement> assemble(MIPSprogram p, boolean extendedAssemblerEnabled,
        	boolean warningsAreErrors) throws ProcessingException {
-         ArrayList programFiles = new ArrayList();
-         programFiles.add(p);
-         return this.assemble(programFiles, extendedAssemblerEnabled, warningsAreErrors);
+         return assemble(Collections.singletonList(p), extendedAssemblerEnabled, warningsAreErrors);
       }
    
    /**
@@ -402,7 +398,7 @@
       // Such occurances will be flagged as errors.
       // Yes, I would not have to sort here if I used SortedSet rather than ArrayList
       // but in case of duplicate I like having both statements handy for error message.
-         Collections.sort(this.machineList, new ProgramStatementComparator());
+         this.machineList.sort(new ProgramStatementComparator());
          catchDuplicateAddresses(this.machineList, errors);
          if (errors.errorsOccurred() || errors.warningsOccurred() && warningsAreErrors) {
             throw new ProcessingException(errors);
@@ -447,9 +443,8 @@
       private List<ProgramStatement> parseLine(TokenList tokenList, String source,
        	int sourceLineNumber, boolean extendedAssemblerEnabled) { 
       	
-         ArrayList<ProgramStatement> ret = new ArrayList<>();
+         List<ProgramStatement> ret = Collections.emptyList();
       
-         ProgramStatement programStatement;
          TokenList tokens = this.stripComment(tokenList);
       
       // Labels should not be processed in macro definition segment.
@@ -510,6 +505,8 @@
             //                   if (statements != null)
             //                      ret.addAll(statements);
             //                }
+
+               ret = new ArrayList<>();
                for (int i = macro.getFromLine() + 1; i < macro.getToLine(); i++) {
                  
                   String substituted = macro.getSubstitutedLine(i, tokens, counter, errors);
@@ -587,7 +584,7 @@
                   "Extended (pseudo) instruction or format not permitted.  See Settings."));
             }
             if (OperandFormat.tokenOperandMatch(tokens, inst, errors)) {
-               programStatement = new ProgramStatement(this.fileCurrentlyBeingAssembled, source,
+               ProgramStatement programStatement = new ProgramStatement(this.fileCurrentlyBeingAssembled, source,
                   tokenList, tokens, inst, textAddress.get(), sourceLineNumber);
             // instruction length is 4 for all basic instruction, varies for extended instruction
             // Modified to permit use of compact expansion if address fits
@@ -597,8 +594,7 @@
                   instLength = ((ExtendedInstruction) inst).getCompactInstructionLength();
                }
                textAddress.increment(instLength);
-               ret.add(programStatement);
-               return ret;
+               return Collections.singletonList(programStatement);
             }
          }
          return null;
@@ -1358,7 +1354,7 @@
    // Private class to simultaneously track addresses in both user and kernel
    // address spaces.
    // Instantiate one for data segment and one for text segment.
-      private class UserKernelAddressSpace {
+      private static class UserKernelAddressSpace {
          int[] address;
          int currentAddressSpace;
          private final int USER = 0, KERNEL = 1;
@@ -1409,7 +1405,7 @@
    // - number of bytes (addresses are 4 bytes but may be used with any of
    // the integer directives: .word, .half, .byte)
    // - the label's token. Normally need only the name but error message needs more.
-      private class DataSegmentForwardReferences {
+      private static class DataSegmentForwardReferences {
          private final List<DataSegmentForwardReference> forwardReferenceList;
       
          private DataSegmentForwardReferences() {
@@ -1480,7 +1476,7 @@
          }
       
       // inner-inner class to hold each entry of the forward reference list.
-         private class DataSegmentForwardReference {
+         private static class DataSegmentForwardReference {
             int patchAddress;
             int length;
             Token token;

@@ -667,7 +667,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 //
    	 //  DPS 29-July-2010
    	 
-       private class BasicStatementList {
+       private static class BasicStatementList {
       
          private List<ListElement> list;
       

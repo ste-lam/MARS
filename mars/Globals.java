@@ -57,7 +57,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     /** Simulated MIPS memory component. **/
       public static Memory memory;
     /** Lock variable used at head of synchronized block to guard MIPS memory and registers **/
-      public static Object memoryAndRegistersLock = new Object();
+     final public static Object memoryAndRegistersLock = new Object();
     /** Flag to determine whether or not to produce internal debugging information. **/
       public static boolean debug = false;
     /** Object that contains various settings that can be accessed modified internally. **/

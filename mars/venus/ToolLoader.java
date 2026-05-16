@@ -140,7 +140,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
    
    	
-       private class MarsToolClassAndInstance {
+       private static class MarsToolClassAndInstance {
          Class<MarsTool> marsToolClass;
          MarsTool marsToolInstance;
           MarsToolClassAndInstance(Class<MarsTool> marsToolClass, MarsTool marsToolInstance) {
