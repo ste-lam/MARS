@@ -196,7 +196,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
        public String getSourceLine(int i) {
          if ( (i >= 1) && (i <= sourceList.size()) )
-            return (String) sourceList.get(i-1);
+            return sourceList.get(i-1);
          else
             return null;
       }
@@ -268,8 +268,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             filenames.add(0, exceptionHandler);
             leadFilePosition = 1;
          }
-         for (int i=0; i<filenames.size(); i++) {
-            String filename = (String) filenames.get(i);  
+         for (String filename : filenames) {
             MIPSprogram preparee = (filename.equals(leadFilename)) ? this : new MIPSprogram();
             preparee.readSource(filename);
             preparee.tokenize();

@@ -132,11 +132,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public static int maxExampleLength(java.util.List<PopupHelpItem> matches) {
          int length = 0;
          if (matches != null) {
-            for (int i=0; i<matches.size(); i++) {
-               Object match = matches.get(i);
-               if (match instanceof PopupHelpItem) {
-                  length = Math.max(length, ((PopupHelpItem)match).getExampleLength());
-               }
+            for (PopupHelpItem match: matches) {
+               length = Math.max(length, match.getExampleLength());
             }
          }
          return length;

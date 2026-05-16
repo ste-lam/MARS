@@ -62,8 +62,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          // grab all class files in the dump directory
             List<String> candidates = FilenameFinder.getFilenameList(this.getClass( ).getClassLoader(),
                                               DUMP_DIRECTORY_PATH, CLASS_EXTENSION);
-            for( int i = 0; i < candidates.size(); i++) {
-               String file = (String) candidates.get(i);
+            for (String file: candidates) {
                try {
                   // grab the class, make sure it implements DumpFormat, instantiate, add to list
                   String formatClassName = CLASS_PREFIX+file.substring(0, file.indexOf(CLASS_EXTENSION)-1);
@@ -83,14 +82,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
    	
        public static DumpFormat findDumpFormatGivenCommandDescriptor(List<DumpFormat> formatList, String formatCommandDescriptor) {
-         DumpFormat match = null;
-         for (int i=0; i<formatList.size(); i++) {
-            if (((DumpFormat)formatList.get(i)).getCommandDescriptor().equals(formatCommandDescriptor)) {
-               match = (DumpFormat) formatList.get(i);
-               break;
+         for (DumpFormat match: formatList) {
+            if (match.getCommandDescriptor().equals(formatCommandDescriptor)) {
+               return match;
             }
          }
-         return match;
+         return null;
       }
    			
          

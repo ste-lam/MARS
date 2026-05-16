@@ -132,7 +132,7 @@
     */
        public static ActionListener getAction(String name)
       {
-         return (ActionListener)actions.get(name);
+         return actions.get(name);
       }
    
    /**
@@ -144,7 +144,7 @@
          Enumeration<String> enumeration = getActions();
          while(enumeration.hasMoreElements())
          {
-            String name = (String)enumeration.nextElement();
+            String name = enumeration.nextElement();
             ActionListener _listener = getAction(name);
             if(_listener == listener)
                return name;

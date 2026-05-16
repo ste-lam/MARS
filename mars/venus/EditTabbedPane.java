@@ -700,8 +700,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             // clear out the list and populate from our own ArrayList.
             // Last one added becomes the default.
                fileChooser.resetChoosableFileFilters();
-               for (int i=0; i < fileFilterList.size(); i++) {
-                  fileChooser.addChoosableFileFilter((FileFilter)fileFilterList.get(i));
+               for (FileFilter f: fileFilterList) {
+                  fileChooser.addChoosableFileFilter(f);
                }
             // Restore listener.
                if (activeListener) {

@@ -275,7 +275,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
       
           public void actionPerformed(ActionEvent e) {
-            String tempItem = (String)combo.getSelectedItem();
+            Object tempItem = combo.getSelectedItem();
             if (SEPARATOR.equals(tempItem)) {
                combo.setSelectedItem(currentItem);
             } 

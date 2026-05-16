@@ -354,8 +354,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          registerSelect.addActionListener(
                 new ActionListener() {
                    public void actionPerformed(ActionEvent e) {
-                     JComboBox cb = (JComboBox)e.getSource(); 
-                     int selectedIndex = cb.getSelectedIndex();
+                     int selectedIndex = registerSelect.getSelectedIndex();
                      if (isObserving()) {
                         deleteAsObserver();
                      }

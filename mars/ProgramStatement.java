@@ -111,7 +111,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             this.operands = null;
             this.numOperands = 0;
             this.instruction = (binaryStatement==0) // this is a "nop" statement
-               			? (Instruction) Globals.instructionSet.matchOperator("nop").get(0)
+               			? Globals.instructionSet.matchOperator("nop").get(0)
                				 : null;
          } 
          else {
@@ -692,8 +692,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             int valueBase =  (Globals.getSettings().getBooleanSetting(Settings.DISPLAY_VALUES_IN_HEX)) ? mars.venus.NumberDisplayBaseChooser.HEXADECIMAL : mars.venus.NumberDisplayBaseChooser.DECIMAL;
          	
             StringBuffer result = new StringBuffer();
-            for (int i=0; i<list.size(); i++) {
-               ListElement e = (ListElement) list.get(i);
+            for (ListElement e: list) {
                switch (e.type) {
                   case 0 :  
                      result.append(e.sValue);

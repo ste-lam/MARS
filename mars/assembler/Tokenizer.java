@@ -124,7 +124,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          List<String> source = program.getSourceList();
          List<SourceLine> result = new ArrayList<>(source.size());
          for (int i=0; i<source.size(); i++) {
-            String line = (String) source.get(i);
+            String line = source.get(i);
             TokenList tl = tokenizeLine(program, i+1, line, false);
             boolean hasInclude = false;
             for (int ii=0; ii<tl.size(); ii++) {
@@ -343,7 +343,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                      }
                      tokenStartPos = linePos+1;
                      token[tokenPos++] = c;
-                     if ( !((result.isEmpty() || ((Token)result.get(result.size()-1)).getType() != TokenTypes.IDENTIFIER) &&
+                     if ( !((result.isEmpty() || result.get(result.size()-1).getType() != TokenTypes.IDENTIFIER) &&
                            (line.length >= linePos+2 && Character.isDigit(line[linePos+1]))) ) {
                            // treat it as binary.....
                         this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);

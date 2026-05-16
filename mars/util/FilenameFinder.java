@@ -4,9 +4,7 @@
    import java.net.URI;
    import java.net.URISyntaxException;
    import java.net.URL;
-   import java.util.ArrayList;
-   import java.util.Enumeration;
-   import java.util.StringTokenizer;
+   import java.util.*;
    import java.util.zip.ZipEntry;
    import java.util.zip.ZipFile;
 
@@ -191,13 +189,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                                               String directoryPath, 
        													 List<String> fileExtensions  ) {
          List<String> filenameList = new ArrayList<>();
-         String fileExtension;
          if (fileExtensions==null || fileExtensions.size()==0) {
             filenameList = getFilenameList(classLoader,directoryPath,"");
          } 
          else {
-            for (int i=0; i<fileExtensions.size(); i++) {
-               fileExtension = checkFileExtension((String)fileExtensions.get(i));
+            for (String extension: fileExtensions) {
+               String fileExtension = checkFileExtension(extension);
                filenameList.addAll(getFilenameList(classLoader,directoryPath, fileExtension));
             }
          }
@@ -221,11 +218,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          List<String> filenameList = new ArrayList<>();
          File directory = new File(directoryPath);
          if (directory.isDirectory()) {
-            File[] allFiles = directory.listFiles();
             FileFilter filter = getFileFilter(fileExtension, "", NO_DIRECTORIES);
-            for (int i=0; i<allFiles.length; i++) {
-               if (filter.accept(allFiles[i])) {
-                  filenameList.add(allFiles[i].getAbsolutePath());
+            for (File f: directory.listFiles()) {
+               if (filter.accept(f)) {
+                  filenameList.add(f.getAbsolutePath());
                }
             }
          }
@@ -247,13 +243,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     */
        public static List<String> getFilenameList(String directoryPath, List<String> fileExtensions) {
          List<String> filenameList = new ArrayList<>();
-         String fileExtension;
          if (fileExtensions==null || fileExtensions.size()==0) {
             filenameList = getFilenameList(directoryPath,"");
          } 
          else {
-            for (int i=0; i<fileExtensions.size(); i++) {
-               fileExtension = checkFileExtension((String)fileExtensions.get(i));
+            for (String extension: fileExtensions) {
+               String fileExtension = checkFileExtension(extension);
                filenameList.addAll(getFilenameList(directoryPath, fileExtension));
             }
          }
@@ -275,8 +270,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          fileExtension = checkFileExtension(fileExtension);
          List<String> filenameList = new ArrayList<>();
          FileFilter filter = getFileFilter(fileExtension, "", NO_DIRECTORIES);
-         for (int i=0; i<nameList.size(); i++) {
-            File file = new File((String)nameList.get(i));
+         for (String name: nameList) {
+            File file = new File(name);
             if (filter.accept(file)) {
                filenameList.add(file.getAbsolutePath());
             }				
@@ -298,13 +293,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     */
        public static List<String> getFilenameList(List<String> nameList, List<String> fileExtensions) {
          List<String> filenameList = new ArrayList<>();
-         String fileExtension;
          if (fileExtensions==null || fileExtensions.size()==0) {
             filenameList = getFilenameList(nameList,"");
          } 
          else {
-            for (int i=0; i<fileExtensions.size(); i++) {
-               fileExtension = checkFileExtension((String)fileExtensions.get(i));
+            for (String extension: fileExtensions) {
+               String fileExtension = checkFileExtension(extension);
                filenameList.addAll(getFilenameList(nameList, fileExtension));
             }
          }
@@ -399,7 +393,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             ZipFile zf = new ZipFile(new File(jarName));
             Enumeration<? extends ZipEntry> list = zf.entries();
             while (list.hasMoreElements()) {
-               ZipEntry ze = (ZipEntry) list.nextElement();
+               ZipEntry ze = list.nextElement();
                if (ze.getName().startsWith(directoryPath+"/") && 
                    fileExtensionMatch(ze.getName(),fileExtension)) {
                   nameList.add(ze.getName().substring(ze.getName().lastIndexOf('/')+1));
@@ -461,10 +455,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             if (extensions.size() > 0) {
                result += "  (";
             }
-            for (int i=0; i<extensions.size(); i++) {
-               String extension = (String) extensions.get(i);
+            String glue = "";
+            for (String extension: extensions) {
                if (extension != null && extension.length() > 0) {
-                  result += ((i==0)?"":"; ")+"*"+((extension.charAt(0)=='.')? "" : ".")+extension;
+                  result += glue+"*"+((extension.charAt(0)=='.')? "" : ".")+extension;
+                  glue = "; ";
                }
             }
             if (extensions.size() > 0) {
@@ -485,8 +480,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             } 
             String fileExtension = getExtension(file); 
             if (fileExtension != null) { 
-               for (int i=0; i<extensions.size(); i++) {
-                  String extension = checkFileExtension((String)extensions.get(i));
+               for (String e: extensions) {
+                  String extension = checkFileExtension(e);
                   if (extension.equals(MATCH_ALL_EXTENSIONS) || 
                       fileExtension.equals(extension)) {
                      return true;

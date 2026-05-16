@@ -1135,7 +1135,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public void deleteObserver(Observer obs) {
          Iterator<MemoryObservable> it = observables.iterator();
          while (it.hasNext()) {
-            ((MemoryObservable)it.next()).deleteObserver(obs);
+            it.next().deleteObserver(obs);
          }	
       }
    	

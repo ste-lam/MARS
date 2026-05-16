@@ -63,8 +63,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          List<String> candidates = FilenameFinder.getFilenameList(this.getClass( ).getClassLoader(),
                                               SYSCALLS_DIRECTORY_PATH, CLASS_EXTENSION);
 		   HashMap<String,String> syscalls = new HashMap<>();
-         for( int i = 0; i < candidates.size(); i++) {
-            String file = (String) candidates.get(i); 
+         for (String file: candidates) {
 				// Do not add class if already encountered (happens if run in MARS development directory)
 				if (syscalls.containsKey(file)) {
 				  continue;
@@ -104,13 +103,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        // process them.  This will alter syscallList entry for affected names.
        private List<Syscall> processSyscallNumberOverrides(List<Syscall> syscallList) {
          List<SyscallNumberOverride> overrides = new Globals().getSyscallOverrides();
-         SyscallNumberOverride override;
-         Syscall syscall;
-         for (int index=0; index < overrides.size(); index++) {
-            override = (SyscallNumberOverride) overrides.get(index);
+         for (SyscallNumberOverride override: overrides) {
             boolean match = false; 
-            for (int i=0; i < syscallList.size(); i++) {
-               syscall = (Syscall) syscallList.get(i);
+            for (Syscall syscall: syscallList) {
                if (override.getName().equals(syscall.getName())) {
                       // we have a match to service name, assign new number
                   syscall.setNumber(override.getNumber());
@@ -132,9 +127,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          Syscall syscallA, syscallB;
          boolean duplicates = false;
          for (int i = 0; i < syscallList.size(); i++) {
-            syscallA = (Syscall)syscallList.get(i);
+            syscallA = syscallList.get(i);
             for (int j = i+1; j < syscallList.size(); j++) {
-               syscallB = (Syscall)syscallList.get(j);
+               syscallB = syscallList.get(j);
                if ( syscallA.getNumber() == syscallB.getNumber()) {
                   System.out.println("Error: syscalls "+syscallA.getName()+" and "+
                         syscallB.getName()+" are both assigned same number "+syscallA.getNumber());
@@ -154,12 +149,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 */
        Syscall findSyscall(int number) {
          // linear search is OK since number of syscalls is small.
-         Syscall service, match = null;
+         Syscall match = null;
          if (syscallList==null) {
             loadSyscalls();
          }
-         for (int index=0; index < syscallList.size(); index++) {
-            service = (Syscall) syscallList.get(index);
+         for (Syscall service: syscallList) {
             if (service.getNumber() == number) {
                match = service;
             }

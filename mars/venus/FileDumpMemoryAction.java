@@ -282,8 +282,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                                                       boolean isSelected, boolean cellHasFocus) { 
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus); 
             setToolTipText(value.toString());
-            if (index >=0 && ((DumpFormat)(myMaster.getItemAt(index))).getDescription() != null) {
-               setToolTipText(((DumpFormat)(myMaster.getItemAt(index))).getDescription());
+            if (index >=0 && myMaster.getItemAt(index).getDescription() != null) {
+               setToolTipText(myMaster.getItemAt(index).getDescription());
             }
             return this;
          } 

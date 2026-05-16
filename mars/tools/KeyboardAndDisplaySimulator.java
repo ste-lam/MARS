@@ -869,7 +869,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             public void stateChanged(ChangeEvent e) {
                JSlider source = (JSlider)e.getSource();
                if (!source.getValueIsAdjusting()) {
-                  delayLengthIndex = (int)source.getValue();
+                  delayLengthIndex = source.getValue();
                   transmitDelayInstructionCountLimit = generateDelay();
                }
                else {

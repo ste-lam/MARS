@@ -1820,7 +1820,7 @@ public class JEditTextArea extends JComponent
          Enumeration<Component> status = leftOfScrollBar.elements();
          while(status.hasMoreElements())
          {
-            Component comp = (Component)status.nextElement();
+            Component comp = status.nextElement();
             Dimension dim = comp.getPreferredSize();
             comp.setBounds(ileft,
                itop + centerHeight,
@@ -2235,9 +2235,10 @@ public class JEditTextArea extends JComponent
       }
       int length = PopupHelpItem.maxExampleLength(matches) + 2;
       result = "<html>";
-      for (int i=0; i<matches.size(); i++) {
-         PopupHelpItem match = (PopupHelpItem)matches.get(i);
-         result += ((i==0)?"":"<br>") + "<tt>" + match.getExamplePaddedToLength(length).replaceAll(" ","&nbsp;") + "</tt>" + match.getDescription();
+      String glue = "";
+      for (PopupHelpItem match: matches) {
+         result += glue + "<tt>" + match.getExamplePaddedToLength(length).replaceAll(" ","&nbsp;") + "</tt>" + match.getDescription();
+         glue = "<br>";
       }
       return result + "</html>";
    }
@@ -2352,8 +2353,7 @@ public class JEditTextArea extends JComponent
       if (helpItems != null) {
          popupMenu = new JPopupMenu(); 
          int length = PopupHelpItem.maxExampleLength(helpItems) + 2; 
-         for (int i=0; i<helpItems.size(); i++) {
-            PopupHelpItem item = (PopupHelpItem) helpItems.get(i);
+         for (PopupHelpItem item: helpItems) {
             JMenuItem menuItem = new JMenuItem("<html><tt>"+item.getExamplePaddedToLength(length).replaceAll(" ","&nbsp;")+"</tt>"+item.getDescription()+"</html>");
             if (item.getExact()) {
                // The instruction name is completed so the role of the popup changes

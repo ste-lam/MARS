@@ -163,7 +163,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             configurations.add(new MemoryConfiguration("Default", "Default", configurationItemNames, defaultConfigurationItemValues));
             configurations.add(new MemoryConfiguration("CompactDataAtZero", "Compact, Data at Address 0", configurationItemNames, dataBasedCompactConfigurationItemValues));
             configurations.add(new MemoryConfiguration("CompactTextAtZero", "Compact, Text at Address 0", configurationItemNames, textBasedCompactConfigurationItemValues));
-            defaultConfiguration = (MemoryConfiguration) configurations.get(0);
+            defaultConfiguration = configurations.get(0);
             currentConfiguration = defaultConfiguration;
          	// Get current config from settings
          	//String currentConfigurationIdentifier = Globals.getSettings().getMemoryConfiguration();
@@ -189,7 +189,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public static MemoryConfiguration getConfigurationByName(String name) {
          Iterator<MemoryConfiguration> configurationsIterator = getConfigurationsIterator();
          while (configurationsIterator.hasNext()) {
-            MemoryConfiguration config = (MemoryConfiguration)configurationsIterator.next();
+            MemoryConfiguration config = configurationsIterator.next();
             if (name.equals(config.getConfigurationIdentifier())) {
                return config;
             }

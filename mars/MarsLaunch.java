@@ -177,8 +177,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          if (dumpTriples == null) 
             return;
          
-         for (int i=0; i<dumpTriples.size(); i++) {
-            String[] triple = (String[])dumpTriples.get(i);
+         for (String[] triple: dumpTriples) {
             File file = new File(triple[2]);
             Integer[] segInfo = MemoryDump.getSegmentBounds(triple[0]);
          	// If not segment name, see if it is address range instead.  DPS 14-July-2008
@@ -467,7 +466,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          try {
             Globals.getSettings().setBooleanSettingNonPersistent(Settings.DELAYED_BRANCHING_ENABLED, delayedBranching);
             Globals.getSettings().setBooleanSettingNonPersistent(Settings.SELF_MODIFYING_CODE_ENABLED, selfModifyingCode);
-            File mainFile = new File((String) filenameList.get(0)).getAbsoluteFile();// First file is "main" file
+            File mainFile = new File(filenameList.get(0)).getAbsoluteFile();// First file is "main" file
             List<String> filesToAssemble;
             if (assembleProject) { 
                filesToAssemble = FilenameFinder.getFilenameList(mainFile.getParent(), Globals.fileExtensions);
@@ -609,9 +608,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          String strValue;
          // Display requested register contents
          out.println();
-         Iterator<String> regIter = registerDisplayList.iterator();
-         while (regIter.hasNext()) {
-            String reg = regIter.next().toString();
+         for (String reg: registerDisplayList) {
             if (RegisterFile.getUserRegister(reg)!=null) {
                      // integer register
                if (verbose) 
@@ -744,8 +741,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	//  present, it must be processed before all others.  Since messages may
    	//  be output as early as during the command parse.  
       private void processDisplayMessagesToErrSwitch(String[] args, String displayMessagesToErrSwitch) {
-         for (int i=0; i<args.length; i++) {
-            if (args[i].toLowerCase().equals(displayMessagesToErrSwitch)) {
+         for (String arg: args) {
+            if (arg.equalsIgnoreCase(displayMessagesToErrSwitch)) {
                out = System.err;
                return;
             }
@@ -756,9 +753,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	//  if so.
    	
       private void displayCopyright(String[] args, String noCopyrightSwitch) {
-         boolean print = true;
-         for (int i=0; i<args.length; i++) {
-            if (args[i].toLowerCase().equals(noCopyrightSwitch)) {
+         for (String arg: args) {
+            if (arg.equalsIgnoreCase(noCopyrightSwitch)) {
                return;
             }
          }
@@ -770,21 +766,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	//  Display command line help text
    	
       private void displayHelp() {
-         String[] segmentNames = MemoryDump.getSegmentNames();
          String segments = "";
-         for (int i=0; i<segmentNames.length; i++) {
-            segments += segmentNames[i];
-            if (i<segmentNames.length-1) {
-               segments += ", ";
-            }
+         String segmentGlue = "";
+         for (String segmentName: MemoryDump.getSegmentNames()) {
+            segments += segmentGlue;
+            segments += segmentName;
+            segmentGlue = ", ";
          }
          List<DumpFormat> dumpFormats = (new DumpFormatLoader()).loadDumpFormats();
          String formats = "";
-         for (int i=0; i<dumpFormats.size(); i++) {
-            formats += ((DumpFormat) dumpFormats.get(i)).getCommandDescriptor();
-            if (i<dumpFormats.size()-1) {
-               formats += ", ";
-            }
+         String formatGlue = "";
+         for (DumpFormat dumpFormat : dumpFormats) {
+            formats += formatGlue;
+            formats += dumpFormat.getCommandDescriptor();
+            formatGlue = ", ";
          }
          out.println("Usage:  Mars  [options] filename [additional filenames]");
          out.println("  Valid options (not case sensitive, separate by spaces) are:");

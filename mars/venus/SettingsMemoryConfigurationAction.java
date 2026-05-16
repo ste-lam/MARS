@@ -114,7 +114,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             ButtonGroup choices = new ButtonGroup();
             Iterator<MemoryConfiguration> configurationsIterator = MemoryConfigurations.getConfigurationsIterator();
             while (configurationsIterator.hasNext()) {
-               MemoryConfiguration config = (MemoryConfiguration) configurationsIterator.next();
+               MemoryConfiguration config = configurationsIterator.next();
                ConfigurationButton button = new ConfigurationButton(config);
                button.addActionListener(this);
                if (button.isSelected()) {
@@ -272,8 +272,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             int addressStringLength = Binary.intToHexString(configurationItemValues[0]).length();
             for (int i=0; i<configurationItemValues.length; i++) {
                Map.Entry<String,String> pair = setSortedByAddress.next();
-               nameDisplay[i].setText( (String) pair.getValue() );
-               addressDisplay[i].setText( ((String) pair.getKey()).substring(0,addressStringLength) );
+               nameDisplay[i].setText( pair.getValue() );
+               addressDisplay[i].setText( pair.getKey().substring(0,addressStringLength) );
             }				
          }
       

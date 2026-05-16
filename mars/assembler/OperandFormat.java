@@ -73,13 +73,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          if (instrMatches == null)
             return null;
          if (instrMatches.size() == 1)
-            return (Instruction) instrMatches.get(0);
-         for (int i=0; i<instrMatches.size(); i++) {
-            Instruction potentialMatch = (Instruction) instrMatches.get(i);
+            return instrMatches.get(0);
+         for (Instruction potentialMatch: instrMatches) {
             if (tokenOperandMatch(tokenList, potentialMatch, new ErrorList())) 
                return potentialMatch;
          }
-         return (Instruction) instrMatches.get(0);
+         return instrMatches.get(0);
       }
    
    // Simply check to see if numbers of operands are correct and generate error message if not.

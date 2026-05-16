@@ -65,7 +65,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		    // An exception should not occur here because we got here only after
 			 // already successfully creating an instance from the same Class object 
 			 // in ToolLoader's loadMarsTools() method.
-          ((MarsTool)this.toolClass.newInstance()).action(); 
+          toolClass.newInstance().action(); 
 			 } catch (Exception ex) { }  
       }
    }

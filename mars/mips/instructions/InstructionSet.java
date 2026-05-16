@@ -3068,9 +3068,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       	
         // Initialization step.  Create token list for each instruction example.  This is
         // used by parser to determine user program correct syntax.
-         for (int i = 0; i < instructionList.size(); i++)
+         for (Instruction inst: instructionList)
          {
-            Instruction inst = (Instruction) instructionList.get(i);
             inst.createExampleTokenList();
          }
 
@@ -3187,13 +3186,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       {
          List<Instruction> matchingInstructions = null;
         // Linear search for now....
-         for (int i = 0; i < instructionList.size(); i++)
+         for (Instruction instruction: instructionList)
          {
-            if (((Instruction) instructionList.get(i)).getName().equalsIgnoreCase(name))
+            if (instruction.getName().equalsIgnoreCase(name))
             {
                if (matchingInstructions == null) 
                   matchingInstructions = new ArrayList<>();
-               matchingInstructions.add(instructionList.get(i));
+               matchingInstructions.add(instruction);
             }
          }
          return matchingInstructions;
@@ -3212,13 +3211,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          List<Instruction> matchingInstructions = null;
         // Linear search for now....
          if (name != null) {
-            for (int i = 0; i < instructionList.size(); i++)
+            for (Instruction instruction: instructionList)
             {
-               if (((Instruction) instructionList.get(i)).getName().toLowerCase().startsWith(name.toLowerCase()))
+               if (instruction.getName().toLowerCase().startsWith(name.toLowerCase()))
                {
                   if (matchingInstructions == null) 
                      matchingInstructions = new ArrayList<>();
-                  matchingInstructions.add(instructionList.get(i));
+                  matchingInstructions.add(instruction);
                }
             }
          }
@@ -3339,7 +3338,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		public BasicInstruction find(int instr) {
 			int match = Integer.valueOf(instr & mask);
-			return (BasicInstruction) matchMap.get(match);
+			return matchMap.get(match);
 		}
 	}
    }

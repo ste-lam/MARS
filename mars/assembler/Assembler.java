@@ -201,10 +201,10 @@
       // TO SECOND PASS. THIS ASSURES ALL SYMBOL TABLES ARE CORRECTLY BUILT.
       // THERE IS ONE GLOBAL SYMBOL TABLE (for identifiers declared .globl) PLUS
       // ONE LOCAL SYMBOL TABLE FOR EACH SOURCE FILE.
-         for (int fileIndex = 0; fileIndex < tokenizedProgramFiles.size(); fileIndex++) {
+         for (MIPSprogram tokenizedProgramFile : tokenizedProgramFiles) {
             if (errors.errorLimitExceeded())
                break;
-            this.fileCurrentlyBeingAssembled = (MIPSprogram) tokenizedProgramFiles.get(fileIndex); 
+            this.fileCurrentlyBeingAssembled = tokenizedProgramFile;
          // List of labels declared ".globl". new list for each file assembled
             this.globalDeclarationList = new TokenList();
          // Parser begins by default in text segment until directed otherwise.
@@ -232,8 +232,8 @@
             for (int i = 0; i < tokenList.size(); i++) {
                if (errors.errorLimitExceeded())
                   break; 
-               for (int z=0; z<((TokenList)tokenList.get(i)).size(); z++) { 
-                  Token t = ((TokenList) tokenList.get(i)).get(z);
+               for (int z=0; z<tokenList.get(i).size(); z++) { 
+                  Token t = tokenList.get(i).get(z);
                	// record this token's original source program and line #. Differs from final, if .include used
                   t.setOriginal(sourceLineList.get(i).getMIPSprogram(),sourceLineList.get(i).getLineNumber());
                }           	
@@ -279,14 +279,12 @@
             System.out.println("Assembler second pass begins");
       // SECOND PASS OF ASSEMBLER GENERATES BASIC ASSEMBLER THEN MACHINE CODE.
       // Generates basic assembler statements...
-         for (int fileIndex = 0; fileIndex < tokenizedProgramFiles.size(); fileIndex++) {
+         for (MIPSprogram tokenizedProgramFile : tokenizedProgramFiles) {
             if (errors.errorLimitExceeded())
                break;
-            this.fileCurrentlyBeingAssembled = (MIPSprogram) tokenizedProgramFiles.get(fileIndex);
+            this.fileCurrentlyBeingAssembled = tokenizedProgramFile;
             List<ProgramStatement> parsedList = fileCurrentlyBeingAssembled.getParsedList();
-            ProgramStatement statement;
-            for (int i = 0; i < parsedList.size(); i++) {
-               statement = (ProgramStatement) parsedList.get(i);
+            for (ProgramStatement statement : parsedList) {
                statement.buildBasicStatementFromBasicInstruction(errors);
                if (errors.errorsOccurred()) {
                   throw new ProcessingException(errors);
@@ -338,7 +336,7 @@
                   for (int instrNumber = 0; instrNumber < templateList.size(); instrNumber++) {
                      String instruction = ExtendedInstruction.makeTemplateSubstitutions(
                         this.fileCurrentlyBeingAssembled,
-                        (String) templateList.get(instrNumber), theTokenList);
+                        templateList.get(instrNumber), theTokenList);
                   // 23 Jan 2008 by DPS. Template substitution may result in no instruction.
                   // If this is the case, skip remainder of loop iteration. This should only
                   // happen if template substitution was for "nop" instruction but delayed branching
@@ -376,11 +374,9 @@
       ///////////// THIRD MAJOR STEP IS PRODUCE MACHINE CODE FROM ASSEMBLY //////////
       // Generates machine code statements from the list of basic assembler statements
       // and writes the statement to memory.
-         ProgramStatement statement;
-         for (int i = 0; i < this.machineList.size(); i++) {
+         for (ProgramStatement statement : this.machineList) {
             if (errors.errorLimitExceeded())
                break;
-            statement = (ProgramStatement) this.machineList.get(i);
             statement.buildMachineStatementFromBasicStatement(errors);
             if (Globals.debug)
                System.out.println(statement);
@@ -419,8 +415,8 @@
    // operand on .text directive. Will generate error message for each one that occurs.
       private void catchDuplicateAddresses(List<ProgramStatement> instructions, ErrorList errors) {
          for (int i = 0; i < instructions.size() - 1; i++) {
-            ProgramStatement ps1 = (ProgramStatement) instructions.get(i);
-            ProgramStatement ps2 = (ProgramStatement) instructions.get(i + 1);
+            ProgramStatement ps1 = instructions.get(i);
+            ProgramStatement ps2 = instructions.get(i + 1);
             if (ps1.getAddress() == ps2.getAddress()) {
                errors.add(new ErrorMessage(ps2.getSourceMIPSprogram(), ps2.getSourceLine(), 0,
                   "Duplicate text segment address: "
@@ -1456,7 +1452,7 @@
             int labelAddress;
             DataSegmentForwardReference entry;
             for (int i = 0; i < forwardReferenceList.size(); i++) {
-               entry = (DataSegmentForwardReference) forwardReferenceList.get(i);
+               entry = forwardReferenceList.get(i);
                labelAddress = localSymtab.getAddressLocalOrGlobal(entry.token.getValue());
                if (labelAddress != SymbolTable.NOT_FOUND) {
                // patch address has to be valid b/c we already stored there...
@@ -1476,9 +1472,7 @@
       // Call this when you are confident that remaining list entries are to
       // undefined labels.
          private void generateErrorMessages(ErrorList errors) {
-            DataSegmentForwardReference entry;
-            for (int i = 0; i < forwardReferenceList.size(); i++) {
-               entry = (DataSegmentForwardReference) forwardReferenceList.get(i);
+            for (DataSegmentForwardReference entry : forwardReferenceList) {
                errors.add(new ErrorMessage(entry.token.getSourceMIPSprogram(), entry.token
                   .getSourceLine(), entry.token.getStartPos(), "Symbol \""
                   + entry.token.getValue() + "\" not found in symbol table."));

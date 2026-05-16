@@ -178,8 +178,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        private String generateReport(boolean isWarning) {
          StringBuffer report = new StringBuffer("");
          String reportLine;
-         for (int i = 0; i < messages.size(); i++) {
-            ErrorMessage m = (ErrorMessage) messages.get(i);
+         for (ErrorMessage m: messages) {
             if  ((isWarning && m.isWarning()) || (!isWarning && !m.isWarning())) {
                reportLine = ((isWarning) ? WARNING_MESSAGE_PREFIX : ERROR_MESSAGE_PREFIX) + FILENAME_PREFIX;
                if (m.getFilename().length() > 0) 

@@ -119,7 +119,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       	// source lines from all files.  DPS 3-Oct-10
          int maxSourceLineNumber = 0;
          for (int i=sourceStatementList.size()-1; i>=0; i--) {
-            ProgramStatement statement = (ProgramStatement) sourceStatementList.get(i);
+            ProgramStatement statement = sourceStatementList.get(i);
             if (statement.getSourceLine() > maxSourceLineNumber) {
                maxSourceLineNumber = statement.getSourceLine();
             }
@@ -128,7 +128,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          int leadingSpaces = 0;
          int lastLine = -1;
          for (int i = 0; i < sourceStatementList.size(); i++) {
-            ProgramStatement statement = (ProgramStatement) sourceStatementList.get(i);
+            ProgramStatement statement = sourceStatementList.get(i);
             intAddresses[i] = statement.getAddress();
             addressRows.put(intAddresses[i], i);
             data[i][BREAK_COLUMN] = Boolean.FALSE;
@@ -272,7 +272,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          	// modified at runtime, construct a ProgramStatement from the current address and binary code
          	// then display its basic code.  DPS 11-July-2013
             if (executeMods.get(i) == null) { // not modified, so use original logic.
-               ProgramStatement statement = (ProgramStatement) sourceStatementList.get(i); 
+               ProgramStatement statement = sourceStatementList.get(i); 
                table.getModel().setValueAt(statement.getPrintableBasicAssemblyStatement(), i, BASIC_COLUMN);
             }
             else { 
@@ -669,7 +669,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        private int findRowForAddress(int address) throws IllegalArgumentException {
          int addressRow = 0;
          try {
-            addressRow = ((Integer)addressRows.get(address)).intValue();
+            addressRow = addressRows.get(address).intValue();
          } 
              catch (NullPointerException e) {
                throw new IllegalArgumentException(); // address not found in map

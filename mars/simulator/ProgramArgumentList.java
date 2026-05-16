@@ -157,7 +157,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          int[] argStartAddress = new int[programArgumentList.size()];
          try { // needed for all memory writes
             for (int i=0; i<programArgumentList.size(); i++) {
-               programArgument = (String) programArgumentList.get(i);
+               programArgument = programArgumentList.get(i);
                Globals.memory.set(highAddress, 0, 1);  // trailing null byte for each argument
                highAddress--;
                for (int j = programArgument.length()-1; j >= 0; j--) {

@@ -11,6 +11,7 @@
 
    import mars.venus.editors.jeditsyntax.*;
    import mars.mips.instructions.*;
+   import mars.mips.hardware.*;
    import mars.assembler.*;
    import javax.swing.text.Segment;
    import java.util.*;
@@ -143,7 +144,7 @@
                         //String lab = new String(array, lastOffset, i1-lastOffset-1).trim();
                         boolean validIdentifier = false;
                         try {
-                           validIdentifier = mars.assembler.TokenTypes.isValidIdentifier(new String(array, lastOffset, i1-lastOffset-1).trim());
+                           validIdentifier = TokenTypes.isValidIdentifier(new String(array, lastOffset, i1-lastOffset-1).trim());
                         }
                             catch (StringIndexOutOfBoundsException e) {
                               validIdentifier = false;
@@ -237,8 +238,7 @@
             if (instrMatches.size() > 0) {
                int realMatches = 0;
                matches = new ArrayList<>();
-               for (int i=0; i<instrMatches.size(); i++) {
-                  Instruction inst = (Instruction) instrMatches.get(i);
+               for (Instruction inst: instrMatches) {
                   if (mars.Globals.getSettings().getExtendedAssemblerEnabled() || inst instanceof BasicInstruction) {
                      matches.add(new PopupHelpItem(tokenText, inst.getExampleFormat(), inst.getDescription()));
                      realMatches++;
@@ -395,8 +395,7 @@
          }
          if (directiveMatches != null) {
             matches = new ArrayList<>();
-            for (int i=0; i<directiveMatches.size(); i++) {
-               Directives direct = (Directives) directiveMatches.get(i);
+            for (Directives direct: directiveMatches) {
                matches.add(new PopupHelpItem(tokenText, direct.getName(), direct.getDescription(), exact));
             }
          }		
@@ -422,8 +421,7 @@
          int realMatches = 0;
          HashMap<String,String> insts = new HashMap<>();
          TreeSet<String> mnemonics = new TreeSet<>();
-         for (int i=0; i<matches.size(); i++) {
-            Instruction inst = (Instruction) matches.get(i);
+         for (Instruction inst: matches) {
             if (mars.Globals.getSettings().getExtendedAssemblerEnabled() || inst instanceof BasicInstruction) {
                if (exact) {
                   results.add(new PopupHelpItem(tokenText, inst.getExampleFormat(), inst.getDescription(), exact));
@@ -472,25 +470,21 @@
          {
             cKeywords = new KeywordMap(false);
          	// add Instruction mnemonics
-            java.util.List<mars.mips.instructions.Instruction> instructionSet = mars.Globals.instructionSet.getInstructionList();
-            for (int i=0; i< instructionSet.size(); i++) {
-               cKeywords.add( ((mars.mips.instructions.Instruction)instructionSet.get(i)).getName(), Token.KEYWORD1 );
+            for (Instruction i: mars.Globals.instructionSet.getInstructionList()) {
+               cKeywords.add( i.getName(), Token.KEYWORD1 );
             }
          	// add assembler directives
-            java.util.List<mars.assembler.Directives> directiveSet = mars.assembler.Directives.getDirectiveList();
-            for (int i=0; i< directiveSet.size(); i++) {
-               cKeywords.add( ((mars.assembler.Directives)directiveSet.get(i)).getName(), Token.KEYWORD2 );
+            for (Directives d: Directives.getDirectiveList()) {
+               cKeywords.add( d.getName(), Token.KEYWORD2 );
             }
          	// add integer register file
-            mars.mips.hardware.Register[] registerFile = mars.mips.hardware.RegisterFile.getRegisters();
-            for (int i=0; i< registerFile.length; i++) {
-               cKeywords.add( registerFile[i].getName(), Token.KEYWORD3 );
-               cKeywords.add( "$"+i, Token.KEYWORD3 );  // also recognize $0, $1, $2, etc
+            for (Register r: RegisterFile.getRegisters()) {
+               cKeywords.add( r.getName(), Token.KEYWORD3 );
+               cKeywords.add( "$"+r.getNumber(), Token.KEYWORD3 );  // also recognize $0, $1, $2, etc
             }
          	// add Coprocessor 1 (floating point) register file
-            mars.mips.hardware.Register[] coprocessor1RegisterFile = mars.mips.hardware.Coprocessor1.getRegisters();
-            for (int i=0; i< coprocessor1RegisterFile.length; i++) {
-               cKeywords.add( coprocessor1RegisterFile[i].getName(), Token.KEYWORD3 );
+            for (Register r: Coprocessor1.getRegisters()) {
+               cKeywords.add( r.getName(), Token.KEYWORD3 );
             }     
          	// Note: Coprocessor 0 registers referenced only by number: $8, $12, $13, $14. These are already in the map
          

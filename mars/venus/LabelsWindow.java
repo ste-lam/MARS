@@ -171,12 +171,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          Box allSymtabTables = Box.createVerticalBox();
          for (int i=0; i<MIPSprogramsAssembled.size(); i++) {
             listOfLabelsForSymbolTable.add(new LabelsForSymbolTable(
-                        (MIPSprogram) MIPSprogramsAssembled.get(i)));
+                        MIPSprogramsAssembled.get(i)));
          }
          List<Box> tableNames = new ArrayList<>();
          JTableHeader tableHeader = null;
          for (int i=0; i<listOfLabelsForSymbolTable.size(); i++) {
-            LabelsForSymbolTable symtab = (LabelsForSymbolTable)listOfLabelsForSymbolTable.get(i);
+            LabelsForSymbolTable symtab = listOfLabelsForSymbolTable.get(i);
             if (symtab.hasSymbols()) {
                String name = symtab.getSymbolTableName();
                if (name.length() > MAX_DISPLAYED_CHARS) {
@@ -228,8 +228,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        */
        public void updateLabelAddresses() {
          if (listOfLabelsForSymbolTable != null) {
-            for (int i=0; i<listOfLabelsForSymbolTable.size(); i++) {
-               ((LabelsForSymbolTable)listOfLabelsForSymbolTable.get(i)).updateLabelAddresses();
+            for (LabelsForSymbolTable item: listOfLabelsForSymbolTable) {
+                item.updateLabelAddresses();
             }      
          }
       }
@@ -239,8 +239,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	//   Listener class to respond to "Text" or "Data" checkbox click 
        private class LabelItemListener implements ItemListener {
           public void itemStateChanged(ItemEvent ie) {
-            for (int i=0; i<listOfLabelsForSymbolTable.size(); i++) {
-               ((LabelsForSymbolTable)listOfLabelsForSymbolTable.get(i)).generateLabelTable();
+            for (LabelsForSymbolTable item: listOfLabelsForSymbolTable) {
+               item.generateLabelTable();
             }     			 
          }
       }
@@ -338,7 +338,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             labelData = new Object[symbols.size()][2];
          
             for(int i=0; i< symbols.size(); i++){//sets up the label table
-               Symbol s = (Symbol)(symbols.get(i));
+               Symbol s = symbols.get(i);
                labelData[i][LABEL_COLUMN] = s.getName();
                labelData[i][ADDRESS_COLUMN] = NumberDisplayBaseChooser.formatNumber(s.getAddress(), addressBase);
             }
@@ -362,7 +362,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             String formattedAddress;
             int numSymbols = (labelData==null) ? 0 : labelData.length;
             for(int i=0; i< numSymbols; i++) {
-               address = ((Symbol)symbols.get(i)).getAddress();
+               address = symbols.get(i).getAddress();
                formattedAddress = NumberDisplayBaseChooser.formatNumber(address, addressBase);
                labelTable.getModel().setValueAt(formattedAddress, i, ADDRESS_COLUMN);
             }
