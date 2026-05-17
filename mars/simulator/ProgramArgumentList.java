@@ -46,7 +46,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     public class ProgramArgumentList {
    
-      ArrayList programArgumentList;
+      List<String> programArgumentList;
    
     /**
      *  Constructor that parses string to produce list.  Delimiters
@@ -87,9 +87,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
       }
     /**
-     *  Constructor that gets list from ArrayList of String, one argument per element.
+     *  Constructor that gets list from List of String, one argument per element.
      *
-     *  @param list  ArrayList of String, each element containing one argument
+     *  @param list  List of String, each element containing one argument
      */
        public ProgramArgumentList(ArrayList list) {
          this(list, 0);
@@ -100,7 +100,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *  Constructor that gets list from section of String ArrayList, one
      *  argument per element.
      *
-     *  @param list  ArrayList of String, each element containing one argument
+     *  @param list  List of String, each element containing one argument
      *  @param startPosition Index of array element containing the first argument; all remaining
      *   elements are assumed to contain an argument.
      */	 

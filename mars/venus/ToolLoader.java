@@ -68,7 +68,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      */
        public JMenu buildToolsMenu() {
          JMenu menu = null;
-         ArrayList marsToolList = loadMarsTools();
+         List<MarsToolClassAndInstance> marsToolList = loadMarsTools();
          if (!marsToolList.isEmpty()) {
             menu = new JMenu(TOOLS_MENU_NAME);
             menu.setMnemonic(KeyEvent.VK_T);
@@ -101,9 +101,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     *  as a ZipFile, get the ZipEntry enumeration, find the class files in the tools
     *  folder, then continue as before.
     */
-       private ArrayList loadMarsTools() {
-         ArrayList toolList = new ArrayList<>();
-         ArrayList candidates = FilenameFinder.getFilenameList(this.getClass( ).getClassLoader(),
+       private List<MarsToolClassAndInstance> loadMarsTools() {
+         List<MarsToolClassAndInstance> toolList = new ArrayList<>();
+         List<String> candidates = FilenameFinder.getFilenameList(this.getClass( ).getClassLoader(),
                                               TOOLS_DIRECTORY_PATH, CLASS_EXTENSION);
       	// Add any tools stored externally, as listed in Config.properties file.
       	// This needs some work, because mars.Globals.getExternalTools() returns
@@ -112,7 +112,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       	// it correctly.  Not sure how to create a Class object given an absolute
       	// pathname.
          //candidates.addAll(mars.Globals.getExternalTools());  // this by itself is not enough...
-         HashMap tools = new HashMap<>();
+         HashMap<String,String> tools = new HashMap<>();
 for( int i = 0; i < candidates.size(); i++) {
             String file = (String) candidates.get(i);
             // Do not add class if already encountered (happens if run in MARS development directory)
@@ -144,9 +144,9 @@ for( int i = 0; i < candidates.size(); i++) {
    
    	
        private class MarsToolClassAndInstance {
-         Class marsToolClass;
+         Class<MarsTool> marsToolClass;
          MarsTool marsToolInstance;
-          MarsToolClassAndInstance(Class marsToolClass, MarsTool marsToolInstance) {
+          MarsToolClassAndInstance(Class<MarsTool> marsToolClass, MarsTool marsToolInstance) {
             this.marsToolClass = marsToolClass;
             this.marsToolInstance = marsToolInstance;
          }

@@ -398,7 +398,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                                               3, 4,
          												 5, 6,
          												 7, 8 };
-      JComboBox lineWidthSetting;
+      JComboBox<Integer> lineWidthSetting;
       JButton lineColorSetting;
       JCheckBox dialogCentered; // Whether or not dialog appears centered over the magnfier frame.
       JDialog dialog;

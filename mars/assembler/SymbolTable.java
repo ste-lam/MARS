@@ -39,7 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     public class SymbolTable {
       private static String startLabel = "main";
       private String filename;
-      private ArrayList table;
+      private List<Symbol> table;
    	// Note -1 is legal 32 bit address (0xFFFFFFFF) but it is the high address in 
    	// kernel address space so highly unlikely that any symbol will have this as 
    	// its associated address!
@@ -174,11 +174,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
    	/**
    	  *  For obtaining the Data Symbols.
-   	  *   @return An ArrayList of Symbol objects.
+   	  *   @return A List of Symbol objects.
    	  **/
       
-       public ArrayList getDataSymbols(){
-         ArrayList list= new ArrayList<>();
+       public List<Symbol> getDataSymbols(){
+         List<Symbol> list= new ArrayList<>();
          for(int i=0; i<table.size(); i++){
             if(((Symbol)table.get(i)).getType()){
                list.add(table.get(i));
@@ -190,11 +190,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
    	/**
    	  *  For obtaining the Text Symbols.
-   	  *   @return An ArrayList of Symbol objects.
+   	  *   @return A List of Symbol objects.
    	  **/
       
-       public ArrayList getTextSymbols(){
-         ArrayList list= new ArrayList<>();
+       public List<Symbol> getTextSymbols(){
+         List<Symbol> list= new ArrayList<>();
          for(int i=0; i<table.size(); i++){
             if(!((Symbol)table.get(i)).getType()){
                list.add(table.get(i));
@@ -205,15 +205,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
    	/**
    	  *  For obtaining all the Symbols.
-   	  *   @return An ArrayList of Symbol objects.
+   	  *   @return A List of Symbol objects.
    	  **/
       
-       public ArrayList getAllSymbols(){
-         ArrayList list= new ArrayList<>();
-         for(int i=0; i<table.size(); i++){
-            list.add(table.get(i));
-         }
-         return list;
+       public List<Symbol> getAllSymbols(){
+         return new ArrayList<>(table);
       }	
    
    	 /**

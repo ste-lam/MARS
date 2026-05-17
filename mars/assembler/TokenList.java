@@ -1,5 +1,5 @@
 package mars.assembler;
-import java.util.ArrayList;
+import java.util.*;
 
 /*
 Copyright (c) 2003-2013,  Pete Sanderson and Kenneth Vollmar
@@ -39,7 +39,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 public class TokenList implements Cloneable {
 	
-	private ArrayList tokenList;
+	private List<Token> tokenList;
 	private String processedLine;// DPS 03-Jan-2013
 
 	/**
@@ -112,7 +112,7 @@ public class TokenList implements Cloneable {
     }
 
 	/**
-	 * Removes Token object at specified list position. Uses ArrayList remove method.
+	 * Removes Token object at specified list position. Uses List remove method.
 	 * 
 	 * @param  pos   Position in token list.  Subsequent Tokens are shifted one position left.
 	 * @throws IndexOutOfBoundsException if <code>pos</code> is &lt; 0 or &gt;= <code>size()</code>
@@ -167,7 +167,7 @@ public class TokenList implements Cloneable {
 	 * @return     the cloned list. 
 	 */
 	// Clones are a bit tricky.  super.clone() handles primitives (e.g. values) correctly
-	// but the ArrayList itself has to be cloned separately -- otherwise clone will have
+	// but the List itself has to be cloned separately -- otherwise clone will have
 	// alias to original token list!!
     public Object clone() {
         try {

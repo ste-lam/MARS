@@ -48,7 +48,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private static String heading =  "Visualizing memory reference patterns";
    	
    	// Major GUI components
-      private JComboBox wordsPerUnitSelector, visualizationUnitPixelWidthSelector, visualizationUnitPixelHeightSelector,
+      private JComboBox<String> wordsPerUnitSelector, visualizationUnitPixelWidthSelector, visualizationUnitPixelHeightSelector,
                         visualizationPixelWidthSelector, visualizationPixelHeightSelector, displayBaseAddressSelector;
       private JCheckBox drawHashMarksSelector;
       private Graphics drawingArea;
@@ -502,7 +502,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
    	// Will return int equivalent of specified combo box's current selection.
    	// The selection must be a String that parses to an int.
-       private int getIntComboBoxSelection(JComboBox comboBox) {
+       private int getIntComboBoxSelection(JComboBox<String> comboBox) {
          try {
             return Integer.parseInt((String)comboBox.getSelectedItem());
          } 
@@ -741,7 +741,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       // Each object represents beginning of a counter value range (non-negative integer) and
    	// color for rendering the range.  High end of the range is defined as low end of the
    	// next range minus 1.  For last range, high end is Integer.MAX_VALUE.
-       private class CounterColor implements Comparable {
+       private static class CounterColor implements Comparable<CounterColor> {
          private int colorRangeStart;
          private Color associatedColor;
           public CounterColor(int start, Color color) {
@@ -750,13 +750,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
       	
       	// Necessary for sorting in ascending order of range low end.
-          public int compareTo(Object other) {
-            if (other instanceof CounterColor) {
-               return this.colorRangeStart - ((CounterColor)other).colorRangeStart;
-            } 
-            else {
-               throw new ClassCastException();
-            }
+          public int compareTo(CounterColor other) {
+            return this.colorRangeStart - other.colorRangeStart;
          }
       }
       

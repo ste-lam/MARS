@@ -50,7 +50,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private Container contentPane;
       private JPanel labelPanel;      // holds J
       private JCheckBox dataLabels, textLabels;
-      private ArrayList listOfLabelsForSymbolTable;
+      private List<LabelsForSymbolTable> listOfLabelsForSymbolTable;
       private LabelsWindow labelsWindow;
       private static final int MAX_DISPLAYED_CHARS = 24;
       private static final int PREFERRED_NAME_COLUMN_WIDTH = 60;
@@ -167,13 +167,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        private JScrollPane generateLabelScrollPane() {
          listOfLabelsForSymbolTable = new ArrayList<>();
          listOfLabelsForSymbolTable.add(new LabelsForSymbolTable(null));// global symtab
-         ArrayList MIPSprogramsAssembled = RunAssembleAction.getMIPSprogramsToAssemble();
+         List<MIPSprogram> MIPSprogramsAssembled = RunAssembleAction.getMIPSprogramsToAssemble();
          Box allSymtabTables = Box.createVerticalBox();
          for (int i=0; i<MIPSprogramsAssembled.size(); i++) {
             listOfLabelsForSymbolTable.add(new LabelsForSymbolTable(
                         (MIPSprogram) MIPSprogramsAssembled.get(i)));
          }
-         ArrayList tableNames = new ArrayList<>();
+         List<Box> tableNames = new ArrayList<>();
          JTableHeader tableHeader = null;
          for (int i=0; i<listOfLabelsForSymbolTable.size(); i++) {
             LabelsForSymbolTable symtab = (LabelsForSymbolTable)listOfLabelsForSymbolTable.get(i);
@@ -291,7 +291,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          private MIPSprogram myMIPSprogram;
          private Object[][] labelData;
          private JTable labelTable;	 
-         private ArrayList symbols;
+         private List<Symbol> symbols;
          private SymbolTable symbolTable;
          private String tableName;
       	
@@ -403,7 +403,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          * JTable uses this method to determine the default renderer/
          * editor for each cell.  
          */
-          public Class getColumnClass(int c) {
+          public Class<?> getColumnClass(int c) {
             return getValueAt(0, c).getClass();
          }
          

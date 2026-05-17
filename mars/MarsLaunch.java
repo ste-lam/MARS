@@ -114,15 +114,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private static final int DECIMAL = 0; // memory and register display format
       private static final int HEXADECIMAL = 1;// memory and register display format
       private static final int ASCII = 2;// memory and register display format
-      private ArrayList registerDisplayList;
-      private ArrayList memoryDisplayList;
-      private ArrayList filenameList;
+      private List<String> registerDisplayList;
+      private List<String> memoryDisplayList;
+      private List<String> filenameList;
       private MIPSprogram code;
       private int maxSteps;
       private int instructionCount;
       private PrintStream out; // stream for display of command line output
-      private ArrayList dumpTriples = null; // each element holds 3 arguments for dump option
-      private ArrayList programArgumentList; // optional program args for MIPS program (becomes argc, argv)
+      private List<String[]> dumpTriples = null; // each element holds 3 arguments for dump option
+      private List<String> programArgumentList = null; // optional program args for MIPS program (becomes argc, argv)
       private int assembleErrorExitCode;  // MARS command exit code to return if assemble error occurs
       private int simulateErrorExitCode;// MARS command exit code to return if simulation error occurs
    		
@@ -201,7 +201,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                continue;
             }
             DumpFormatLoader loader = new DumpFormatLoader();
-            ArrayList dumpFormats = loader.loadDumpFormats();
+            List<DumpFormat> dumpFormats = loader.loadDumpFormats();
             DumpFormat format = DumpFormatLoader.findDumpFormatGivenCommandDescriptor(dumpFormats, triple[1]);
             if (format == null) {
                out.println("Error while attempting to save dump, format " + triple[1] + " was not found!");
@@ -468,14 +468,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             Globals.getSettings().setBooleanSettingNonPersistent(Settings.DELAYED_BRANCHING_ENABLED, delayedBranching);
             Globals.getSettings().setBooleanSettingNonPersistent(Settings.SELF_MODIFYING_CODE_ENABLED, selfModifyingCode);
             File mainFile = new File((String) filenameList.get(0)).getAbsoluteFile();// First file is "main" file
-            ArrayList filesToAssemble;
+            List<String> filesToAssemble;
             if (assembleProject) { 
                filesToAssemble = FilenameFinder.getFilenameList(mainFile.getParent(), Globals.fileExtensions);
                if (filenameList.size() > 1) {
                   // Using "p" project option PLUS listing more than one filename on command line.
                   // Add the additional files, avoiding duplicates.
                   filenameList.remove(0); // first one has already been processed
-                  ArrayList moreFilesToAssemble = FilenameFinder.getFilenameList(filenameList, FilenameFinder.MATCH_ALL_EXTENSIONS);
+                  List<String> moreFilesToAssemble = FilenameFinder.getFilenameList(filenameList, FilenameFinder.MATCH_ALL_EXTENSIONS);
                   // Remove any duplicates then merge the two lists.
                   for (int index2 = 0; index2<moreFilesToAssemble.size(); index2++) {
                      for (int index1 = 0; index1<filesToAssemble.size(); index1++) {
@@ -495,7 +495,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             if (Globals.debug) {
                out.println("--------  TOKENIZING BEGINS  -----------");
             }
-            ArrayList MIPSprogramsToAssemble = 
+            List<MIPSprogram> MIPSprogramsToAssemble = 
                       code.prepareFilesForAssembly(filesToAssemble, mainFile.getAbsolutePath(), null);		
             if (Globals.debug) {
                out.println("--------  ASSEMBLY BEGINS  -----------");
@@ -609,7 +609,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          String strValue;
          // Display requested register contents
          out.println();
-         Iterator regIter = registerDisplayList.iterator();
+         Iterator<String> regIter = registerDisplayList.iterator();
          while (regIter.hasNext()) {
             String reg = regIter.next().toString();
             if (RegisterFile.getUserRegister(reg)!=null) {
@@ -700,7 +700,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private void displayMemoryPostMortem() {  
          int value;  
          // Display requested memory range contents
-         Iterator memIter = memoryDisplayList.iterator();
+         Iterator<String> memIter = memoryDisplayList.iterator();
          int addressStart=0, addressEnd=0;
          while (memIter.hasNext()) {
             try { // This will succeed; error would have been caught during command arg parse
@@ -778,7 +778,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                segments += ", ";
             }
          }
-         ArrayList dumpFormats = (new DumpFormatLoader()).loadDumpFormats();
+         List<DumpFormat> dumpFormats = (new DumpFormatLoader()).loadDumpFormats();
          String formats = "";
          for (int i=0; i<dumpFormats.size(); i++) {
             formats += ((DumpFormat) dumpFormats.get(i)).getCommandDescriptor();

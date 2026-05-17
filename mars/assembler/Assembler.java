@@ -56,7 +56,7 @@
  **/
 
    public class Assembler {
-      private ArrayList machineList;
+      private List<ProgramStatement> machineList;
       private ErrorList errors;
       private boolean inDataSegment; // status maintained by parser
       private boolean inMacroSegment; // status maintained by parser, true if in
@@ -82,14 +82,14 @@
     *            A boolean value that if true permits use of extended (pseudo)
     *            instructions in the source code. If false, these are flagged
     *            as errors.
-    * @return An ArrayList representing the assembled program. Each member of
+    * @return A List representing the assembled program. Each member of
     *         the list is a ProgramStatement object containing the source,
     *         intermediate, and machine binary representations of a program
     *         statement.
     * 
     * @see ProgramStatement
     **/
-      public ArrayList assemble(MIPSprogram p, boolean extendedAssemblerEnabled)
+      public List<ProgramStatement> assemble(MIPSprogram p, boolean extendedAssemblerEnabled)
        	throws ProcessingException {
          return assemble(p, extendedAssemblerEnabled, false);
       }
@@ -109,14 +109,14 @@
     *            considered errors and terminate the assemble; false means the
     *            assembler will produce warning message but otherwise ignore
     *            warnings.
-    * @return An ArrayList representing the assembled program. Each member of
+    * @return A List representing the assembled program. Each member of
     *         the list is a ProgramStatement object containing the source,
     *         intermediate, and machine binary representations of a program
     *         statement.
     * 
     * @see ProgramStatement
     **/
-      public ArrayList assemble(MIPSprogram p, boolean extendedAssemblerEnabled,
+      public List<ProgramStatement> assemble(MIPSprogram p, boolean extendedAssemblerEnabled,
        	boolean warningsAreErrors) throws ProcessingException {
          ArrayList programFiles = new ArrayList();
          programFiles.add(p);
@@ -138,20 +138,20 @@
     * errors.
     * 
     * @param tokenizedProgramFiles
-    *            An ArrayList of MIPSprogram objects, each produced from a
+    *            A List of MIPSprogram objects, each produced from a
     *            different source code file, representing the program source.
     * @param extendedAssemblerEnabled
     *            A boolean value that if true permits use of extended (pseudo)
     *            instructions in the source code. If false, these are flagged
     *            as errors.
-    * @return An ArrayList representing the assembled program. Each member of
+    * @return A List representing the assembled program. Each member of
     *         the list is a ProgramStatement object containing the source,
     *         intermediate, and machine binary representations of a program
     *         statement. Returns null if incoming array list is null or empty.
     * 
     * @see ProgramStatement
     **/
-      public ArrayList assemble(ArrayList tokenizedProgramFiles, boolean extendedAssemblerEnabled)
+      public List<ProgramStatement> assemble(List<MIPSprogram> tokenizedProgramFiles, boolean extendedAssemblerEnabled)
        	throws ProcessingException {
          return assemble(tokenizedProgramFiles, extendedAssemblerEnabled, false);
       }
@@ -161,7 +161,7 @@
     * files must have already been tokenized.
     * 
     * @param tokenizedProgramFiles
-    *            An ArrayList of MIPSprogram objects, each produced from a
+    *            A List of MIPSprogram objects, each produced from a
     *            different source code file, representing the program source.
     * @param extendedAssemblerEnabled
     *            A boolean value that if true permits use of extended (pseudo)
@@ -172,14 +172,14 @@
     *            considered errors and terminate the assemble; false means the
     *            assembler will produce warning message but otherwise ignore
     *            warnings.
-    * @return An ArrayList representing the assembled program. Each member of
+    * @return A List representing the assembled program. Each member of
     *         the list is a ProgramStatement object containing the source,
     *         intermediate, and machine binary representations of a program
     *         statement. Returns null if incoming array list is null or empty.
     * 
     * @see ProgramStatement
     **/
-      public ArrayList assemble(ArrayList tokenizedProgramFiles, boolean extendedAssemblerEnabled,
+      public List<ProgramStatement> assemble(List<MIPSprogram> tokenizedProgramFiles, boolean extendedAssemblerEnabled,
        	boolean warningsAreErrors) throws ProcessingException {
       	
          if (tokenizedProgramFiles == null || tokenizedProgramFiles.size() == 0)
@@ -219,17 +219,16 @@
          // Clear out (initialize) symbol table related structures.
             fileCurrentlyBeingAssembled.getLocalSymbolTable().clear();
             currentFileDataSegmentForwardReferences.clear();
-         // sourceList is an ArrayList of String objects, one per source line.
-         // tokenList is an ArrayList of TokenList objects, one per source line;
-         // each ArrayList in tokenList consists of Token objects.
-            ArrayList<SourceLine> sourceLineList = fileCurrentlyBeingAssembled.getSourceLineList();
-            ArrayList tokenList = fileCurrentlyBeingAssembled.getTokenList();
-            ArrayList parsedList = fileCurrentlyBeingAssembled.createParsedList();
+         // sourceList is an List of String objects, one per source line.
+         // tokenList is an List of TokenList objects, one per source line;
+         // each List in tokenList consists of Token objects.
+            List<SourceLine> sourceLineList = fileCurrentlyBeingAssembled.getSourceLineList();
+            List<TokenList> tokenList = fileCurrentlyBeingAssembled.getTokenList();
+            List<ProgramStatement> parsedList = fileCurrentlyBeingAssembled.createParsedList();
          // each file keeps its own macro definitions
             MacroPool macroPool = fileCurrentlyBeingAssembled.createMacroPool();
          // FIRST PASS OF ASSEMBLER VERIFIES SYNTAX, GENERATES SYMBOL TABLE,
          // INITIALIZES DATA SEGMENT
-            ArrayList<ProgramStatement> statements;
             for (int i = 0; i < tokenList.size(); i++) {
                if (errors.errorLimitExceeded())
                   break; 
@@ -238,7 +237,7 @@
                	// record this token's original source program and line #. Differs from final, if .include used
                   t.setOriginal(sourceLineList.get(i).getMIPSprogram(),sourceLineList.get(i).getLineNumber());
                }           	
-               statements = this.parseLine((TokenList) tokenList.get(i),
+               List<ProgramStatement> statements = this.parseLine(tokenList.get(i),
                   sourceLineList.get(i).getSource(), 
                   sourceLineList.get(i).getLineNumber(), 
                   extendedAssemblerEnabled);
@@ -284,7 +283,7 @@
             if (errors.errorLimitExceeded())
                break;
             this.fileCurrentlyBeingAssembled = (MIPSprogram) tokenizedProgramFiles.get(fileIndex);
-            ArrayList parsedList = fileCurrentlyBeingAssembled.getParsedList();
+            List<ProgramStatement> parsedList = fileCurrentlyBeingAssembled.getParsedList();
             ProgramStatement statement;
             for (int i = 0; i < parsedList.size(); i++) {
                statement = (ProgramStatement) parsedList.get(i);
@@ -325,7 +324,7 @@
                
                // ////////////////////////////////////////////////////////////////////////////
                // If we are using compact memory config and there is a compact expansion, use it
-                  ArrayList templateList;
+                  List<String> templateList;
                   if (compactTranslationCanBeApplied(statement)) {
                      templateList = inst.getCompactBasicIntructionTemplateList();
                   } 
@@ -356,7 +355,7 @@
                   // statement, add to list.
                      TokenList newTokenList = new Tokenizer().tokenizeLine(sourceLine,
                         instruction, errors,false);
-                     ArrayList instrMatches = this.matchInstruction(newTokenList.get(0));
+                     List<Instruction> instrMatches = this.matchInstruction(newTokenList.get(0));
                      Instruction instr = OperandFormat.bestOperandMatch(newTokenList,
                         instrMatches);
                   // Only first generated instruction is linked to original source
@@ -398,7 +397,7 @@
       // Ensure that I/O "file descriptors" are initialized for a new program run
          SystemIO.resetFiles();
       // DPS 6 Dec 2006:
-      // We will now sort the ArrayList of ProgramStatements by getAddress() value.
+      // We will now sort the List of ProgramStatements by getAddress() value.
       // This is for display purposes, since they have already been stored to Memory.
       // Use of .ktext and .text with address operands has two implications:
       // (1) the addresses may not be ordered at this point. Requires unsigned int
@@ -418,7 +417,7 @@
    // //////////////////////////////////////////////////////////////////////
    // Will check for duplicate text addresses, which can happen inadvertantly when using
    // operand on .text directive. Will generate error message for each one that occurs.
-      private void catchDuplicateAddresses(ArrayList instructions, ErrorList errors) {
+      private void catchDuplicateAddresses(List<ProgramStatement> instructions, ErrorList errors) {
          for (int i = 0; i < instructions.size() - 1; i++) {
             ProgramStatement ps1 = (ProgramStatement) instructions.get(i);
             ProgramStatement ps2 = (ProgramStatement) instructions.get(i + 1);
@@ -446,10 +445,10 @@
     * @param source
     * @param sourceLineNumber
     * @param extendedAssemblerEnabled
-    * @return ArrayList of ProgramStatements because parsing a macro expansion
+    * @return List of ProgramStatements because parsing a macro expansion
     *         request will return a list of ProgramStatements expanded
     */
-      private ArrayList<ProgramStatement> parseLine(TokenList tokenList, String source,
+      private List<ProgramStatement> parseLine(TokenList tokenList, String source,
        	int sourceLineNumber, boolean extendedAssemblerEnabled) { 
       	
          ArrayList<ProgramStatement> ret = new ArrayList<>();
@@ -527,7 +526,7 @@
                      substituted = tokenList2.getProcessedLine();
                
                   // recursively parse lines of expanded macro
-                  ArrayList<ProgramStatement> statements = parseLine(tokenList2, "<" + (i-macro.getFromLine()+macro.getOriginalFromLine()) + "> "
+                  List<ProgramStatement> statements = parseLine(tokenList2, "<" + (i-macro.getFromLine()+macro.getOriginalFromLine()) + "> "
                      + substituted.trim(), sourceLineNumber, extendedAssemblerEnabled);
                   if (statements != null)
                      ret.addAll(statements);
@@ -579,7 +578,7 @@
       // is not
       // yet implemented.
          if (!this.inDataSegment) {
-            ArrayList instrMatches = this.matchInstruction(token);
+            List<Instruction> instrMatches = this.matchInstruction(token);
             if (instrMatches == null)
                return ret;
          // OK, we've got an operator match, let's check the operands.
@@ -628,7 +627,7 @@
    
    // //////////////////////////////////////////////////////////////////////////////////
    // Pre-process the token list for a statement by stripping off any comment.
-   // NOTE: the ArrayList parameter is not modified; a new one is cloned and
+   // NOTE: the List parameter is not modified; a new one is cloned and
    // returned.
       private TokenList stripComment(TokenList tokenList) {
          if (tokenList.isEmpty())
@@ -645,7 +644,7 @@
    /**
     * Pre-process the token list for a statement by stripping off any label, if
     * either are present. Any label definition will be recorded in the symbol
-    * table. NOTE: the ArrayList parameter will be modified.
+    * table. NOTE: the List parameter will be modified.
     */
       private void stripLabels(TokenList tokens) {
       // If there is a label, handle it here and strip it off.
@@ -940,7 +939,7 @@
    // //////////////////////////////////////////////////////////////////////////////////
    // Given token, find the corresponding Instruction object. If token was not
    // recognized as OPERATOR, there is a problem.
-      private ArrayList matchInstruction(Token token) { 
+      private List<Instruction> matchInstruction(Token token) {
          if (token.getType() != TokenTypes.OPERATOR) {
             if (token.getSourceMIPSprogram().getLocalMacroPool()
             	.matchesAnyMacroName(token.getValue()))
@@ -953,7 +952,7 @@
                   + "\" is not a recognized operator"));
             return null;
          }
-         ArrayList inst = Globals.instructionSet.matchOperator(token.getValue());
+         List<Instruction> inst = Globals.instructionSet.matchOperator(token.getValue());
          if (inst == null) { // This should NEVER happen...
             this.errors.add(new ErrorMessage(token.getSourceMIPSprogram(), token.getSourceLine(),
                token.getStartPos(), "Internal Assembler error: \"" + token.getValue()
@@ -1344,30 +1343,18 @@
       }
    
    // ///////////////////////////////////////////////////////////////////////////////////
-   // Private class used as Comparator to sort the final ArrayList of
+   // Private class used as Comparator to sort the final List of
    // ProgramStatements.
    // Sorting is based on unsigned integer value of
    // ProgramStatement.getAddress()
-      private class ProgramStatementComparator implements Comparator {
+      private static class ProgramStatementComparator implements Comparator<ProgramStatement> {
       // Will be used to sort the collection. Unsigned int compare, because
       // all kernel 32-bit
       // addresses have 1 in high order bit, which makes the int negative.
       // "Unsigned" compare
       // is needed when signs of the two operands differ.
-         public int compare(Object obj1, Object obj2) {
-            if (obj1 instanceof ProgramStatement && obj2 instanceof ProgramStatement) {
-               int addr1 = ((ProgramStatement) obj1).getAddress();
-               int addr2 = ((ProgramStatement) obj2).getAddress();
-               return (addr1 < 0 && addr2 >= 0 || addr1 >= 0 && addr2 < 0) ? addr2 : addr1 - addr2;
-            } 
-            else {
-               throw new ClassCastException();
-            }
-         }
-      
-      // Take a hard line.
-         public boolean equals(Object obj) {
-            return this == obj;
+         public int compare(ProgramStatement obj1, ProgramStatement obj2) {
+            return Integer.compareUnsigned(obj1.getAddress(), obj2.getAddress());
          }
       }
    
@@ -1427,7 +1414,7 @@
    // the integer directives: .word, .half, .byte)
    // - the label's token. Normally need only the name but error message needs more.
       private class DataSegmentForwardReferences {
-         private ArrayList forwardReferenceList;
+         private final List<DataSegmentForwardReference> forwardReferenceList;
       
          private DataSegmentForwardReferences() {
             forwardReferenceList = new ArrayList<>();

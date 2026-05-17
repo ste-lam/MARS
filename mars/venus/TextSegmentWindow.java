@@ -8,6 +8,7 @@
    import java.awt.*;
    import java.awt.event.*;
    import java.util.*;   
+   import java.util.List;
    import javax.swing.table.*;
    import javax.swing.event.*;
 	
@@ -59,7 +60,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 * consistent once set up, since address column is not editable.
    	 */
       private  int[] intAddresses;      // index is table model row, value is text address
-      private  Hashtable addressRows;   // key is text address, value is table model row
+      private  Hashtable<Integer,Integer> addressRows;   // key is text address, value is table model row
       private  Hashtable<Integer, ModifiedCode> executeMods;   // key is table model row, value is original code, basic, source.
       private  Container contentPane;
       private  TextTableModel tableModel;
@@ -108,7 +109,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          int addressBase = Globals.getGui().getMainPane().getExecutePane().getAddressDisplayBase();
          codeHighlighting = true;
          breakpointsEnabled = true;
-         ArrayList sourceStatementList = Globals.program.getMachineList();
+         List<ProgramStatement> sourceStatementList = Globals.program.getMachineList();
          data = new Object[sourceStatementList.size()][columnNames.length];
          intAddresses = new int[data.length];
          addressRows = new Hashtable<>(data.length);
@@ -265,7 +266,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public void updateBasicStatements() {
          if (contentPane.getComponentCount() == 0) 
             return; // ignore if no content to change
-         ArrayList sourceStatementList = Globals.program.getMachineList();
+         List<ProgramStatement> sourceStatementList = Globals.program.getMachineList();
          for(int i=0; i < sourceStatementList.size(); i++) {
             // Loop has been extended to cover self-modifying code.  If code at this memory location has been
          	// modified at runtime, construct a ProgramStatement from the current address and binary code
@@ -710,7 +711,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          * then the break column would contain text ("true"/"false"),
          * rather than a check box.
          */
-          public Class getColumnClass(int c) {
+          public Class<?> getColumnClass(int c) {
             return getValueAt(0, c).getClass();
          }
       

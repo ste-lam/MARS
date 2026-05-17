@@ -110,7 +110,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private JScrollPane displayScrollPane;
       private JTextArea display;
       private JPanel displayPanel, displayOptions;
-      private JComboBox delayTechniqueChooser;
+      private JComboBox<TransmitterDelayTechnique> delayTechniqueChooser;
       private DelayLengthPanel delayLengthPanel;
       private JSlider delayLengthSlider;
       private JCheckBox displayAfterDelayCheckBox;

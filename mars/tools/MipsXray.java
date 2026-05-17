@@ -30,10 +30,7 @@ import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Vector;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.Action;
@@ -295,7 +292,7 @@ public class MipsXray extends AbstractMarsToolAndApplication{
        //set action in the menu bar.
        private void createActionObjects() {
            Toolkit tk = Toolkit.getDefaultToolkit();
-           Class cs = this.getClass();
+           Class<?> cs = this.getClass();
            try{
                runAssembleAction = new RunAssembleAction("Assemble",  
                        new ImageIcon(tk.getImage(cs.getResource(Globals.imagesPath+"Assemble22.png"))),
@@ -339,7 +336,7 @@ class Vertex {
    	private boolean first_interaction;
    	private boolean active;
    	private boolean isText;
-   	private ArrayList<Integer> targetVertex;
+   	private List<Integer> targetVertex;
    	
    	public Vertex(int index, int init, int end, String name, int oppositeAxis, boolean isMovingXaxis, 
    			String listOfColors, String listTargetVertex, boolean isText){
@@ -386,7 +383,7 @@ class Vertex {
    	}
 
 
-	public ArrayList<Integer> getTargetVertex() {
+	public List<Integer> getTargetVertex() {
 		return targetVertex;
 	}
 
@@ -483,8 +480,8 @@ class DatapathAnimation extends JPanel
 
 //	 private Vertex[][] inputGraph;
 	 private Vector<Vector<Vertex>>  outputGraph;
-	 private ArrayList<Vertex> vertexList;
-	 private ArrayList<Vertex> vertexTraversed;
+	 private List<Vertex> vertexList;
+	 private List<Vertex> vertexTraversed;
 	 //Screen Label variables
 	 
 	 private HashMap<String, String> opcodeEquivalenceTable;
@@ -563,7 +560,7 @@ class DatapathAnimation extends JPanel
 	 }
 	 
 	 //import the list of opcodes of mips set of instructions
-	 public void importXmlStringData(String xmlName, HashMap table, String elementTree, String tagId, String tagData){
+	 public void importXmlStringData(String xmlName, HashMap<String,String> table, String elementTree, String tagId, String tagData){
 		 	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setNamespaceAware(false);
 			DocumentBuilder docBuilder;
@@ -650,7 +647,7 @@ class DatapathAnimation extends JPanel
 				vertexTraversed = new ArrayList<>();
 				int size = vertexList.size();
 				Vertex vertex;
-				ArrayList<Integer> targetList;
+				List<Integer> targetList;
 				for(int i = 0; i < vertexList.size(); i++){
 					vertex = vertexList.get(i);
 					targetList = vertex.getTargetVertex();

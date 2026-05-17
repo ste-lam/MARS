@@ -45,7 +45,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     public abstract class AbstractFontSettingDialog extends JDialog  {
     
       JDialog editorDialog;
-      JComboBox fontFamilySelector, fontStyleSelector;
+      JComboBox<String> fontFamilySelector;
+      JComboBox<String> fontStyleSelector;
       JSlider fontSizeSelector;
       JSpinner fontSizeSpinSelector;
       JLabel fontSample;
@@ -217,9 +218,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
    // Given an array of string arrays, will produce a Vector contenating
    // the arrays with a separator between each.
-       private Vector makeVectorData(String[][] str) {
+       private Vector<String> makeVectorData(String[][] str) {
          boolean needSeparator = false;
-         Vector data = new Vector<>();
+         Vector<String> data = new Vector<>();
          for (int i=0;i<str.length;i++) {
             if (needSeparator) {
                data.addElement(SEPARATOR);
@@ -233,7 +234,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
    
    // Required renderer for handling the separator bar.
-       private class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+       private class ComboBoxRenderer extends JLabel implements ListCellRenderer<String> {
          JSeparator separator;
       
           public ComboBoxRenderer() {
@@ -242,9 +243,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             separator = new JSeparator(JSeparator.HORIZONTAL);
          }
       
-          public Component getListCellRendererComponent( JList list, 
-           Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            String str = (value == null) ? "" : value.toString();
+          public Component getListCellRendererComponent( JList<? extends String> list, 
+           String value, int index, boolean isSelected, boolean cellHasFocus) {
+            String str = (value == null) ? "" : value;
             if (SEPARATOR.equals(str)) {
                return separator;
             }
@@ -264,10 +265,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
    // Required listener to handle the separator bar.
        private class BlockComboListener implements ActionListener {
-         JComboBox combo;
+         JComboBox<String> combo;
          Object currentItem;
       
-          BlockComboListener(JComboBox combo) {
+          BlockComboListener(JComboBox<String> combo) {
             this.combo  = combo;
             combo.setSelectedIndex(0);
             currentItem = combo.getSelectedItem();

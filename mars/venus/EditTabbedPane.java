@@ -9,6 +9,7 @@
    import javax.swing.undo.*;
    import java.text.*;
    import java.util.*;
+   import java.util.List;
    import java.io.*;
    import java.beans.PropertyChangeListener;
    import javax.swing.filechooser.FileFilter;
@@ -535,7 +536,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          private File mostRecentlyOpenedFile;
          private JFileChooser fileChooser;
          private int fileFilterCount;
-         private ArrayList fileFilterList;
+         private List<FileFilter> fileFilterList;
          private PropertyChangeListener listenForUserAddedFileFilter;
          private Editor theEditor;
       
@@ -558,7 +559,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         * Launch a file chooser for name of file to open.  Return true if file opened, false otherwise
         */
           private boolean openFile() {
-         // The fileChooser's list may be rebuilt from the master ArrayList if a new filter
+         // The fileChooser's list may be rebuilt from the master List if a new filter
          // has been added by the user.
             setChoosableFileFilters();
          // get name of file to be opened and load contents into text editing area.

@@ -79,16 +79,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * so we will be line-oriented too.
     *
     * @param p The MIPSprogram to be tokenized.
-    * @return An ArrayList representing the tokenized program.  Each list member is a TokenList
+    * @return A List representing the tokenized program.  Each list member is a TokenList
     * that represents a tokenized source statement from the MIPS program.
     **/
    
-       public ArrayList tokenize(MIPSprogram p) throws ProcessingException {
+       public List<TokenList> tokenize(MIPSprogram p) throws ProcessingException {
          sourceMIPSprogram = p;
          equivalents = new HashMap<>(); // DPS 11-July-2012
-         ArrayList tokenList = new ArrayList();
-         //ArrayList source = p.getSourceList();
-         ArrayList<SourceLine> source = processIncludes(p, new HashMap<>()); // DPS 9-Jan-2013
+         List<TokenList> tokenList = new ArrayList<>();
+         //List source = p.getSourceList();
+         List<SourceLine> source = processIncludes(p, new HashMap<>()); // DPS 9-Jan-2013
          p.setSourceLineList(source);
          TokenList currentLineTokens;
          String sourceLine;
@@ -115,14 +115,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      
    // pre-pre-processing pass through source code to process any ".include" directives.
    // When one is encountered, the contents of the included file are inserted at that 
-   // point.  If no .include statements, the return value is a new array list but
+   // point.  If no .include statements, the return value is a new list but
    // with the same lines of source code.  Uses recursion to correctly process included
    // files that themselves have .include.  Plus it will detect and report recursive
    // includes both direct and indirect.
    // DPS 11-Jan-2013
-       private ArrayList<SourceLine> processIncludes(MIPSprogram program, Map<String,String> inclFiles) throws ProcessingException {
-         ArrayList source = program.getSourceList();
-         ArrayList<SourceLine> result = new ArrayList<>(source.size());
+       private List<SourceLine> processIncludes(MIPSprogram program, Map<String,String> inclFiles) throws ProcessingException {
+         List<String> source = program.getSourceList();
+         List<SourceLine> result = new ArrayList<>(source.size());
          for (int i=0; i<source.size(); i++) {
             String line = (String) source.get(i);
             TokenList tl = tokenizeLine(program, i+1, line, false);
@@ -155,7 +155,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                            "Error reading include file "+filename));	
                         throw new ProcessingException(errors);
                      }
-                  ArrayList<SourceLine> allLines = processIncludes(incl, inclFiles);
+                  List<SourceLine> allLines = processIncludes(incl, inclFiles);
                   result.addAll(allLines);
                   hasInclude = true;
                   break;                  	

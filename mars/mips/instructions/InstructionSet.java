@@ -46,8 +46,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     public class InstructionSet
    {
-      private ArrayList<Instruction> instructionList;
-	  private ArrayList opcodeMatchMaps;
+      private List<Instruction> instructionList;
+	  private List<MatchMap> opcodeMatchMaps;
       private SyscallLoader syscallLoader;
     /**
      * Creates a new InstructionSet object.
@@ -60,7 +60,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     /**
      * Retrieve the current instruction set.
      */
-       public ArrayList getInstructionList()
+       public List<Instruction> getInstructionList()
       {
          return instructionList;
       
@@ -3074,15 +3074,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             inst.createExampleTokenList();
          }
 
-		 HashMap maskMap = new HashMap<>();
-		 ArrayList matchMaps = new ArrayList<>();
-		 for (int i = 0; i < instructionList.size(); i++) {
-		 	Object rawInstr = instructionList.get(i);
+		 HashMap<Integer,HashMap<Integer,BasicInstruction>> maskMap = new HashMap<>();
+		 List<MatchMap> matchMaps = new ArrayList<>();
+		 for (Instruction rawInstr: instructionList) {
 			if (rawInstr instanceof BasicInstruction) {
 				BasicInstruction basic = (BasicInstruction) rawInstr;
 				Integer mask = Integer.valueOf(basic.getOpcodeMask());
 				Integer match = Integer.valueOf(basic.getOpcodeMatch());
-				HashMap matchMap = (HashMap) maskMap.get(mask);
+				HashMap<Integer,BasicInstruction> matchMap = maskMap.get(mask);
 				if (matchMap == null) {
 					matchMap = new HashMap<>();
 					maskMap.put(mask, matchMap);
@@ -3096,9 +3095,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
 
 	public BasicInstruction findByBinaryCode(int binaryInstr) {
-		ArrayList matchMaps = this.opcodeMatchMaps;
-		for (int i = 0; i < matchMaps.size(); i++) {
-			MatchMap map = (MatchMap) matchMaps.get(i);
+		for (MatchMap map: this.opcodeMatchMaps) {
 			BasicInstruction ret = map.find(binaryInstr);
 			if (ret != null) return ret;
 		}
@@ -3186,9 +3183,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *  @param name operator mnemonic (e.g. addi, sw,...)
      *  @return list of corresponding Instruction object(s), or null if not found.
      */
-       public ArrayList<Instruction> matchOperator(String name)
+       public List<Instruction> matchOperator(String name)
       {
-         ArrayList<Instruction> matchingInstructions = null;
+         List<Instruction> matchingInstructions = null;
         // Linear search for now....
          for (int i = 0; i < instructionList.size(); i++)
          {
@@ -3210,9 +3207,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *  @param name a string
      *  @return list of matching Instruction object(s), or null if none match.
      */
-       public ArrayList prefixMatchOperator(String name)
+       public List<Instruction> prefixMatchOperator(String name)
       {
-         ArrayList matchingInstructions = null;
+         List<Instruction> matchingInstructions = null;
         // Linear search for now....
          if (name != null) {
             for (int i = 0; i < instructionList.size(); i++)
@@ -3312,12 +3309,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             	  Instruction.INSTRUCTION_LENGTH : 0) );	 
       }
 
-	  private static class MatchMap implements Comparable {
+	  private static class MatchMap implements Comparable<MatchMap> {
 	  	private int mask;
 		private int maskLength; // number of 1 bits in mask
-		private HashMap matchMap;
+		private HashMap<Integer,BasicInstruction> matchMap;
 
-		public MatchMap(int mask, HashMap matchMap) {
+		public MatchMap(int mask, HashMap<Integer,BasicInstruction> matchMap) {
 			this.mask = mask;
 			this.matchMap = matchMap;
 
@@ -3334,8 +3331,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			return o instanceof MatchMap && mask == ((MatchMap) o).mask;
 		}
 
-		public int compareTo(Object other) {
-			MatchMap o = (MatchMap) other;
+		public int compareTo(MatchMap o) {
 			int d = o.maskLength - this.maskLength;
 			if (d == 0) d = this.mask - o.mask;
 			return d;

@@ -42,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     public class MemoryConfigurations {
     
-      private static ArrayList configurations = null;
+      private static List<MemoryConfiguration> configurations = null;
       private static MemoryConfiguration defaultConfiguration;
       private static MemoryConfiguration currentConfiguration;
    	
@@ -168,7 +168,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          	// Get current config from settings
          	//String currentConfigurationIdentifier = Globals.getSettings().getMemoryConfiguration();
             setCurrentConfiguration(getConfigurationByName(Globals.getSettings().getMemoryConfiguration()));
-         //	Iterator configurationsIterator = getConfigurationsIterator();
+         //	Iterator<MemoryConfiguration> configurationsIterator = getConfigurationsIterator();
          //	while (configurationsIterator.hasNext()) {
          	//  MemoryConfiguration config = (MemoryConfiguration)configurationsIterator.next();
          //	  if (currentConfigurationIdentifier.equals(config.getConfigurationIdentifier())) {
@@ -178,7 +178,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
       }
    	
-       public static Iterator getConfigurationsIterator() {
+       public static Iterator<MemoryConfiguration> getConfigurationsIterator() {
          if (configurations == null) {
             buildConfigurationCollection();
          }
@@ -187,7 +187,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
    	
        public static MemoryConfiguration getConfigurationByName(String name) {
-         Iterator configurationsIterator = getConfigurationsIterator();
+         Iterator<MemoryConfiguration> configurationsIterator = getConfigurationsIterator();
          while (configurationsIterator.hasNext()) {
             MemoryConfiguration config = (MemoryConfiguration)configurationsIterator.next();
             if (name.equals(config.getConfigurationIdentifier())) {

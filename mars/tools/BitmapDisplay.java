@@ -48,7 +48,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private static String heading =  "Bitmap Display";
    	
    	// Major GUI components
-      private JComboBox visualizationUnitPixelWidthSelector, visualizationUnitPixelHeightSelector,
+      private JComboBox<String> visualizationUnitPixelWidthSelector, visualizationUnitPixelHeightSelector,
                         visualizationPixelWidthSelector, visualizationPixelHeightSelector, displayBaseAddressSelector;
       private Graphics drawingArea;
       private JPanel canvas;
@@ -438,7 +438,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
    	// Will return int equivalent of specified combo box's current selection.
    	// The selection must be a String that parses to an int.
-       private int getIntComboBoxSelection(JComboBox comboBox) {
+       private int getIntComboBoxSelection(JComboBox<String> comboBox) {
          try {
             return Integer.parseInt((String)comboBox.getSelectedItem());
          } 

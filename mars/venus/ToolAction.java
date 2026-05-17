@@ -41,7 +41,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	  */
 	  
     public class ToolAction extends AbstractAction {
-      private Class toolClass; //MarsTool tool;
+      private Class<MarsTool> toolClass; //MarsTool tool;
    	
 		/**
 		 *  Simple constructor.
@@ -49,7 +49,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		 *  @param toolClass Class object for the associated MarsTool subclass
 		 *  @param toolName Name of this tool, for the menu.
 		 */
-       public ToolAction(Class toolClass, String toolName) { 
+       public ToolAction(Class<MarsTool> toolClass, String toolName) { 
 		   super(toolName, null); 
          this.toolClass = toolClass;
       }

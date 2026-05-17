@@ -22,7 +22,7 @@ import java.awt.event.*;
 import java.awt.*;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * jEdit's text area component. It is more suited for editing program
@@ -1817,7 +1817,7 @@ public class JEditTextArea extends JComponent
             centerHeight);
       
       // Lay out all status components, in order
-         Enumeration status = leftOfScrollBar.elements();
+         Enumeration<Component> status = leftOfScrollBar.elements();
          while(status.hasMoreElements())
          {
             Component comp = (Component)status.nextElement();
@@ -1840,7 +1840,7 @@ public class JEditTextArea extends JComponent
       private Component center;
       private Component right;
       private Component bottom;
-      private Vector leftOfScrollBar = new Vector<>();
+      private Vector<Component> leftOfScrollBar = new Vector<>();
    }
 
    static class CaretBlinker implements ActionListener
@@ -2229,7 +2229,7 @@ public class JEditTextArea extends JComponent
    public String getSyntaxSensitiveToolTipText(int x, int y) {
       String result = null;
       int line = this.yToLine(y);
-      ArrayList matches = getSyntaxSensitiveHelpAtLineOffset(line, this.xToOffset(line,x), true);
+      List<PopupHelpItem> matches = getSyntaxSensitiveHelpAtLineOffset(line, this.xToOffset(line,x), true);
       if (matches == null) { 
          return null;
       }
@@ -2279,7 +2279,7 @@ public class JEditTextArea extends JComponent
    }
 
    //////////////////////////////////////////////////////////////////////////////////   
-   // Get relevant help information at specified position.  Returns ArrayList of
+   // Get relevant help information at specified position.  Returns List of
 	// PopupHelpItem with one per match, or null if no matches.
 	// The "exact" parameter is set depending on whether the match has to be
 	// exact or whether a prefix match will do.  The token "s" will not match
@@ -2287,8 +2287,7 @@ public class JEditTextArea extends JComponent
 	// if exact is false.  The former is helpful for mouse-movement-based tool
 	// tips (this is what you have).  The latter is helpful for caret-based tool
 	// tips (this is what you can do).
-   private ArrayList getSyntaxSensitiveHelpAtLineOffset(int line, int offset, boolean exact) {
-      ArrayList matches = null;
+   private List<PopupHelpItem> getSyntaxSensitiveHelpAtLineOffset(int line, int offset, boolean exact) {
       TokenMarker tokenMarker = this.getTokenMarker();
       if (tokenMarker != null) {
          Segment lineSegment = new Segment();
@@ -2323,14 +2322,14 @@ public class JEditTextArea extends JComponent
          if (tokenAtOffset != null) {
             String tokenText = lineSegment.toString().substring(tokenOffset, tokenOffset+tokenAtOffset.length);
             if (exact) {
-               matches = tokenMarker.getTokenExactMatchHelp(tokenAtOffset, tokenText); 
+               return tokenMarker.getTokenExactMatchHelp(tokenAtOffset, tokenText); 
             } 
             else {
-               matches = tokenMarker.getTokenPrefixMatchHelp(lineSegment.toString(), tokenList, tokenAtOffset, tokenText);
+               return tokenMarker.getTokenPrefixMatchHelp(lineSegment.toString(), tokenList, tokenAtOffset, tokenText);
             }
          }
       }
-      return matches;
+      return null;
    }
 
 
@@ -2345,7 +2344,7 @@ public class JEditTextArea extends JComponent
       int lineStart = getLineStartOffset(line);
       int offset = Math.max(1,Math.min(getLineLength(line),
          getCaretPosition() - lineStart)); 
-      ArrayList helpItems = getSyntaxSensitiveHelpAtLineOffset(line,offset,false);
+      List<PopupHelpItem> helpItems = getSyntaxSensitiveHelpAtLineOffset(line,offset,false);
       if (helpItems == null && popupMenu != null) {
          popupMenu.setVisible(false);
          popupMenu = null;

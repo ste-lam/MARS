@@ -21,9 +21,7 @@ import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Vector;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -68,8 +66,8 @@ implements ActionListener {
 
 // private Vertex[][] inputGraph;
  private Vector<Vector<Vertex>>  outputGraph;
- private ArrayList<Vertex> vertexList;
- private ArrayList<Vertex> vertexTraversed;
+ private List<Vertex> vertexList;
+ private List<Vertex> vertexTraversed;
  //Screen Label variables
  
  private HashMap<String, String> registerEquivalenceTable;
@@ -109,7 +107,7 @@ private int datapatTypeUsed;
 	   	private boolean first_interaction;
 	   	private boolean active;
 	   	private boolean isText;
-	   	private ArrayList<Integer> targetVertex;
+	   	private List<Integer> targetVertex;
 	   	
 	   	public Vertex(int index, int init, int end, String name, int oppositeAxis, boolean isMovingXaxis, 
 	   			String listOfColors, String listTargetVertex, boolean isText){
@@ -156,7 +154,7 @@ private int datapatTypeUsed;
 	   	}
 
 
-		public ArrayList<Integer> getTargetVertex() {
+		public List<Integer> getTargetVertex() {
 			return targetVertex;
 		}
 
@@ -274,7 +272,7 @@ private int datapatTypeUsed;
  }
  
  //import the list of opcodes of mips set of instructions
- public void importXmlStringData(String xmlName, HashMap table, String elementTree, String tagId, String tagData){
+ public void importXmlStringData(String xmlName, HashMap<String,String> table, String elementTree, String tagId, String tagData){
 	 	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(false);
 		DocumentBuilder docBuilder;
@@ -363,7 +361,7 @@ private int datapatTypeUsed;
             vertexTraversed = new ArrayList<>();
 			int size = vertexList.size();
 			Vertex vertex;
-			ArrayList<Integer> targetList;
+			List<Integer> targetList;
 			for(int i = 0; i < vertexList.size(); i++){
 				vertex = vertexList.get(i);
 				targetList = vertex.getTargetVertex();
@@ -467,7 +465,7 @@ private int datapatTypeUsed;
 			vertexTraversed = new ArrayList<>();
 			int size = vertexList.size();
 			Vertex vertex;
-			ArrayList<Integer> targetList;
+			List<Integer> targetList;
 			for(int i = 0; i < vertexList.size(); i++){
 				vertex = vertexList.get(i);
 				targetList = vertex.getTargetVertex();
