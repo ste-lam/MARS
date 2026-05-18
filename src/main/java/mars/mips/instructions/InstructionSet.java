@@ -3318,14 +3318,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		public MatchMap(int mask, HashMap matchMap) {
 			this.mask = mask;
 			this.matchMap = matchMap;
-
-			int k = 0;
-			int n = mask;
-			while (n != 0) {
-				k++;
-				n &= n - 1;
-			}
-			this.maskLength = k;
+			this.maskLength = Integer.bitCount(mask);
 		}
 
 		public boolean equals(Object o) {
