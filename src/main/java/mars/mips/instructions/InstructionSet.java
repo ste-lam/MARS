@@ -3276,17 +3276,8 @@ public class InstructionSet {
    	 // the bottom (currently line 194, heavily commented).
    	 
        private void processBranch(int displacement) {
-         displacement = signExtend16(displacement) << 2;  
-         if (Globals.getSettings().getDelayedBranchingEnabled()) {
-            // Register the branch target address (absolute byte address).
-            DelayedBranch.register(RegisterFile.getProgramCounter() + displacement);
-         } 
-         else {
-            // Decrement needed because PC has already been incremented
-            RegisterFile.setProgramCounter(
-                RegisterFile.getProgramCounter()
-                  + displacement); // - Instruction.INSTRUCTION_LENGTH);	
-         }	 
+         // Register the branch target address (absolute byte address).
+         DelayedBranch.register(RegisterFile.getProgramCounter() + (signExtend16(displacement) << 2));
       }
    
    	/*
@@ -3300,12 +3291,7 @@ public class InstructionSet {
    	 */
    	 
        private void processJump(int targetAddress) {
-         if (Globals.getSettings().getDelayedBranchingEnabled()) {
-            DelayedBranch.register(targetAddress);
-         } 
-         else {
-            RegisterFile.setProgramCounter(targetAddress);
-         }	 
+         DelayedBranch.register(targetAddress);
       }
    
    	/*
@@ -3321,9 +3307,7 @@ public class InstructionSet {
    	 */
    	 
        private void processReturnAddress(int register) {
-         RegisterFile.updateRegister(register, RegisterFile.getProgramCounter() +
-                 ((Globals.getSettings().getDelayedBranchingEnabled()) ? 
-            	  Instruction.INSTRUCTION_LENGTH : 0) );	 
+         RegisterFile.updateRegister(register, RegisterFile.getProgramCounter() + Instruction.INSTRUCTION_LENGTH );
       }
 
        private static int zeroExtend16(int i) {
