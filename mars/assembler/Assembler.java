@@ -328,7 +328,7 @@
                // ////////////////////////////////////////////////////////////////////////////
                // If we are using compact memory config and there is a compact expansion, use it
                   ArrayList templateList;
-                  if (compactTranslationCanBeApplied(statement)) {
+                  if (compactTranslationCanBeApplied(inst)) {
                      templateList = inst.getCompactBasicIntructionTemplateList();
                   } 
                   else {
@@ -346,7 +346,7 @@
                   // If this is the case, skip remainder of loop iteration. This should only
                   // happen if template substitution was for "nop" instruction but delayed branching
                   // is disabled so the "nop" is not generated.
-                     if (instruction == null || instruction == "") {
+                     if (instruction == null || instruction.isEmpty()) {
                         continue;
                      }
                   
@@ -600,7 +600,7 @@
             // Modified to permit use of compact expansion if address fits
             // in 15 bits. DPS 4-Aug-2009
                int instLength = inst.getInstructionLength();
-               if (compactTranslationCanBeApplied(programStatement)) {
+               if (compactTranslationCanBeApplied(inst)) {
                   instLength = ((ExtendedInstruction) inst).getCompactInstructionLength();
                }
                textAddress.increment(instLength);
@@ -636,10 +636,9 @@
    // extended instruction, we have to be operating under a 16-bit
    // memory model and the instruction has to have defined an
    // alternate compact translation.
-      private boolean compactTranslationCanBeApplied(ProgramStatement statement) {
-         return (statement.getInstruction() instanceof ExtendedInstruction
-            && Globals.memory.usingCompactMemoryConfiguration() && ((ExtendedInstruction) statement
-            	.getInstruction()).hasCompactTranslation());
+      private boolean compactTranslationCanBeApplied(Instruction instruction) {
+         return (instruction instanceof ExtendedInstruction
+            && Globals.memory.usingCompactMemoryConfiguration() && ((ExtendedInstruction) instruction).hasCompactTranslation());
       }
    
    // //////////////////////////////////////////////////////////////////////////////////
