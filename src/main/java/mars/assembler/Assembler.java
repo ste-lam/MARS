@@ -18,6 +18,8 @@
    import mars.util.Binary;
    import mars.util.SystemIO;
 
+   import static mars.mips.instructions.Instruction.INSTRUCTION_LENGTH;
+
 /*
  Copyright (c) 2003-2012,  Pete Sanderson and Kenneth Vollmar
 
@@ -603,6 +605,16 @@
                }
                textAddress.increment(instLength);
                ret.add(programStatement);
+
+               if (inst.getProperties().contains(Instruction.Property.DELAY_SLOT)
+                       && ! Globals.getSettings().getDelayedBranchingEnabled()) {
+
+                  ProgramStatement ps = new ProgramStatement(0, textAddress.get());
+                  textAddress.increment(INSTRUCTION_LENGTH);
+                  
+                  ret.add(ps);
+               }
+               
                return ret;
             }
          }

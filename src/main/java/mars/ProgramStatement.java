@@ -71,10 +71,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      **/
        public ProgramStatement(MIPSprogram sourceMIPSprogram, String source, TokenList origTokenList, TokenList strippedTokenList,
                             Instruction inst, int textAddress, int sourceLine) {
-         this.sourceMIPSprogram = sourceMIPSprogram;
-         this.source = source;
-         this.originalTokenList = origTokenList;
-         this.strippedTokenList = strippedTokenList;
+         this.sourceMIPSprogram = Objects.requireNonNull(sourceMIPSprogram);
+         this.source = Objects.requireNonNull(source);
+         this.originalTokenList = Objects.requireNonNull(origTokenList);
+         this.strippedTokenList = Objects.requireNonNull(strippedTokenList);
          this.operands = new int[4];
          this.numOperands = 0;
          this.instruction = inst;
@@ -155,6 +155,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @param errors The list of assembly errors encountered so far.  May add to it here.
      **/
        public void buildBasicStatementFromBasicInstruction(ErrorList errors) {
+         // never run on binary instructions
+         if (sourceMIPSprogram == null)
+            return;
          Token token = strippedTokenList.get(0);
          String basicStatementElement = token.getValue()+" ";;
          String basic = basicStatementElement;
@@ -330,14 +333,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @param errors The list of assembly errors encountered so far.  May add to it here.
      **/
        public void buildMachineStatementFromBasicStatement(ErrorList errors) {
-      
-         try {
-               //mask indicates bit positions for 'f'irst, 's'econd, 't'hird operand
-            this.machineStatement = ((BasicInstruction)instruction).getOperationMask();
-         }   // This means the pseudo-instruction expansion generated another
-             // pseudo-instruction (expansion must be to all basic instructions).
-         	 // This is an error on the part of the pseudo-instruction author.
-             catch (ClassCastException cce) {
+           // never run on binary instructions
+           if (sourceMIPSprogram == null)
+               return;
+           
+           if (!(instruction instanceof BasicInstruction)) {
                errors.add(new ErrorMessage(this.sourceMIPSprogram,this.sourceLine,0,
                           "INTERNAL ERROR: pseudo-instruction expansion contained a pseudo-instruction"));
                return;            
