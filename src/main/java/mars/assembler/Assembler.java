@@ -325,50 +325,21 @@
                   TokenList theTokenList = new Tokenizer().tokenizeLine(sourceLine,
                      basicAssembly, errors, false);
                
-               // ////////////////////////////////////////////////////////////////////////////
-               // If we are using compact memory config and there is a compact expansion, use it
-                  ArrayList templateList;
-                  if (compactTranslationCanBeApplied(statement)) {
-                     templateList = inst.getCompactBasicIntructionTemplateList();
-                  } 
-                  else {
-                     templateList = inst.getBasicIntructionTemplateList();
-                  }
-               
                // subsequent ProgramStatement constructor needs the correct text segment address.
                   textAddress.set(statement.getAddress());
-               // Will generate one basic instruction for each template in the list.
-                  for (int instrNumber = 0; instrNumber < templateList.size(); instrNumber++) {
-                     String instruction = ExtendedInstruction.makeTemplateSubstitutions(
-                        this.fileCurrentlyBeingAssembled,
-                        (String) templateList.get(instrNumber), theTokenList);
-                  // 23 Jan 2008 by DPS. Template substitution may result in no instruction.
-                  // If this is the case, skip remainder of loop iteration. This should only
-                  // happen if template substitution was for "nop" instruction but delayed branching
-                  // is disabled so the "nop" is not generated.
-                     if (instruction == null || instruction == "") {
-                        continue;
-                     }
-                  
-                  // All substitutions have been made so we have generated
-                  // a valid basic instruction!
+                  ArrayList<ProgramStatement> pseudoStatements = parsePseudoInstruction(statement.getSource(), sourceLine, inst, theTokenList);
+                  for (ProgramStatement pseudoStatement : pseudoStatements) {
+                     // All substitutions have been made so we have generated
+                     // a valid basic instruction!
                      if (Globals.debug)
-                        System.out.println("PSEUDO generated: " + instruction);
-                  // For generated instruction: tokenize, build program
-                  // statement, add to list.
-                     TokenList newTokenList = new Tokenizer().tokenizeLine(sourceLine,
-                        instruction, errors,false);
-                     ArrayList instrMatches = this.matchInstruction(newTokenList.get(0));
-                     Instruction instr = OperandFormat.bestOperandMatch(newTokenList,
-                        instrMatches);
-                  // Only first generated instruction is linked to original source
-                     ProgramStatement ps = new ProgramStatement(
-                        this.fileCurrentlyBeingAssembled,
-                        (instrNumber == 0) ? statement.getSource() : "", newTokenList,
-                        newTokenList, instr, textAddress.get(), statement.getSourceLine());
-                     textAddress.increment(Instruction.INSTRUCTION_LENGTH);
-                     ps.buildBasicStatementFromBasicInstruction(errors);
-                     this.machineList.add(ps);
+                        System.out.println("PSEUDO generated: " + pseudoStatement.getInstruction());
+                     
+                     pseudoStatement.buildBasicStatementFromBasicInstruction(errors);
+                     if (errors.errorsOccurred()) {
+                        throw new ProcessingException(errors);
+                     }
+                     assert pseudoStatement.getInstruction() instanceof BasicInstruction;
+                     this.machineList.add(pseudoStatement);
                   } // end of FOR loop, repeated for each template in list.
                } // end of ELSE part for extended instruction.
               	
@@ -456,7 +427,6 @@
       	
          ArrayList<ProgramStatement> ret = new ArrayList<ProgramStatement>();
       
-         ProgramStatement programStatement;
          TokenList tokens = this.stripComment(tokenList);
       
       // Labels should not be processed in macro definition segment.
@@ -593,17 +563,22 @@
                   token.getStartPos(),
                   "Extended (pseudo) instruction or format not permitted.  See Settings."));
             }
-            if (OperandFormat.tokenOperandMatch(tokens, inst, errors)) {
-               programStatement = new ProgramStatement(this.fileCurrentlyBeingAssembled, source,
-                  tokenList, tokens, inst, textAddress.get(), sourceLineNumber);
-            // instruction length is 4 for all basic instruction, varies for extended instruction
-            // Modified to permit use of compact expansion if address fits
-            // in 15 bits. DPS 4-Aug-2009
-               int instLength = inst.getInstructionLength();
-               if (compactTranslationCanBeApplied(programStatement)) {
-                  instLength = ((ExtendedInstruction) inst).getCompactInstructionLength();
-               }
-               textAddress.increment(instLength);
+
+            ProgramStatement programStatement = new ProgramStatement(this.fileCurrentlyBeingAssembled, source,
+                    tokenList, tokens, inst, textAddress.get(), sourceLineNumber);
+
+            if (inst instanceof ExtendedInstruction) {
+               // dry run calculates textAddresses
+               ErrorList old = this.errors;
+               this.errors = new ErrorList();
+               parsePseudoInstruction(source, sourceLineNumber, (ExtendedInstruction) inst, tokens);
+               this.errors = old;
+               ret.add(programStatement);
+               return ret;
+            }
+            
+            if (OperandFormat.tokenOperandMatch(tokens, inst, errors, allowRawAddressing)) {
+               textAddress.increment(INSTRUCTION_LENGTH);
                ret.add(programStatement);
 
                if (inst.getProperties().contains(Instruction.Property.DELAY_SLOT)
@@ -620,22 +595,36 @@
          }
          return null;
       } // parseLine()
+
+   private ArrayList<ProgramStatement> parsePseudoInstruction(String source, int sourceLineNumber, ExtendedInstruction extendedInstruction, TokenList tokens) {
+      ArrayList<ProgramStatement> ret = new ArrayList<>();
+
+      boolean first = true;
+      for (String template : extendedInstruction.getInstructionTemplateList()) {
+         String instruction = ExtendedInstruction.makeTemplateSubstitutions(
+                 this.fileCurrentlyBeingAssembled, template, tokens);
+         // 23 Jan 2008 by DPS. Template substitution may result in no instruction.
+         // If this is the case, skip remainder of loop iteration. This should only
+         // happen if template substitution was for "nop" instruction but delayed branching
+         // is disabled so the "nop" is not generated.
+         if (instruction == null || instruction.isEmpty()) {
+            continue;
+         }
+
+         TokenList newTokenList = new Tokenizer().tokenizeLine(sourceLineNumber, instruction, errors, false);
+         ArrayList<ProgramStatement> extendedLines = parseLine(newTokenList, first ? source : "", sourceLineNumber, false, true);
+
+         if (extendedLines != null)
+            ret.addAll(extendedLines);
+
+         first = false;
+      }
+      return ret;
+   }
    
       private void detectLabels(TokenList tokens, Macro current) {
          if (tokenListBeginsWithLabel(tokens))
             current.addLabel(tokens.get(0).getValue());
-      }
-   
-   // Determine whether or not a compact (16-bit) translation from
-   // pseudo-instruction to basic instruction can be applied. If
-   // the argument is a basic instruction, obviously not. If an
-   // extended instruction, we have to be operating under a 16-bit
-   // memory model and the instruction has to have defined an
-   // alternate compact translation.
-      private boolean compactTranslationCanBeApplied(ProgramStatement statement) {
-         return (statement.getInstruction() instanceof ExtendedInstruction
-            && Globals.memory.usingCompactMemoryConfiguration() && ((ExtendedInstruction) statement
-            	.getInstruction()).hasCompactTranslation());
       }
    
    // //////////////////////////////////////////////////////////////////////////////////
