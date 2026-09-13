@@ -3133,7 +3133,7 @@ public class InstructionSet {
          } 
              catch (NullPointerException e)
             {
-               System.out.println(
+               System.err.println(
                     "Error: MIPS pseudo-instruction file PseudoOps.txt not found.");
                System.exit(0);
             }
@@ -3153,7 +3153,14 @@ public class InstructionSet {
                   firstTemplate = null;
                   while (tokenizer.hasMoreTokens()) {
                      token = tokenizer.nextToken();
-                     if (token.startsWith("#")) {  
+                      if (token.contains("BROFF")) {
+                          int index = token.indexOf("BROFF");
+                          String newToken = token.substring(0, index) + token.substring(index + 6);
+                          System.err.println(
+                                  "Warning: <" + token + "> is deprecated in file PseudoOps.txt. Please replace it with <" + newToken + ">.");
+                          token = newToken;
+                      }
+                      if (token.startsWith("#")) {  
                         // Optional description must be last token in the line.
                         description = token.substring(1);
                         break;
@@ -3180,13 +3187,13 @@ public class InstructionSet {
          } 
              catch (IOException ioe)
             {
-               System.out.println(
+               System.err.println(
                     "Internal Error: MIPS pseudo-instructions could not be loaded.");
                System.exit(0);
             } 
              catch (Exception ioe)
             {
-               System.out.println(
+               System.err.println(
                     "Error: Invalid MIPS pseudo-instruction specification.");
                System.exit(0);
             }
