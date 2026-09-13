@@ -56,10 +56,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * specification, else returns <code>false</code>.
     */
    
-       static boolean tokenOperandMatch(TokenList candidateList, Instruction inst, ErrorList errors) {
+       static boolean tokenOperandMatch(TokenList candidateList, Instruction inst, ErrorList errors, boolean allowIntegerOffsets) {
          if (!numOperandsCheck(candidateList, inst, errors))
             return false;
-         if (!operandTypeCheck(candidateList, inst, errors)) 
+         if (!operandTypeCheck(candidateList, inst, errors, allowIntegerOffsets)) 
             return false;
          return true;
       }
@@ -69,14 +69,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * first such Instruction that has an exact operand match.  If none match, 
     * return the first Instruction and let client deal with operand mismatches.  
     */
-       static Instruction bestOperandMatch(TokenList tokenList, ArrayList instrMatches) {
+       static Instruction bestOperandMatch(TokenList tokenList, ArrayList instrMatches, boolean allowRawAddressing) {
          if (instrMatches == null)
             return null;
          if (instrMatches.size() == 1)
             return (Instruction) instrMatches.get(0);
          for (int i=0; i<instrMatches.size(); i++) {
             Instruction potentialMatch = (Instruction) instrMatches.get(i);
-            if (tokenOperandMatch(tokenList, potentialMatch, new ErrorList())) 
+            if (tokenOperandMatch(tokenList, potentialMatch, new ErrorList(), allowRawAddressing)) 
                return potentialMatch;
          }
          return (Instruction) instrMatches.get(0);
@@ -102,14 +102,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
    
    // Generate error message if operand is not of correct type for this operation & operand position
-       private static boolean operandTypeCheck(TokenList cand, Instruction spec, ErrorList errors) {
-         Token candToken, specToken;
-         TokenTypes candType, specType;
+       private static boolean operandTypeCheck(TokenList cand, Instruction spec, ErrorList errors, boolean allowRawAddressing) {
          for (int i=1; i<spec.getTokenList().size(); i++) {
-            candToken = cand.get(i);
-            specToken = spec.getTokenList().get(i);
-            candType = candToken.getType();
-            specType = specToken.getType();
+            Token candToken = cand.get(i);
+            Token specToken = spec.getTokenList().get(i);
+            TokenTypes candType = candToken.getType();
+            TokenTypes specType = specToken.getType();
            // Type mismatch is error EXCEPT when (1) spec calls for register name and candidate is
            // register number, (2) spec calls for register number, candidate is register name and
            // names are permitted, (3)spec calls for integer of specified max bit length and 
@@ -117,6 +115,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
            // Type match is error when spec calls for register name, candidate is register name, and
            // names are not permitted.
            
+           if (specType == candType)
+               continue;
+             
            // added 2-July-2010 DPS
            // Not an error if spec calls for identifier and candidate is operator, since operator names can be used as labels.
             if (specType == TokenTypes.IDENTIFIER && candType == TokenTypes.OPERATOR) {
@@ -125,7 +126,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                continue;
             }
            // end 2-July-2010 addition
-			  
+            
+           // allow raw addressing as it's used in pseudo-ops
+            if (allowRawAddressing && specType == TokenTypes.IDENTIFIER) {
+               if (candType == TokenTypes.INTEGER_5) continue;
+               if (candType == TokenTypes.INTEGER_16) continue;
+               if (candType == TokenTypes.INTEGER_16U) continue;
+               if (candType == TokenTypes.INTEGER_32) continue;
+            }
+            
             if ((specType == TokenTypes.REGISTER_NAME || specType == TokenTypes.REGISTER_NUMBER) && 
                candType == TokenTypes.REGISTER_NAME) {
                if (Globals.getSettings().getBareMachineEnabled()) {
