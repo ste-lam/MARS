@@ -243,7 +243,7 @@
                statements = this.parseLine((TokenList) tokenList.get(i),
                   sourceLineList.get(i).getSource(), 
                   sourceLineList.get(i).getLineNumber(), 
-                  extendedAssemblerEnabled);
+                  extendedAssemblerEnabled, false);
                if (statements != null) {
                   parsedList.addAll(statements);
                }
@@ -472,7 +472,7 @@
     *         request will return a list of ProgramStatements expanded
     */
       private ArrayList<ProgramStatement> parseLine(TokenList tokenList, String source,
-       	int sourceLineNumber, boolean extendedAssemblerEnabled) { 
+       	int sourceLineNumber, boolean extendedAssemblerEnabled, boolean allowRawAddressing) { 
       	
          ArrayList<ProgramStatement> ret = new ArrayList<ProgramStatement>();
       
@@ -550,7 +550,7 @@
                
                   // recursively parse lines of expanded macro
                   ArrayList<ProgramStatement> statements = parseLine(tokenList2, "<" + (i-macro.getFromLine()+macro.getOriginalFromLine()) + "> "
-                     + substituted.trim(), sourceLineNumber, extendedAssemblerEnabled);
+                     + substituted.trim(), sourceLineNumber, extendedAssemblerEnabled, false);
                   if (statements != null)
                      ret.addAll(statements);
                }
@@ -605,7 +605,7 @@
             if (instrMatches == null)
                return ret;
          // OK, we've got an operator match, let's check the operands.
-            Instruction inst = OperandFormat.bestOperandMatch(tokens, instrMatches);
+            Instruction inst = OperandFormat.bestOperandMatch(tokens, instrMatches, allowRawAddressing);
          // Here's the place to flag use of extended (pseudo) instructions
          // when setting disabled.
             if (inst instanceof ExtendedInstruction && !extendedAssemblerEnabled) {
