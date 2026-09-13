@@ -45,7 +45,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
     public class ExtendedInstruction extends Instruction {
    
-      private ArrayList translationStrings, compactTranslationStrings;
+      private ArrayList<String> translationStrings, compactTranslationStrings;
     /**
      * Constructor for ExtendedInstruction.
      * 
@@ -99,19 +99,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public ExtendedInstruction(String example, String translation) {
          this(example, translation, "");
       }  
-    
-    /**
-     * Get length in bytes that this extended instruction requires in its 
-     * binary form. The answer depends on how many basic instructions it 
-     * expands to.  This may vary, if expansion includes a nop, depending on
-     * whether or not delayed branches are enabled. Each requires 4 bytes.
-     * @return int length in bytes of corresponding binary instruction(s).
-     */
-   
-       public int getInstructionLength() {
-         return getInstructionLength(translationStrings);
-      }
-
    
     /**
      * Get ArrayList of Strings that represent list of templates for
@@ -119,26 +106,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @return ArrayList of Strings.
      */
     
-       public ArrayList getBasicIntructionTemplateList() {
+       public ArrayList<String> getBasicIntructionTemplateList() {
          return translationStrings;
       }
-   
-    /**
-     * Get length in bytes that this extended instruction requires in its 
-     * binary form if it includes an alternative expansion for compact 
-     * memory (16 bit addressing) configuration. The answer depends on 
-     * how many basic instructions it expands to.  This may vary, if 
-     * expansion includes a nop, depending on whether or not delayed 
-     * branches are enabled. Each requires 4 bytes.
-     * @return int length in bytes of corresponding binary instruction(s).
-     * Returns 0 if an alternative expansion is not defined for this
-     * instruction.
-     */
-     
-       public int getCompactInstructionLength() {
-         return getInstructionLength(compactTranslationStrings);
-      }
-   
    
      /**
       * Determine whether or not this pseudo-instruction has a second
@@ -157,7 +127,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	  * have a compact alternative.
      */
     
-       public ArrayList getCompactBasicIntructionTemplateList() {
+       public ArrayList<String> getCompactBasicIntructionTemplateList() {
          return compactTranslationStrings;
       }
 		   
@@ -582,42 +552,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     // expands to, which is a string, and breaks out into separate
     // instructions.  They are separated by '\n' character.
     
-       private ArrayList buildTranslationList(String translation) {
+       private ArrayList<String> buildTranslationList(String translation) {
          if (translation == null || translation.length() == 0) {
             return null;
          }
-         ArrayList translationList = new ArrayList();
+         ArrayList<String> translationList = new ArrayList<>();
          StringTokenizer st = new StringTokenizer(translation,"\n");
          while (st.hasMoreTokens()) {
             translationList.add(st.nextToken());
          }		
          return translationList;
       }
-      
-   	
-   	   
-    /*
-     * Get length in bytes that this extended instruction requires in its 
-     * binary form. The answer depends on how many basic instructions it 
-     * expands to.  This may vary, if expansion includes a nop, depending on
-     * whether or not delayed branches are enabled. Each requires 4 bytes.
-     * Returns length in bytes of corresponding binary instruction(s).
-     * Returns 0 if the ArrayList is null or empty.
-     */   
-       private int getInstructionLength(ArrayList translationList) {
-         if (translationList == null || translationList.size() == 0) {
-            return 0;
-         }
-       // If instruction template is DBNOP, that means generate a "nop" instruction but only
-       // if Delayed branching is enabled.  Otherwise generate nothing.  If generating nothing,
-       // then don't count the nop in the instruction length.   DPS 23-Jan-2008
-         int instructionCount = 0;
-         for (int i=0; i<translationList.size(); i++) {
-            if (((String)translationList.get(i)).indexOf("DBNOP")>=0 && !Globals.getSettings().getDelayedBranchingEnabled()) 
-               continue;
-            instructionCount++;
-         }
-         return 4 * instructionCount;
-      }
-      
    }
