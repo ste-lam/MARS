@@ -104,17 +104,6 @@ public abstract class Instruction {
     }
     
     
-    /**
-     * Get length in bytes that this instruction requires in its binary form.
-	  * Default is 4 (holds for all basic instructions), but can be overridden 
-	  * in subclass.
-     * @return int length in bytes of corresponding binary instruction(s).
-     */
-
-    public int getInstructionLength() {
-        return INSTRUCTION_LENGTH;
-    }
-	 
     /** Used by subclass constructors to extract operator mnemonic from the
      instruction example. **/
 
