@@ -198,7 +198,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        * <LI>LAB means substitute textual label from last token of source statement.  Used for various branches.
        * <LI>S32 means substitute the result of subtracting the constant value in last token from 32.  Used by "ror", "rol".
    	 * <LI>DBNOP means Delayed Branching NOP - generate a "nop" instruction but only if delayed branching is enabled. Added in 3.4.1 release.
-       * <LI>BROFFnm means substitute n if delayed branching is NOT enabled otherwise substitute m.  n and m are single digit numbers indicating constant branch offset (in words).  Added in 3.4.1 release.
    	 * </UL>
    	 * @param template a String containing template for basic statement.
    	 * @param theTokenList a TokenList containing tokens from extended instruction.
@@ -495,20 +494,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             else {
                instruction = substitute(instruction,"LLP",String.valueOf(addr << 16 >> 16));//addr & 0xffff));
             }
-         }
-      	// 23-Jan-2008 DPS.  Substitute correct constant branch offset depending on whether or not
-      	// delayed branching is enabled. BROFF is followed by 2 digits.  The first is branch offset
-      	// to substitute if delayed branching is DISABLED, second is offset if ENABLED.
-         if ((index=instruction.indexOf("BROFF"))>=0) {
-            try {
-               String disabled = instruction.substring(index+5, index+6);
-               String enabled  = instruction.substring(index+6, index+7);
-               instruction = substitute(instruction,"BROFF"+disabled+enabled,
-                          Globals.getSettings().getDelayedBranchingEnabled() ? enabled : disabled );
-            } 
-                catch (IndexOutOfBoundsException iooe) {
-                  instruction = substitute(instruction,"BROFF", "BAD_PSEUDO_OP_SPEC");
-               }
          }
       	// substitute Next higher Register for registers in token list (for "mfc1.d","mtc1.d")
          if (instruction.indexOf("NR")>=0) {

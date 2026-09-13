@@ -3120,7 +3120,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          } 
              catch (NullPointerException e)
             {
-               System.out.println(
+               System.err.println(
                     "Error: MIPS pseudo-instruction file PseudoOps.txt not found.");
                System.exit(0);
             }
@@ -3140,7 +3140,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                   firstTemplate = null;
                   while (tokenizer.hasMoreTokens()) {
                      token = tokenizer.nextToken();
-                     if (token.startsWith("#")) {  
+                      if (token.contains("BROFF")) {
+                          System.err.println(
+                                  "Warning: <BROFFnm> is deprecated PseudoOps.txt. Please replace it with <m>.");
+                          int index = token.indexOf("BROFF");
+                          token = token.substring(0, index) + token.substring(index + 6);
+                      }
+                      if (token.startsWith("#")) {  
                         // Optional description must be last token in the line.
                         description = token.substring(1);
                         break;
@@ -3167,13 +3173,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          } 
              catch (IOException ioe)
             {
-               System.out.println(
+               System.err.println(
                     "Internal Error: MIPS pseudo-instructions could not be loaded.");
                System.exit(0);
             } 
              catch (Exception ioe)
             {
-               System.out.println(
+               System.err.println(
                     "Error: Invalid MIPS pseudo-instruction specification.");
                System.exit(0);
             }
