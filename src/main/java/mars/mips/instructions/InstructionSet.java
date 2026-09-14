@@ -48,7 +48,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    {
       private ArrayList instructionList;
 	  private ArrayList opcodeMatchMaps;
-      private SyscallLoader syscallLoader;
     /**
      * Creates a new InstructionSet object.
      */
@@ -1193,7 +1192,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                {
                    public void simulate(ProgramStatement statement) throws ProcessingException
                   {
-                     findAndSimulateSyscall(RegisterFile.getValue(2),statement);
+                      throw new ProcessingException(statement, "syscall instruction executed; no code given.",
+                              Exceptions.SYSCALL_EXCEPTION);
                   }
                }));
          instructionList.add(
@@ -3062,9 +3062,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         ////////////// READ PSEUDO-INSTRUCTION SPECS FROM DATA FILE AND ADD //////////////////////
          addPseudoInstructions();
       	
-        ////////////// GET AND CREATE LIST OF SYSCALL FUNCTION OBJECTS ////////////////////
-         syscallLoader = new SyscallLoader();
-         syscallLoader.loadSyscalls();
       	
         // Initialization step.  Create token list for each instruction example.  This is
         // used by parser to determine user program correct syntax.
@@ -3226,24 +3223,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             }
          }
          return matchingInstructions;
-      }
-   	
-   	/*
-   	 * Method to find and invoke a syscall given its service number.  Each syscall
-   	 * function is represented by an object in an array list.  Each object is of
-   	 * a class that implements Syscall or extends AbstractSyscall.
-   	 */
-   	 
-       private void findAndSimulateSyscall(int number, ProgramStatement statement) 
-                                                        throws ProcessingException {
-         Syscall service = syscallLoader.findSyscall(number);
-         if (service != null) {
-            service.simulate(statement);
-            return;
-         }
-         throw new ProcessingException(statement,
-              "invalid or unimplemented syscall service: " +
-              number + " ", Exceptions.SYSCALL_EXCEPTION);
       }
    	
    	/*
