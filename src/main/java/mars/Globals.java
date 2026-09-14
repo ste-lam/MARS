@@ -46,7 +46,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    {
       // List these first because they are referenced by methods called at initialization.
       private static String configPropertiesFile = "Config";
-      private static String syscallPropertiesFile = "Syscall";
    	
     /** The set of implemented MIPS instructions. **/
       public static InstructionSet instructionSet;
@@ -229,21 +228,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 */
        public static String getPropertyEntry(String propertiesFile, String propertyName) {
          return PropertiesFile.loadPropertiesFromFile(propertiesFile).getProperty(propertyName);
-      }
-   	   
-   	/**
-   	 * Read any syscall number assignment overrides from config file.
-   	 * @return ArrayList of SyscallNumberOverride objects
-   	 */
-       public ArrayList getSyscallOverrides() {
-         ArrayList overrides = new ArrayList();
-         Properties properties = PropertiesFile.loadPropertiesFromFile(syscallPropertiesFile);
-         Enumeration keys = properties.keys();
-         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            overrides.add(new SyscallNumberOverride(key,properties.getProperty(key)));
-         }
-         return overrides;
       }
    
    }
