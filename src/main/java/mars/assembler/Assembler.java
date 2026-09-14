@@ -1,8 +1,6 @@
    package mars.assembler;
 
-   import java.util.ArrayList;
-   import java.util.Collections;
-   import java.util.Comparator;
+   import java.util.*;
 
    import mars.ErrorList;
    import mars.ErrorMessage;
@@ -12,9 +10,9 @@
    import mars.ProgramStatement;
    import mars.mips.hardware.AddressErrorException;
    import mars.mips.hardware.Memory;
-   import mars.mips.instructions.BasicInstruction;
-   import mars.mips.instructions.ExtendedInstruction;
-   import mars.mips.instructions.Instruction;
+   import mars.mips.hardware.RegisterFile;
+   import mars.mips.instructions.*;
+   import mars.mips.instructions.syscalls.Syscall;
    import mars.util.Binary;
    import mars.util.SystemIO;
 
@@ -264,11 +262,14 @@
             currentFileDataSegmentForwardReferences.clear();
          } // end of first-pass loop for each MIPSprogram
       
-      
+         // resolve virtuell syscall labels
+         SymbolTable syscallSymbols = new SymbolTable(null);
+         createSyscallTable(syscallSymbols);
       
       // Have processed all source files. Attempt to resolve any remaining forward label
       // references from global symbol table. Those that remain unresolved are undefined
       // and require error message.
+         accumulatedDataSegmentForwardReferences.resolve(syscallSymbols);
          accumulatedDataSegmentForwardReferences.resolve(Globals.symbolTable);
          accumulatedDataSegmentForwardReferences.generateErrorMessages(errors);
       
@@ -1512,4 +1513,33 @@
          }
       
       }
+
+   private void createSyscallTable(SymbolTable symbolTable) {
+      try {
+         ////////////// GET AND CREATE LIST OF SYSCALL FUNCTION OBJECTS ////////////////////
+         List<Syscall> syscallList = SyscallLoader.loadSyscalls();
+         syscallList.sort(Comparator.comparing(Syscall::getName));
+         
+         int address = Memory.kernelTextLimitAddress - Instruction.INSTRUCTION_LENGTH * syscallList.size();
+         for (Syscall syscall : syscallList) {
+            ProgramStatement ps = createProgramStatementForSyscall(syscall, address);
+
+            Globals.memory.setStatement(address, ps);
+            symbolTable.addSymbol(syscall.getClass().getName(), address, Symbol.TEXT_SYMBOL);
+            address += Instruction.INSTRUCTION_LENGTH;
+         }
+      } catch (AddressErrorException e) {
+         e.printStackTrace(System.err);
+         System.exit(0);
+      }
+   }
+
+   private static ProgramStatement createProgramStatementForSyscall(Syscall syscall, int address) {
+      Instruction inst = new BasicInstruction(syscall.getName(), "virtual syscall", BasicInstructionFormat.R_FORMAT,
+              "000000 00000 00000 00000 00000 000000", statement -> {
+            syscall.simulate(statement);
+            RegisterFile.setProgramCounter(RegisterFile.getValue(31));
+      });
+      return new ProgramStatement(null, "", null, null, inst, address, -1);
+   }
    }
