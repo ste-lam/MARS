@@ -1,5 +1,7 @@
    package mars.util;
    import mars.*;
+   import mars.mips.instructions.syscalls.Syscall;
+
    import java.io.*;
    import javax.swing.*;
    import java.util.*;
@@ -71,11 +73,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     /**
      * Implements syscall to read an integer value.  
      * Client is responsible for catching NumberFormatException.
-     * @param serviceNumber the number assigned to Read Int syscall (default 5)
+     * @param service the service assigned to Read Int syscall (default 5)
      * @return int value corresponding to user input
      */
    
-       public static int readInteger(int serviceNumber)
+       public static int readInteger(Syscall service)
       {
          String input = "0";
          if (Globals.getGui() == null)
@@ -91,7 +93,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          {
             if (Globals.getSettings().getBooleanSetting(Settings.POPUP_SYSCALL_INPUT)) {
                input = Globals.getGui().getMessagesPane().getInputString(
-                    "Enter an integer value (syscall "+serviceNumber+")");
+                    "Enter an integer value (syscall "+service.getName()+")");
             } 
             else {
                input = Globals.getGui().getMessagesPane().getInputString(-1);
@@ -106,11 +108,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     /**
      * Implements syscall to read a float value.
      * Client is responsible for catching NumberFormatException.
-     * @param serviceNumber the number assigned to Read Float syscall (default 6)
+     * @param service the Syscall assigned to Read Float syscall (default 6)
      * @return float value corresponding to user input
      * Feb 14 2005 Ken Vollmar
      */
-       public static float readFloat(int serviceNumber)
+       public static float readFloat(Syscall service)
       {
          String input = "0";
          if (Globals.getGui() == null)
@@ -126,7 +128,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          {
             if (Globals.getSettings().getBooleanSetting(Settings.POPUP_SYSCALL_INPUT)) {
                input = Globals.getGui().getMessagesPane().getInputString(
-                    "Enter a float value (syscall "+serviceNumber+")");
+                    "Enter a float value (syscall "+service.getName()+")");
             } 
             else {
                input = Globals.getGui().getMessagesPane().getInputString(-1);
@@ -140,11 +142,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     /**
      * Implements syscall to read a double value.
      * Client is responsible for catching NumberFormatException.
-     * @param serviceNumber the number assigned to Read Double syscall (default 7)
+     * @param service the Syscall assigned to Read Double syscall (default 7)
      * @return double value corresponding to user input
      * 1 Aug 2005 DPS, based on Ken Vollmar's readFloat
      */
-       public static double readDouble(int serviceNumber)
+       public static double readDouble(Syscall service)
       {
          String input = "0";
          if (Globals.getGui() == null)
@@ -160,7 +162,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          {
             if (Globals.getSettings().getBooleanSetting(Settings.POPUP_SYSCALL_INPUT)) {
                input = Globals.getGui().getMessagesPane().getInputString(
-                    "Enter a double value (syscall "+serviceNumber+")");
+                    "Enter a double value (syscall "+service.getName()+")");
             } 
             else {
                input = Globals.getGui().getMessagesPane().getInputString(-1);
@@ -190,11 +192,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
     /**
      * Implements syscall to read a string.
-     * @param serviceNumber the number assigned to Read String syscall (default 8)
+     * @param service the Syscall assigned to Read String syscall (default 8)
      * @param maxLength the maximum string length
      * @return the entered string, truncated to maximum length if necessary
      */
-       public static String readString(int serviceNumber, int maxLength)
+       public static String readString(Syscall service, int maxLength)
       {
          String input = "";
          if (Globals.getGui() == null)
@@ -211,7 +213,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             if (Globals.getSettings().getBooleanSetting(Settings.POPUP_SYSCALL_INPUT)) {
                input = Globals.getGui().getMessagesPane().getInputString(
                     "Enter a string of maximum length " + maxLength
-                    + " (syscall "+serviceNumber+")");            
+                    + " (syscall "+service.getName()+")");            
             } 
             else {
                input = Globals.getGui().getMessagesPane().getInputString(maxLength);
@@ -233,10 +235,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
     /** Implements syscall having 12 in $v0, to read a char value.
      *
-     * @param serviceNumber the number assigned to Read Char syscall (default 12)
+     * @param service the service to Read Char syscall
      * @return int value with lowest byte corresponding to user input
      */
-       public static int readChar(int serviceNumber)
+       public static int readChar(Syscall service)
       {
          String input = "0";
          int returnValue = 0;
@@ -253,7 +255,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          {
             if (Globals.getSettings().getBooleanSetting(Settings.POPUP_SYSCALL_INPUT)) {
                input = Globals.getGui().getMessagesPane().getInputString(
-                    "Enter a character value (syscall "+serviceNumber+")");				
+                    "Enter a character value (syscall "+service.getName()+")");				
             } 
             else {			
                input = Globals.getGui().getMessagesPane().getInputString(1);

@@ -1,5 +1,4 @@
    package mars.mips.instructions.syscalls;
-   import mars.util.*;
    import mars.mips.hardware.*;
 	import mars.simulator.*;
    import mars.*;
@@ -43,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * Build an instance of the syscall with its default service number and name.
     */
        public SyscallInputDialogDouble() {
-         super(53, "InputDialogDouble");
+         super("InputDialogDouble");
       }
 
    /**
@@ -112,7 +111,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                {
                   RegisterFile.updateRegister(5, -1 );  // set $a1 to -1 flag
                    throw new ProcessingException(statement,
-                       "invalid int reg. access during double input (syscall "+this.getNumber()+")",
+                       "invalid int reg. access during double input (syscall "+this.getName()+")",
 						           Exceptions.SYSCALL_EXCEPTION);
                }
 
@@ -121,7 +120,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                    RegisterFile.updateRegister(5, -1 );  // set $a1 to -1 flag
                    /*  Don't throw exception because returning a status flag
                    throw new ProcessingException(statement,
-                      "invalid float input (syscall "+this.getNumber()+")",
+                      "invalid float input (syscall "+this.getName()+")",
 						          Exceptions.SYSCALL_EXCEPTION);
                    */
                }

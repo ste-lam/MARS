@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 36 and name is "PrintIntUnsigned".
     */
        public SyscallPrintIntUnsigned() {
-         super(36, "PrintIntUnsigned");
+         super("PrintIntUnsigned");
       }
       
    /**

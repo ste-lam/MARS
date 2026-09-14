@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 12 and name is "ReadChar".
     */
        public SyscallTime() {
-         super(30, "Time");
+         super("Time");
       }
       
    /**

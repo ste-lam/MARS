@@ -1,7 +1,6 @@
    package mars.mips.instructions.syscalls;
    import mars.util.*;
    import mars.mips.hardware.*;
-	import mars.simulator.*;
    import mars.*;
 
 /*
@@ -46,7 +45,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 13 and name is "Open".
     */
        public SyscallOpen() {
-         super(13, "Open");
+         super("Open");
       }
       
    /**
@@ -101,7 +100,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			if (retValue < 0) // some error in opening file
          {
             throw new ProcessingException(statement,
-                SystemIO.getFileErrorMessage()+" (syscall "+this.getNumber()+")", 
+                SystemIO.getFileErrorMessage()+" (syscall "+this.getName()+")", 
 					 Exceptions.SYSCALL_EXCEPTION);
          } 
 			*/

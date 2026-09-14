@@ -1,7 +1,6 @@
    package mars.mips.instructions.syscalls;
    import mars.util.*;
    import mars.mips.hardware.*;
-   import mars.simulator.*;
    import mars.*;
 
 /*
@@ -46,7 +45,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 14 and name is "Read".
     */
        public SyscallRead() {
-         super(14, "Read");
+         super("Read");
       }
       
    /**

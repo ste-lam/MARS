@@ -1,8 +1,6 @@
    package mars.mips.instructions.syscalls;
 	
-   import mars.util.*;
    import mars.mips.hardware.*;
-   import mars.simulator.*;
    import mars.*;
 
 
@@ -51,7 +49,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 31 and name is "MidiOut".
     */
        public SyscallMidiOut() {
-         super(31, "MidiOut");
+         super("MidiOut");
       }
       
    /**

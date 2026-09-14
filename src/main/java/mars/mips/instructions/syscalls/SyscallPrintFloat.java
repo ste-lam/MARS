@@ -42,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 2 and name is "PrintFloat".
     */
        public SyscallPrintFloat() {
-         super(2, "PrintFloat");
+         super("PrintFloat");
       }
       
    /**

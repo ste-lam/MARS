@@ -1,6 +1,5 @@
    package mars.mips.instructions.syscalls;
-   import mars.util.*;
-	import mars.simulator.*;
+   import mars.simulator.*;
    import mars.mips.hardware.*;
    import mars.*;
 
@@ -44,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 9 and name is "Sbrk".
     */
        public SyscallSbrk() {
-         super(9, "Sbrk");
+         super("Sbrk");
       }
       
    /**
@@ -57,7 +56,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          } 
              catch (IllegalArgumentException iae) {
                throw new ProcessingException(statement,
-                                       iae.getMessage()+" (syscall "+this.getNumber()+")",
+                                       iae.getMessage()+" (syscall "+this.getName()+")",
                                        Exceptions.SYSCALL_EXCEPTION);
             }
          RegisterFile.updateRegister(2, address);

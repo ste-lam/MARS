@@ -4,10 +4,38 @@
 <body>
 <center>
 <h3>MARS - Mips Assembly and Runtime Simulator</h3>
-<h4>Release 4.5</h4>
-<h4>August 2014</h4>
+<h4>Release 4.6</h4>
+<h4>October 2026</h4>
 <h4>MARS Release History</h4>
 </center>
+
+<p>Mars 4.6 was released in October 2026.  This release contains changes that are
+  <b>not backward compatible</b> with earlier releases.  Enhancements, bug fixes and
+  incompatible changes include:
+<ul>
+  <li>Incompatible change: syscalls are now dispatched by a MIPS kernel exception handler
+    (<tt>kernel.s</tt>) instead of directly by the simulator.  Service numbers are defined in
+    the file <tt>kernel_syscalls.s</tt>, which replaces <tt>Syscall.properties</tt>.
+  </li>
+  <li>Incompatible change: a user-specified exception handler now replaces the built-in
+    kernel.  Such a handler is itself responsible for dispatching syscalls.  A syscall whose
+    service number is not defined is ignored.
+  </li>
+  <li>Incompatible change: classes that implement <tt>Syscall</tt> no longer declare a service
+    number.  Syscalls, Tools and dump formats are now discovered through the Java Service Provider
+    Interface (SPI) instead of by scanning directories.  To add a syscall, list its class in
+    <tt>META-INF/services/mars.mips.instructions.syscalls.Syscall</tt> and assign its service
+    number in <tt>kernel_syscalls.s</tt>.  Existing custom syscall classes must be adapted.
+  </li>
+  <li>Added syscall 60, ClearScreen.
+  </li>
+  <li>The MARS home page is now <tt><b>https://dpetersanderson.github.io/</b></tt>.
+  </li>
+  <li>Internal changes to the assembler and tokenizer (source reading, directive handling,
+    preprocessing).  These are not intended to change behavior.
+  </li>
+</ul>
+</p>
 
 <p>Mars 4.5 was released in August 2014.  Enhancements and bug fixes include:
 <ul>

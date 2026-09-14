@@ -1,7 +1,5 @@
    package mars.mips.instructions.syscalls;
-   import mars.util.*;
    import mars.mips.hardware.*;
-	import mars.simulator.*;
    import mars.*;
 
 /*
@@ -44,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * Build an instance of the syscall with its default service number and name.
     */
        public SyscallSleep() {
-         super(32, "Sleep");
+         super("Sleep");
       }
 
    /**

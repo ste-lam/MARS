@@ -78,6 +78,17 @@ other: plain message (no icon displayed)
   <tr><td>MessageDialogString</td>          <td align="center">59</td>   <td>$a0 = address of null-terminated string that is an information-type message to user<br>$a1 = address of null-terminated string to display after the first string</td>  <td>N/A</td></tr>
   <tr><td>ClearScreen</td>                  <td align="center">60</td>   <td></td>  <td></td></tr>
 </table>
+<p>
+  <strong>Note on how syscalls are handled:</strong> as of this release, the <tt>syscall</tt> instruction
+  raises a syscall exception, which is dispatched by a small kernel exception handler
+  (<tt>kernel.s</tt>, located at <tt>0x80000180</tt>) included with MARS. The handler uses the value
+  in <tt>$v0</tt> to look up the service in the table defined in <tt>kernel_syscalls.s</tt>, runs it,
+  and then returns to the instruction following the <tt>syscall</tt>. Registers <tt>$k0</tt> and
+  <tt>$k1</tt> are used by the handler, as is conventional for kernel code, and are not preserved
+  across a <tt>syscall</tt>. If you specify your own exception handler file in the Settings menu
+  or on the command line, it <i>replaces</i> this kernel, so your handler becomes responsible for
+  dispatching syscalls. Service numbers that are not defined in the table are ignored.
+</p>
 <br>
 <b>NOTES: Services numbered 30 and higher are not provided by SPIM</b>
 <br><b>Service 8</b> - Follows semantics of UNIX 'fgets'.  For specified length n, string can be no longer than n-1. If less than that, adds newline to end.  In either case, then pads with null byte  If n = 1, input is ignored and null byte placed at buffer address. If n < 1, input is ignored and nothing is written to the buffer.

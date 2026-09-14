@@ -44,7 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 12 and name is "ReadChar".
     */
        public SyscallReadChar() {
-         super(12, "ReadChar");
+         super("ReadChar");
       }
       
    /**
@@ -54,12 +54,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          int value = 0;
          try
          {
-            value = SystemIO.readChar(this.getNumber());
+            value = SystemIO.readChar(this);
          } 
              catch (IndexOutOfBoundsException e) // means null input
             {
                throw new ProcessingException(statement,
-                     "invalid char input (syscall "+this.getNumber()+")",
+                     "invalid char input (syscall "+this.getName()+")",
                   	Exceptions.SYSCALL_EXCEPTION);
             }
 			// DPS 20 June 2008: changed from 4 ($a0) to 2 ($v0)

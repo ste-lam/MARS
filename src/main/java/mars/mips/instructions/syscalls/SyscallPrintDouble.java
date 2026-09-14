@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 3 and name is "PrintDouble".
     */
        public SyscallPrintDouble() {
-         super(3, "PrintDouble");
+         super("PrintDouble");
       }
       
    /**

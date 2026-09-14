@@ -1,7 +1,6 @@
 package mars.mips.instructions.syscalls;
 
 import mars.*;
-import mars.mips.instructions.syscalls.AbstractSyscall;
 import mars.ProcessingException;
 import mars.ProgramStatement;
 import javax.swing.*;
@@ -16,7 +15,7 @@ import javax.swing.*;
 public class SyscallClearScreen extends AbstractSyscall {
 
     public SyscallClearScreen() {
-        super(60, "ClearScreen");
+        super("ClearScreen");
     }
 
     @Override

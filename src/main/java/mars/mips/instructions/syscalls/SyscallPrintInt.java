@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 1 and name is "PrintInt".
     */
        public SyscallPrintInt() {
-         super(1, "PrintInt");
+         super("PrintInt");
       }
       
    /**

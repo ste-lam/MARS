@@ -1,7 +1,6 @@
    package mars.mips.instructions.syscalls;
    import mars.util.*;
    import mars.mips.hardware.*;
-   import mars.simulator.*;
    import mars.*;
 
 /*
@@ -47,7 +46,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 15 and name is "Write".
     */
        public SyscallWrite() {
-         super(15, "Write");
+         super("Write");
       }
       
    /**

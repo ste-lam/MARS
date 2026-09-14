@@ -42,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 8 and name is "ReadString".
     */
        public SyscallReadString() {
-         super(8, "ReadString");
+         super("ReadString");
       }
       
    /**
@@ -63,7 +63,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             maxLength = 0;
 				addNullByte = false;
          }
-         inputString = SystemIO.readString(this.getNumber(), maxLength);
+         inputString = SystemIO.readString(this, maxLength);
          int stringLength = Math.min(maxLength, inputString.length());
          try
          {
