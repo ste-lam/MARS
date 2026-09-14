@@ -64,14 +64,28 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	
        public void addSymbol(Token token, int address, boolean b, ErrorList errors) {
          String label = token.getValue();
-         if (getSymbol(label) != null) {
-            errors.add(new ErrorMessage(token.getSourceMIPSprogram(), token.getSourceLine(),token.getStartPos(),"label \""+label+"\" already defined"));
+         if (addSymbol(label, address, b)) {
+             if (Globals.debug) System.out.println("The symbol " + label + " with address " + address + " has been added to the "+this.filename+" symbol table.");
          } 
          else {
-            Symbol s= new Symbol(label, address, b);
-            table.add(s);
-            if (Globals.debug) System.out.println("The symbol " + label + " with address " + address + " has been added to the "+this.filename+" symbol table.");
+             errors.add(new ErrorMessage(token.getSourceMIPSprogram(), token.getSourceLine(),token.getStartPos(),"label \""+label+"\" already defined"));
          }
+      }
+
+      /**
+       *  Adds a Symbol object into the array of Symbols.
+       *   @param label the Symbol.
+       *   @param address The address of the Symbol.
+       *   @param b The type of Symbol, true for data, false for text.
+       *   @return <code>true</code> when the Symbol was added, <code>false</code> otherwise
+       **/
+      public boolean addSymbol(String label, int address, boolean b) {
+          if (getSymbol(label) != null) {
+              return false;
+          }
+          Symbol s = new Symbol(label, address, b);
+          table.add(s);
+          return true;
       }
    
    
