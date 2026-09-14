@@ -1,5 +1,4 @@
    package mars.mips.instructions.syscalls;
-   import mars.util.*;
    import mars.*;
    import mars.mips.hardware.*;
 
@@ -43,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 17 and name is "Exit2".
     */
        public SyscallExit2() {
-         super(17, "Exit2");
+         super("Exit2");
       }
       
    /**

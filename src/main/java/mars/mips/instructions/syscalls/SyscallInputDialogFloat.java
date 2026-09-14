@@ -1,7 +1,5 @@
    package mars.mips.instructions.syscalls;
-   import mars.util.*;
    import mars.mips.hardware.*;
-	import mars.simulator.*;
    import mars.*;
 import javax.swing.JOptionPane;
 
@@ -43,7 +41,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * Build an instance of the syscall with its default service number and name.
     */
        public SyscallInputDialogFloat() {
-         super(52, "InputDialogFloat");
+         super("InputDialogFloat");
       }
 
    /**
@@ -118,7 +116,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
                    /*  Don't throw exception because returning a status flag
                    throw new ProcessingException(statement,
-                      "invalid float input (syscall "+this.getNumber()+")",
+                      "invalid float input (syscall "+this.getName()+")",
 						          Exceptions.SYSCALL_EXCEPTION);
                    */
 

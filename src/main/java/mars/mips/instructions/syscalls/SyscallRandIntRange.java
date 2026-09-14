@@ -1,5 +1,4 @@
    package mars.mips.instructions.syscalls;
-   import mars.util.*;
    import mars.mips.hardware.*;
    import mars.simulator.*;
    import mars.*;
@@ -44,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * Build an instance of the syscall with its default service number and name.
     */
        public SyscallRandIntRange() {
-         super(42, "RandIntRange");
+         super("RandIntRange");
       }
       
    /**
@@ -69,7 +68,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          } 
              catch (IllegalArgumentException iae) {
                throw new ProcessingException(statement,
-                       "Upper bound of range cannot be negative (syscall "+this.getNumber()+")",
+                       "Upper bound of range cannot be negative (syscall "+this.getName()+")",
                              Exceptions.SYSCALL_EXCEPTION);			 
             }
       }

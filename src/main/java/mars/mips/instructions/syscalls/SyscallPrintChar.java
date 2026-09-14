@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 11 and name is "PrintChar".
     */
        public SyscallPrintChar() {
-         super(11, "PrintChar");
+         super("PrintChar");
       }
       
    /**

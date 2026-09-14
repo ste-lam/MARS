@@ -43,16 +43,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
     public abstract class AbstractSyscall implements Syscall {
-      private int serviceNumber;
       private String serviceName;
    	 
    /**
     * Constructor is provided so subclass may initialize instance variables.
-    * @param number default assigned service number
+    *
     * @param name service name which may be used for reference independent of number
     */
-       public AbstractSyscall(int number, String name) {
-         serviceNumber = number;
+       public AbstractSyscall(String name) {
          serviceName   = name;
       }
    	
@@ -64,24 +62,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    */
        public String getName() {
          return serviceName;
-      }
-   
-   /**
-   * Set the service number.  This is provided to allow MARS implementer or user
-   * to override the default service number.
-   * @param num specified service number to override the default.
-   */
-       public void setNumber(int num) {
-         serviceNumber = num;
-      }
-   
-   /**
-   * Return the assigned service number.  This is the number the MIPS programmer
-   * must store into $v0 before issuing the SYSCALL instruction.
-   * @return assigned service number
-   */
-       public int getNumber() {
-         return serviceNumber;
       }
    
    /**

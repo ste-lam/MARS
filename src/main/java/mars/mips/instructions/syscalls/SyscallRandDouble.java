@@ -1,5 +1,4 @@
    package mars.mips.instructions.syscalls;
-   import mars.util.*;
    import mars.mips.hardware.*;
    import mars.simulator.*;
    import mars.*;
@@ -44,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * Build an instance of the syscall with its default service number and name.
     */
        public SyscallRandDouble() {
-         super(44, "RandDouble");
+         super("RandDouble");
       }
       
    /**
@@ -67,7 +66,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }     
              catch (InvalidRegisterAccessException e) {   // register ID error in this method
                throw new ProcessingException(statement,
-                       "Internal error storing double to register (syscall "+this.getNumber()+")",
+                       "Internal error storing double to register (syscall "+this.getName()+")",
                              Exceptions.SYSCALL_EXCEPTION);
             }
       }

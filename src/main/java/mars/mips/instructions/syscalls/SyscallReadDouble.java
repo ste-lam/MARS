@@ -44,7 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 7 and name is "ReadDouble".
     */
        public SyscallReadDouble() {
-         super(7, "ReadDouble");
+         super("ReadDouble");
       }
       
    /**
@@ -55,12 +55,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          double doubleValue = 0;
          try
          {
-            doubleValue = SystemIO.readDouble(this.getNumber());
+            doubleValue = SystemIO.readDouble(this);
          } 
              catch (NumberFormatException e)
             {
                throw new ProcessingException(statement,
-                   "invalid double input (syscall "+this.getNumber()+")",
+                   "invalid double input (syscall "+this.getName()+")",
 						 Exceptions.SYSCALL_EXCEPTION);
             }
          long longValue = Double.doubleToRawLongBits(doubleValue);	

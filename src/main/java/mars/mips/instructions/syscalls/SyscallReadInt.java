@@ -44,7 +44,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 5 and name is "ReadInt".
     */
        public SyscallReadInt() {
-         super(5, "ReadInt");
+         super("ReadInt");
       }
       
    /**
@@ -54,12 +54,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          int value = 0;
          try
          {
-            value = SystemIO.readInteger(this.getNumber());
+            value = SystemIO.readInteger(this);
          } 
              catch (NumberFormatException e)
             {
                throw new ProcessingException(statement,
-                 "invalid integer input (syscall "+this.getNumber()+")",
+                 "invalid integer input (syscall "+this.getName()+")",
 					  Exceptions.SYSCALL_EXCEPTION);
             }
          RegisterFile.updateRegister(2, value);

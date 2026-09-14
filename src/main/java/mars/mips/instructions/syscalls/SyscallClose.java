@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 16 and name is "Close".
     */
        public SyscallClose() {
-         super(16, "Close");
+         super("Close");
       }
       
    /**

@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 6 and name is "ReadFloat".
     */
        public SyscallReadFloat() {
-         super(6, "ReadFloat");
+         super("ReadFloat");
       }
       
    /**
@@ -53,12 +53,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          float floatValue = 0;
          try
          {
-            floatValue = SystemIO.readFloat(this.getNumber());
+            floatValue = SystemIO.readFloat(this);
          } 
              catch (NumberFormatException e)
             {
                throw new ProcessingException(statement,
-                  "invalid float input (syscall "+this.getNumber()+")",
+                  "invalid float input (syscall "+this.getName()+")",
 						Exceptions.SYSCALL_EXCEPTION);
             }
          Coprocessor1.updateRegister(0, Float.floatToRawIntBits(floatValue));

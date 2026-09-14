@@ -42,7 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 4 and name is "PrintString".
     */
        public SyscallPrintString() {
-         super(4, "PrintString");
+         super("PrintString");
       }
       
    /**

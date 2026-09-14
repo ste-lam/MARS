@@ -1,8 +1,6 @@
    package mars.mips.instructions.syscalls;
 	
-   import mars.util.*;
    import mars.mips.hardware.*;
-   import mars.simulator.*;
    import mars.*;
 
 /*
@@ -62,7 +60,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * is 33 and name is "MidiOutSync".
     */
        public SyscallMidiOutSync() {
-         super(33, "MidiOutSync");
+         super("MidiOutSync");
       }
       
    /**
