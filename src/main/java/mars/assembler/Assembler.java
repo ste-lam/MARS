@@ -382,12 +382,13 @@
       // but in case of duplicate I like having both statements handy for error message.
          Collections.sort(this.machineList, new ProgramStatementComparator());
          catchDuplicateAddresses(this.machineList, errors);
+         checkInstructionSanity(this.machineList, errors);
          if (errors.errorsOccurred() || errors.warningsOccurred() && warningsAreErrors) {
             throw new ProcessingException(errors);
          }
          return this.machineList;
       } // assemble()
-   
+
    // //////////////////////////////////////////////////////////////////////
    // Will check for duplicate text addresses, which can happen inadvertantly when using
    // operand on .text directive. Will generate error message for each one that occurs.
@@ -408,7 +409,26 @@
             }
          }
       }
-   
+
+
+   private void checkInstructionSanity(ArrayList<ProgramStatement> instructions, ErrorList errors) {
+      for (int i = 1; i < instructions.size(); ++i) {
+         ProgramStatement a = instructions.get(i - 1);
+         ProgramStatement b = instructions.get(i);
+
+         if (a.getAddress() + INSTRUCTION_LENGTH != b.getAddress())
+            continue;
+         if (!a.getInstruction().getProperties().contains(Instruction.Property.DELAY_SLOT))
+            continue;
+         if (!b.getInstruction().getProperties().contains(Instruction.Property.CONTROL_TRANSFER_INSTRUCTION))
+            continue;
+
+         ErrorMessage msg = new ErrorMessage(true, b.getSourceMIPSprogram(), b.getSourceLine(), 0,
+                 "A Control Transfer Instruction (CTI) should not be placed in a delay slot");
+         errors.add(msg);
+      }
+   }
+
    /**
     * This method parses one line of MIPS source code. It works with the list
     * of tokens, but original source is also provided. It also carries out
