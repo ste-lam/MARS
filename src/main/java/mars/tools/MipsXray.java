@@ -70,6 +70,8 @@ import mars.venus.RunBackstepAction;
 import mars.venus.RunStepAction;
 import mars.venus.VenusUI;
 
+import static mars.util.Binary.intToBinaryString;
+
 public class MipsXray extends AbstractMarsToolAndApplication{
 	private static final long serialVersionUID = -1L;
     private static String heading =  "MIPS X-Ray - Animation of MIPS Datapath";
@@ -254,7 +256,7 @@ public class MipsXray extends AbstractMarsToolAndApplication{
    			}
    			
    			instr = (BasicInstruction) stmt.getInstruction();
-   			instructionBinary = stmt.getMachineStatement();
+   			instructionBinary = intToBinaryString(stmt.getBinaryStatement());
    			BasicInstructionFormat format = instr.getInstructionFormat();
    			
    			painel.removeAll();

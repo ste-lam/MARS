@@ -208,20 +208,6 @@ public class BasicInstruction extends Instruction {
 		}
 		
       /**
-       * Gets the 32-character operation mask.  Each mask position represents a 
-       * bit position in the 32-bit machine instruction.  Operation codes and
-       * unused bits are represented in the mask by 1's and 0's.  Operand codes
-       * are represented by 'f', 's', and 't' for bits occupied by first, secon
-       * and third operand, respectively. The code 'c' is used for code fields
-	   * which are ignored by hardware.
-       *
-       * @return The 32 bit mask, as a String
-       */
-	public String getOperationMask() {
-	    return operationMask;
-	}
-	
-      /**
        * Gets the operand format of the instruction.  MIPS defines 3 of these
        * R-format, I-format, and J-format.  R-format is all registers.  I-format
        * is address formed from register base with immediate offset.  J-format
@@ -255,5 +241,28 @@ public class BasicInstruction extends Instruction {
 
 	public int getOpcodeMatch() {
 		return this.opcodeMatch;
+	}
+
+
+	/**
+	 * Gets the 32-character operation mask.  Each mask position represents a 
+	 * bit position in the 32-bit machine instruction.  Operation codes and
+	 * unused bits are represented in the mask by 1's and 0's.  Operand codes
+	 * are represented by 'f', 's', and 't' for bits occupied by first, secon
+	 * and third operand, respectively. The code 'c' is used for code fields
+	 * which are ignored by hardware.
+	 *
+	 * @param mask the operand type mask f, s, t or c
+	 * @return The 32 bit mask, as a String
+	 */
+	public int getOperandMask(char mask) {
+		String machineStatement = operationMask;
+		assert machineStatement.length() == Instruction.INSTRUCTION_LENGTH_BITS;
+		int startPos = machineStatement.indexOf(mask);
+		int endPos = machineStatement.lastIndexOf(mask);
+		if (startPos == -1) {
+			return 0;
+		}
+		return (-1 >>> startPos) & (-1 << 31 - endPos);
 	}
 }

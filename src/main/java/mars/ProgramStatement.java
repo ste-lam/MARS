@@ -45,7 +45,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     public class ProgramStatement {
       private MIPSprogram sourceMIPSprogram;
-      private String source, machineStatement;
+      private String source;
       private TokenList originalTokenList, strippedTokenList;
       private BasicStatementList basicStatementList;
       private int[] operands;
@@ -81,7 +81,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.textAddress = textAddress;
          this.sourceLine = sourceLine;
          this.basicStatementList = new BasicStatementList();
-         this.machineStatement = null;
          this.binaryStatement = 0;  // nop, or sll $0, $0, 0  (32 bits of 0's)
          this.altered = false;
       }
@@ -104,34 +103,27 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.textAddress = textAddress;
          this.originalTokenList = this.strippedTokenList = null;
          this.source = "";
-         this.machineStatement = null;
          BasicInstruction instr = Globals.instructionSet.findByBinaryCode(binaryStatement);
          this.operands = new int[4];
          this.numOperands = 0;
          this.instruction = instr;
       
-         String opandCodes = "fst";
-         String fmt = instr.getOperationMask();
          BasicInstructionFormat instrFormat = instr.getInstructionFormat();
-         int numOps = 0;
-         for (int i = 0; i < opandCodes.length(); i++) {
-            int code = opandCodes.charAt(i);
-            int j = fmt.indexOf(code);
-            if (j >= 0) {
-               int k0 = 31 - fmt.lastIndexOf(code);
-               int k1 = 31 - j;
-               int opand = (binaryStatement >> k0) & ((1 << (k1 - k0 + 1)) - 1);
-               if (instrFormat.equals(BasicInstructionFormat.I_BRANCH_FORMAT) && numOps == 2) {
-                  opand = opand << 16 >> 16;
-               } 
-               else if (instrFormat.equals(BasicInstructionFormat.J_FORMAT) && numOps == 0) {
-                  opand |= (textAddress >> 2) & 0x3C000000;
-               }
-               this.operands[numOps] = opand;
-               numOps++;
-            }
+         for (char c : Instruction.operandMask) {
+             int mask = instr.getOperandMask(c);
+             if (mask == 0)
+                 continue;
+             int lsb =  Integer.numberOfTrailingZeros(mask);
+             int opand = (binaryStatement & mask) >>> lsb;
+             
+             if (instrFormat.equals(BasicInstructionFormat.I_BRANCH_FORMAT) && numOperands == 2) {
+                 opand = opand << 16 >> 16;
+             }
+             else if (instrFormat.equals(BasicInstructionFormat.J_FORMAT) && numOperands == 0) {
+                 opand |= (textAddress >> 2) & 0x3C000000;
+             }
+             this.operands[this.numOperands++] = opand;
          }
-         this.numOperands = numOps;
          this.altered = false;
          this.basicStatementList = buildBasicStatementListFromBinaryCode(binaryStatement, instr, operands, numOperands);
       }
@@ -309,11 +301,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
            
            if (!(instruction instanceof BasicInstruction)) {
                errors.add(new ErrorMessage(this.sourceMIPSprogram,this.sourceLine,0,
-                          "INTERNAL ERROR: pseudo-instruction expansion contained a pseudo-instruction"));
-               return;            
-            }        
-         BasicInstructionFormat format = ((BasicInstruction)instruction).getInstructionFormat();
-      
+                       "INTERNAL ERROR: pseudo-instruction expansion contained a pseudo-instruction"));
+               return;
+           }
+           BasicInstruction basicInstruction = (BasicInstruction) instruction;
+           BasicInstructionFormat format = basicInstruction.getInstructionFormat();
+
+           this.binaryStatement = basicInstruction.getOpcodeMatch();
+
          if (format == BasicInstructionFormat.J_FORMAT) {
             if ((this.textAddress & 0xF0000000) != (this.operands[0] & 0xF0000000)) {
                // attempt to jump beyond 28-bit byte (26-bit word) address range. 
@@ -325,19 +320,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             // Note the  bit shift to make this a word address.
             this.operands[0] = this.operands[0] >>> 2;
             this.insertBinaryCode(this.operands[0], Instruction.operandMask[0], errors);          
-         } 
-         else if (format == BasicInstructionFormat.I_BRANCH_FORMAT) { 
-            for (int i=0; i<this.numOperands-1; i++) {
-               this.insertBinaryCode(this.operands[i], Instruction.operandMask[i], errors);
-            }
-            this.insertBinaryCode(operands[this.numOperands-1], Instruction.operandMask[this.numOperands-1], errors);         
-         } 
+         }
          else {  // R_FORMAT or I_FORMAT
             for (int i=0; i<this.numOperands; i++)
                this.insertBinaryCode(this.operands[i], Instruction.operandMask[i], errors);
          }
-         this.binaryStatement = Binary.binaryStringToInt(this.machineStatement);
-         return;
       } // buildMachineStatementFromBasicStatement(
         
     
@@ -367,24 +354,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             // result += operands[i] + " ";
                result += Integer.toString(operands[i], 16) + " ";
          }
-         if (this.machineStatement != null) {
-            result += "["+Binary.binaryStringToHexString(this.machineStatement)+"]";
-            result += "  "+this.machineStatement.substring(0,6)+"|" + this.machineStatement.substring(6,11)+"|"+
-               this.machineStatement.substring(11,16)+"|" + this.machineStatement.substring(16,21)+"|"+
-               this.machineStatement.substring(21,26)+"|" + this.machineStatement.substring(26,32);
+         if (! basicStatementList.list.isEmpty()) {
+            String machineStatement = Binary.intToBinaryString(this.binaryStatement);
+            result += "["+Binary.intToHexString(this.binaryStatement)+"]";
+            result += "  "+machineStatement.substring(0,6)+"|" + machineStatement.substring(6,11)+"|"+
+               machineStatement.substring(11,16)+"|" + machineStatement.substring(16,21)+"|"+
+               machineStatement.substring(21,26)+"|" + machineStatement.substring(26,32);
          }
          return result;
       } // toString()
    
-    /**
-     * Assigns given String to be binary machine code (32 characters, all of them 0 or 1)
-     * equivalent to this source line.
-     * @param statement A String containing equivalent machine code.
-     **/
-         
-       public void setMachineStatement(String statement) {
-         machineStatement = statement;
-      }
    
     /**
      * Assigns given int to be binary machine code equivalent to this source line.
@@ -455,15 +434,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       }
    	 
     /**
-     * Produces binary machine statement as 32 character string, all '0' and '1' chars.
-     * @return The String version of 32-bit binary machine code.
-     **/
-     
-       public String getMachineStatement() {
-         return machineStatement;
-      }
-    
-    /**
      * Produces 32-bit binary machine statement as int.
      * @return The int version of 32-bit binary machine code.
      **/
@@ -525,21 +495,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     //////////////////////////////////////////////////////////////////////////////
     //  Given operand (register or integer) and mask character ('f', 's', or 't'),
     //  generate the correct sequence of bits and replace the mask with them.
-       private void insertBinaryCode(int value, char mask, ErrorList errors) {
-         int startPos = this.machineStatement.indexOf(mask);
-         int endPos = this.machineStatement.lastIndexOf(mask);
-         if (startPos == -1 || endPos == -1) { // should NEVER occur
-            errors.add(new ErrorMessage(this.sourceMIPSprogram,this.sourceLine,0,
-                   "INTERNAL ERROR: mismatch in number of operands in statement vs mask"));
+    private void insertBinaryCode(int value, char mask, ErrorList errors) {
+        int insertMask = ((BasicInstruction)instruction).getOperandMask(mask);
+        if (insertMask == 0) {
+            errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
+                    "INTERNAL ERROR: mismatch in number of operands in statement vs mask"));
             return;
-         }
-         String bitString = Binary.intToBinaryString(value, endPos-startPos+1);
-         String state = this.machineStatement.substring(0, startPos) + bitString;
-         if (endPos < this.machineStatement.length()-1)
-            state = state + this.machineStatement.substring(endPos+1);
-         this.machineStatement = state;
-         return;
-      } // insertBinaryCode()
+        }
+
+        int shift = Integer.numberOfTrailingZeros(insertMask);
+        int shiftedValue = (value << shift) & insertMask;
+        
+        this.binaryStatement &= ~insertMask;
+        this.binaryStatement |= shiftedValue;
+    }
    
    
     //////////////////////////////////////////////////////////////////////////////
