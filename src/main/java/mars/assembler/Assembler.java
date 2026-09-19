@@ -320,7 +320,7 @@
                // instruction, this method performs the necessary
                // translation correctly.
                   ExtendedInstruction inst = (ExtendedInstruction) statement.getInstruction();
-                  String basicAssembly = statement.getBasicAssemblyStatement();
+                  String basicAssembly = statement.getPrintableBasicAssemblyStatement();
                   int sourceLine = statement.getSourceLine();
                   TokenList theTokenList = new Tokenizer().tokenizeLine(sourceLine,
                      basicAssembly, errors, false);

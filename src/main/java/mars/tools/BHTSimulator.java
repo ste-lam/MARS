@@ -188,7 +188,7 @@ public class BHTSimulator extends AbstractMarsToolAndApplication implements Acti
 	 */
 	protected void handlePreBranchInst(ProgramStatement stmt) {
 		
-		String strStmt = stmt.getBasicAssemblyStatement();
+		String strStmt = stmt.getPrintableBasicAssemblyStatement();
 		int address = stmt.getAddress();
 		int idx = m_bhtModel.getIdxForAddress(address);		
 		
