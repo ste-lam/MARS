@@ -380,7 +380,7 @@
       // Such occurances will be flagged as errors.
       // Yes, I would not have to sort here if I used SortedSet rather than ArrayList
       // but in case of duplicate I like having both statements handy for error message.
-         Collections.sort(this.machineList, new ProgramStatementComparator());
+         machineList.sort(Comparator.comparing(ProgramStatement::getAddress, Integer::compareUnsigned));
          catchDuplicateAddresses(this.machineList, errors);
          checkInstructionSanity(this.machineList, errors);
          if (errors.errorsOccurred() || errors.warningsOccurred() && warningsAreErrors) {
@@ -1361,34 +1361,6 @@
             fileCurrentlyBeingAssembled.getLocalSymbolTable().fixSymbolTableAddress(address,
                alignedAddress);
             return alignedAddress;
-         }
-      }
-   
-   // ///////////////////////////////////////////////////////////////////////////////////
-   // Private class used as Comparator to sort the final ArrayList of
-   // ProgramStatements.
-   // Sorting is based on unsigned integer value of
-   // ProgramStatement.getAddress()
-      private class ProgramStatementComparator implements Comparator {
-      // Will be used to sort the collection. Unsigned int compare, because
-      // all kernel 32-bit
-      // addresses have 1 in high order bit, which makes the int negative.
-      // "Unsigned" compare
-      // is needed when signs of the two operands differ.
-         public int compare(Object obj1, Object obj2) {
-            if (obj1 instanceof ProgramStatement && obj2 instanceof ProgramStatement) {
-               int addr1 = ((ProgramStatement) obj1).getAddress();
-               int addr2 = ((ProgramStatement) obj2).getAddress();
-               return (addr1 < 0 && addr2 >= 0 || addr1 >= 0 && addr2 < 0) ? addr2 : addr1 - addr2;
-            } 
-            else {
-               throw new ClassCastException();
-            }
-         }
-      
-      // Take a hard line.
-         public boolean equals(Object obj) {
-            return this == obj;
          }
       }
    
