@@ -45,7 +45,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     public class ProgramStatement {
       private MIPSprogram sourceMIPSprogram;
-      private String source, basicAssemblyStatement, machineStatement;
+      private String source, machineStatement;
       private TokenList originalTokenList, strippedTokenList;
       private BasicStatementList basicStatementList;
       private int[] operands;
@@ -80,7 +80,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.instruction = inst;
          this.textAddress = textAddress;
          this.sourceLine = sourceLine;
-         this.basicAssemblyStatement = null;
          this.basicStatementList = new BasicStatementList();
          this.machineStatement = null;
          this.binaryStatement = 0;  // nop, or sll $0, $0, 0  (32 bits of 0's)
@@ -105,7 +104,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.textAddress = textAddress;
          this.originalTokenList = this.strippedTokenList = null;
          this.source = "";
-         this.machineStatement = this.basicAssemblyStatement = null;
+         this.machineStatement = null;
          BasicInstruction instr = Globals.instructionSet.findByBinaryCode(binaryStatement);
          if (instr == null) {
             this.operands = null;
@@ -158,22 +157,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          // never run on binary instructions
          if (sourceMIPSprogram == null)
             return;
-         Token token = strippedTokenList.get(0);
-         String basicStatementElement = token.getValue()+" ";;
-         String basic = basicStatementElement;
-         basicStatementList.addString(basicStatementElement); // the operator
-         TokenTypes tokenType, nextTokenType;
-         String tokenValue;
+         Token firstToken = strippedTokenList.get(0);
+         basicStatementList.addString(firstToken.getValue()+" "); // the operator
          int registerNumber;
          this.numOperands = 0;
          for (int i=1; i<strippedTokenList.size(); i++) {
-            token = strippedTokenList.get(i);
-            tokenType = token.getType();
-            tokenValue = token.getValue();
+            Token token = strippedTokenList.get(i);
+            TokenTypes tokenType = token.getType();
+            String tokenValue = token.getValue();
             if (tokenType == TokenTypes.REGISTER_NUMBER) {
-               basicStatementElement = tokenValue;
-               basic += basicStatementElement;
-               basicStatementList.addString(basicStatementElement);
+               basicStatementList.addString(tokenValue);
                try {
                   registerNumber = RegisterFile.getUserRegister(tokenValue).getNumber();
                } 
@@ -186,9 +179,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             } 
             else if (tokenType == TokenTypes.REGISTER_NAME) {
                registerNumber = RegisterFile.getNumber(tokenValue);
-               basicStatementElement = "$" + registerNumber;
-               basic += basicStatementElement;
-               basicStatementList.addString(basicStatementElement);
+               basicStatementList.addString("$" + registerNumber);
                if (registerNumber < 0) {
                     // should never happen; should be caught before now...
                   errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),"invalid register name"));
@@ -198,9 +189,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             } 
             else if (tokenType == TokenTypes.FP_REGISTER_NAME) {
                registerNumber = Coprocessor1.getRegisterNumber(tokenValue);
-               basicStatementElement = "$f" + registerNumber;
-               basic += basicStatementElement;
-               basicStatementList.addString(basicStatementElement);
+               basicStatementList.addString("$f" + registerNumber);
                if (registerNumber < 0) {
                     // should never happen; should be caught before now...
                   errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),"invalid FPU register name"));
@@ -215,7 +204,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                                    "Symbol \""+tokenValue+"\" not found in symbol table."));
                   return;
                }
-               boolean absoluteAddress = true; // (used below)
             	 //////////////////////////////////////////////////////////////////////
             	 // added code 12-20-2004. If basic instruction with I_BRANCH format, then translate
             	 // address from absolute to relative and shift left 2. 
@@ -233,21 +221,18 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             	 // the June 2007 mod (shown below as commented-out assignment to address) does.
             	 // This mod must be made in conjunction with InstructionSet.java's processBranch()
             	 // method.  There are some comments there as well.
-            	 
+
+               boolean absoluteAddress = true;
                if (instruction instanceof BasicInstruction) {
                   BasicInstructionFormat format = ((BasicInstruction)instruction).getInstructionFormat();
-                  if (format ==  BasicInstructionFormat.I_BRANCH_FORMAT) {
-                     //address = (address - (this.textAddress+((Globals.getSettings().getDelayedBranchingEnabled())? Instruction.INSTRUCTION_LENGTH : 0))) >> 2;
-                     address = (address - (this.textAddress+Instruction.INSTRUCTION_LENGTH)) >> 2;
-                     absoluteAddress = false;
-                  }
+                  absoluteAddress = (format != BasicInstructionFormat.I_BRANCH_FORMAT);
                }
             	 //////////////////////////////////////////////////////////////////////
-               basic += address;
                if (absoluteAddress) { // record as address if absolute, value if relative
                   basicStatementList.addAddress(address);
                } 
                else {
+                  address = (address - (this.textAddress+Instruction.INSTRUCTION_LENGTH)) >> 2;
                   basicStatementList.addValue(address);
                }
                this.operands[this.numOperands++] = address;
@@ -298,30 +283,24 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             *        }
             **************************  END DPS 3-July-2008 COMMENTS *******************************/
             
-               basic += tempNumeric;
                basicStatementList.addValue(tempNumeric);  
                this.operands[this.numOperands++] = tempNumeric;
                 ///// End modification 1/7/05 KENV   ///////////////////////////////////////////
             } 
             else {
-               basicStatementElement = tokenValue;
-               basic += basicStatementElement;
-               basicStatementList.addString(basicStatementElement);
+               basicStatementList.addString(tokenValue);
             }
             // add separator if not at end of token list AND neither current nor 
             // next token is a parenthesis
-            if ((i < strippedTokenList.size()-1)) {
-               nextTokenType = strippedTokenList.get(i+1).getType();
+            if ((i+1 < strippedTokenList.size())) {
+               TokenTypes nextTokenType = strippedTokenList.get(i+1).getType();
                if (tokenType != TokenTypes.LEFT_PAREN  &&  tokenType != TokenTypes.RIGHT_PAREN  &&
                    nextTokenType != TokenTypes.LEFT_PAREN && nextTokenType != TokenTypes.RIGHT_PAREN)
                {
-                  basicStatementElement = ",";
-                  basic += basicStatementElement;
-                  basicStatementList.addString(basicStatementElement);
+                  basicStatementList.addString(",");
                }
             }
          }
-         this.basicAssemblyStatement = basic;
       } //buildBasicStatementFromBasicInstruction()
     
     
@@ -382,10 +361,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         // a crude attempt at string formatting.  Where's C when you need it?
          String blanks = "                               ";
          String result = "["+this.textAddress+"]";
-         if (this.basicAssemblyStatement != null) {
-            int firstSpace = this.basicAssemblyStatement.indexOf(" ");
-            result += blanks.substring(0, 16-result.length()) + this.basicAssemblyStatement.substring(0,firstSpace);
-            result += blanks.substring(0, 24-result.length()) + this.basicAssemblyStatement.substring(firstSpace+1);;
+         if (! basicStatementList.list.isEmpty()) {
+            String s = basicStatementList.toString(); 
+            int firstSpace = s.indexOf(" ");
+            result += blanks.substring(0, 16-result.length()) + s.substring(0,firstSpace);
+            result += blanks.substring(0, 24-result.length()) + s.substring(firstSpace+1);;
          } 
          else {
             result += blanks.substring(0, 16 - result.length()) + "0x" + Integer.toString(this.binaryStatement, 16);
@@ -404,15 +384,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
          return result;
       } // toString()
-   
-    /**
-     * Assigns given String to be Basic Assembly statement equivalent to this source line.
-     * @param statement A String containing equivalent Basic Assembly statement.
-     **/
-     
-       public void setBasicAssemblyStatement(String statement) {
-         basicAssemblyStatement = statement;
-      }
    
     /**
      * Assigns given String to be binary machine code (32 characters, all of them 0 or 1)
@@ -479,16 +450,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          
        public int getSourceLine() {
          return sourceLine;
-      }
-    
-    /**
-     * Produces Basic Assembly statement for this MIPS source statement.
-     * All numeric values are in decimal.
-     * @return The Basic Assembly statement.
-     **/
-     
-       public String getBasicAssemblyStatement() {
-         return basicAssemblyStatement;
       }
     
     /**
