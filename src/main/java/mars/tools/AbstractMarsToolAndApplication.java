@@ -696,7 +696,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
            // boolean extendedAssemblerEnabled = true;     // In this context, no reason to constrain.
            // boolean warningsAreErrors = false;           // Ditto.
            
-            String exceptionHandler = null;
+            String exceptionHandler = Objects.requireNonNull(getClass().getResource("/kernel.s")).getFile();
             if (Globals.getSettings().getExceptionHandlerEnabled() &&
                    Globals.getSettings().getExceptionHandler() != null &&
                    Globals.getSettings().getExceptionHandler().length() > 0) {

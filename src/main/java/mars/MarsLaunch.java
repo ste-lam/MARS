@@ -495,8 +495,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             if (Globals.debug) {
                out.println("--------  TOKENIZING BEGINS  -----------");
             }
+            String exceptionHandler = Objects.requireNonNull(getClass().getResource("/kernel.s")).getFile();
             ArrayList MIPSprogramsToAssemble = 
-                      code.prepareFilesForAssembly(filesToAssemble, mainFile.getAbsolutePath(), null);		
+                      code.prepareFilesForAssembly(filesToAssemble, mainFile.getAbsolutePath(), exceptionHandler);
             if (Globals.debug) {
                out.println("--------  ASSEMBLY BEGINS  -----------");
             }
