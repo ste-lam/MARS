@@ -75,7 +75,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     /** The current MARS version number. Can't wait for "initialize()" call to get it. */
       public static final String version = "4.6";
     /** List of accepted file extensions for MIPS assembly source files. */
-      public static final ArrayList fileExtensions = getFileExtensions();
+      public static final ArrayList<String> fileExtensions = getFileExtensions();
     /** Maximum length of scrolled message window (MARS Messages and Run I/O) */
       public static final int maximumMessageCharacters = getMessageLimit();
     /** Maximum number of assembler errors produced by one assemble operation */
@@ -187,13 +187,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
    	// Read assembly language file extensions from properties file.  Resulting
    	// string is tokenized into array list (assume StringTokenizer default delimiters).
-       private static ArrayList getFileExtensions() {
-         ArrayList extensionsList = new ArrayList();
+       private static ArrayList<String> getFileExtensions() {
+         ArrayList<String> extensionsList = new ArrayList<>();
          String extensions = getPropertyEntry(configPropertiesFile,"Extensions");
          if (extensions != null) {
             StringTokenizer st = new StringTokenizer(extensions); 
-            while (st.hasMoreTokens()) { 
-               extensionsList.add(st.nextToken()); 
+            while (st.hasMoreTokens()) {
+                String chunk = st.nextToken();
+                if (! chunk.startsWith("."))
+                    chunk = "." + chunk;
+                extensionsList.add(chunk.toLowerCase()); 
             } 
          }
          return extensionsList;
