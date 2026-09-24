@@ -5,6 +5,7 @@
    import mars.simulator.*;
    import mars.mips.hardware.*;
 
+   import java.net.URISyntaxException;
    import java.nio.charset.*;
    import java.nio.file.Files;
    import java.nio.file.Path;
@@ -57,12 +58,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private boolean steppedExecution = false;
    
       private Path source;
-      private ArrayList tokenList;
-      private ArrayList parsedList;
+      final private List<TokenList> tokenList = new ArrayList<>();
+      private List<ProgramStatement> parsedList;
       private ArrayList machineList;
       private SymbolTable localSymbolTable;
       private MacroPool macroPool;
-      private ArrayList<SourceLine> sourceLineList;
+      final private List<SourceLine> sourceLineList = new ArrayList<>();
 		private Tokenizer tokenizer;
    
    /**
@@ -82,7 +83,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	 * Each SourceLine represents one line of MIPS source cod
     **/
    	
-       public ArrayList<SourceLine> getSourceLineList() {
+       public List<SourceLine> getSourceLineList() {
          return this.sourceLineList;
       }
    
@@ -102,7 +103,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * @see TokenList
     **/
     
-       public ArrayList getTokenList() {
+       public List<TokenList> getTokenList() {
          return tokenList;
       }
    
@@ -122,8 +123,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * @see ProgramStatement
     **/
     
-       public ArrayList createParsedList() {
-         parsedList = new ArrayList();
+       public List<ProgramStatement> createParsedList() {
+         parsedList = new ArrayList<>();
          return parsedList;
       }
    
@@ -134,7 +135,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * @see ProgramStatement
     **/
     
-       public ArrayList getParsedList() {
+       public List<ProgramStatement> getParsedList() {
          return parsedList;
       }
    
@@ -202,7 +203,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      **/
     public void tokenize() {
         this.tokenizer = new Tokenizer();
-        this.tokenList = tokenizer.tokenize(this);
+        this.tokenList.clear();
+        this.tokenList.addAll(tokenizer.tokenize(sourceLineList));
         this.localSymbolTable = new SymbolTable(getFilename()); // prepare for assembly
     }
    
@@ -221,30 +223,217 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * @throws ProcessingException Will throw exception if errors occured while reading or tokenizing.
     **/
    
-       public ArrayList prepareFilesForAssembly(ArrayList filenames, String leadFilename, String exceptionHandler) throws ProcessingException {
-         ArrayList MIPSprogramsToAssemble = new ArrayList();
-         int leadFilePosition = 0;
-         if (exceptionHandler != null && exceptionHandler.length() > 0) {
-            filenames.add(0, exceptionHandler);
-            leadFilePosition = 1;
-         }
-         for (int i=0; i<filenames.size(); i++) {
-            String filename = (String) filenames.get(i);  
-            MIPSprogram preparee = (filename.equals(leadFilename)) ? this : new MIPSprogram();
-            preparee.readSource(Paths.get(filename));
-            preparee.tokenize();
-         	// I want "this" MIPSprogram to be the first in the list...except for exception handler
-            if (preparee == this && MIPSprogramsToAssemble.size()>0) {
-               MIPSprogramsToAssemble.add(leadFilePosition,preparee);
-            } 
-            else {
-               MIPSprogramsToAssemble.add(preparee);
-            }
-         }
-         return MIPSprogramsToAssemble;
+       public ArrayList prepareFilesForAssembly(List<String> filenames, String leadFilename, String exceptionHandler) throws ProcessingException {
+           try {
+               List<Path> paths = new ArrayList<>();
+
+               Path lead = Paths.get(leadFilename).toRealPath();
+               
+               for (String filename: filenames) {
+                   paths.add(Paths.get(filename).toRealPath());
+               }
+               paths.remove(lead);
+               paths.add(lead);
+               
+               if (exceptionHandler != null && exceptionHandler.length() > 0) {
+                   paths.add(0, Paths.get(exceptionHandler).toRealPath());
+               } else {
+                   paths.add(0, Paths.get(getClass().getResource("/kernel.s").toURI()).toRealPath());
+               }
+               
+               return new ArrayList<>(process(paths));
+           } catch (IOException | URISyntaxException e) {
+               ErrorList errors = new ErrorList();
+               errors.add(new ErrorMessage((MIPSprogram) null, 0, 0, e.toString()));
+               throw new ProcessingException(errors);
+           }
       }
-   
-   /**
+
+      private static class Preprocessing {
+           final int index;
+           final int position;
+
+          private Preprocessing(int index, int position) {
+              this.index = index;
+              this.position = position;
+          }
+      }
+      
+      private final List<Preprocessing> preprocessing = new ArrayList<>();
+      
+       private void preprocess() {
+            // do not precess errors here!
+
+           int index = -1;
+           for (TokenList tokenizedLine : getTokenList()) {
+               ++index;
+               int position = 0;
+               
+               int size = tokenizedLine.size();
+               if (size > 0 && tokenizedLine.get(size - 1).getType() == TokenTypes.COMMENT) {
+                   --size;
+               }
+
+               // ignore optional label
+               if (size >= 2) {
+                   Token directive = tokenizedLine.get(position);
+                   Token argument = tokenizedLine.get(position + 1);
+                   if (argument.getType() == TokenTypes.COLON && directive.getType() == TokenTypes.IDENTIFIER) {
+                       position = 2;
+                   }
+               }
+
+               if (position >= size)
+                   continue;
+
+               Token directive = tokenizedLine.get(position);
+               if (directive.getType() != TokenTypes.DIRECTIVE)
+                   continue;
+
+
+               TokenTypes argument = null;
+               if (position + 1 < size)
+                   argument = tokenizedLine.get(position + 1).getType();
+
+               
+               if (Directives.INCLUDE.matches(directive.getValue())) {
+                   if (argument == TokenTypes.QUOTED_STRING) {
+                       preprocessing.add(new Preprocessing(index, position));
+                   }
+                   continue;
+               }
+
+               if (Directives.EQV.matches(directive.getValue())) {
+                   if (argument == TokenTypes.IDENTIFIER) {
+                       preprocessing.add(new Preprocessing(index, position));
+                   }
+                   continue;
+               }
+           }
+       }
+       
+    private static List<MIPSprogram> process(List<Path> initial) throws ProcessingException, IOException {
+        Deque<Path> worklist = new ArrayDeque<>(initial);
+        Map<Path, MIPSprogram> processed = new HashMap<>();
+
+        while (!worklist.isEmpty()) {
+            Path source = worklist.removeFirst().toRealPath();
+            if (processed.containsKey(source))
+                continue;
+
+            MIPSprogram preparee = new MIPSprogram();
+            preparee.source = source;
+            preparee.readSource(source);
+            preparee.tokenize();
+            preparee.preprocess();
+
+            processed.put(source, preparee);
+            
+            // find all dependent files / aka poor mens preprocessor#
+            for (Preprocessing preprocess : preparee.preprocessing) {
+                TokenList tokenList = preparee.tokenList.get(preprocess.index);
+                Token directive = tokenList.get(preprocess.position);
+                Token argument = tokenList.get(preprocess.position + 1);
+                
+                if (!Directives.INCLUDE.matches(directive.getValue()))
+                    continue;
+                
+                // get rid of quotes
+                String filename = argument.getValue();
+                filename = filename.substring(1, filename.length() - 1);
+                Path includePath = preparee.source.resolveSibling(Paths.get(filename));
+                
+                worklist.addFirst(includePath);
+            }
+        }
+
+
+        List<MIPSprogram> result = new ArrayList<>();
+        for (Path in : initial) {
+            MIPSprogram unmodifed = processed.get(in.toRealPath());
+            MIPSprogram modifed = new MIPSprogram();
+            modifed.source = unmodifed.source;
+            modifed.preprocessing.addAll(unmodifed.preprocessing);
+            modifed.tokenList.addAll(unmodifed.tokenList);
+            modifed.sourceLineList.addAll(unmodifed.sourceLineList);
+            modifed.tokenizer = unmodifed.tokenizer;
+            modifed.localSymbolTable = unmodifed.localSymbolTable;
+            result.add(modifed);
+        }
+
+        
+        // we cannot use RPO to precalculate anything, as loops in includes are valid and may only be stopped by macros
+        // for that reason pre-processors are typically use an include depth limit!
+        
+        // process include / inlining
+        for (MIPSprogram preparee : result) {
+            // clang also uses this value, so it's more than enough
+            final int maxAllowedIncludeStackDepth = 200;
+            int depth = 0;
+
+            boolean modified = true;
+            while (modified) {
+                modified = false;
+                
+                ++depth;
+                if (depth >= maxAllowedIncludeStackDepth) {
+                    ErrorList el = new ErrorList();
+                    el.add(new ErrorMessage(preparee, 0,0, "Recursion Limit Reached"));
+                    throw new ProcessingException(el);
+                }
+                
+                int insertedLines = 0;
+                ListIterator<Preprocessing> it = preparee.preprocessing.listIterator();
+                while (it.hasNext()) {
+                    Preprocessing preprocess = it.next();
+                    final int realIndex = preprocess.index + insertedLines;
+
+                    TokenList tokenList = preparee.tokenList.get(realIndex);
+                    Token directive = tokenList.get(preprocess.position);
+                    Token argument = tokenList.get(preprocess.position + 1);
+
+                    if (Directives.INCLUDE.matches(directive.getValue())) {
+                        modified = true;
+                        it.remove();
+
+                        // get rid of quotes
+                        String filename = argument.getValue();
+                        filename = filename.substring(1, filename.length() - 1);
+                        Path includePath = preparee.source.resolveSibling(Paths.get(filename)).toRealPath();
+                        MIPSprogram included = processed.get(includePath);
+
+                        // remove directive, keep labels and errors for later handling
+                        TokenList copy = (TokenList) tokenList.clone();
+                        copy.remove(preprocess.position);
+                        copy.remove(preprocess.position);
+                        preparee.tokenList.set(realIndex, copy);
+                        
+                        // copy things, DO not touch sourceList!
+                        preparee.tokenList.addAll(realIndex + 1, included.tokenList);
+
+                        List<SourceLine> includeLines = included.sourceLineList;
+                        preparee.sourceLineList.addAll(realIndex + 1, includeLines);
+
+                        for (Preprocessing p : included.preprocessing) {
+                            it.add(new Preprocessing(p.index + realIndex + 1, p.position));
+                        }
+                        
+                        insertedLines += includeLines.size();
+                        continue;
+                    }
+
+                    if (preprocess.index != realIndex) {
+                        it.set(new Preprocessing(realIndex, preprocess.position));
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+      
+
+    /**
     * Assembles the MIPS source program. All files comprising the program must have 
     * already been tokenized.  Assembler warnings are not considered errors.
     * @param MIPSprogramsToAssemble ArrayList of MIPSprogram objects, each representing a tokenized source file.

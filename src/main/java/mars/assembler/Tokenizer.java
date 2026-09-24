@@ -51,7 +51,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
       private ErrorList errors;
       private MIPSprogram sourceMIPSprogram;
-      private HashMap<String,String> equivalents; // DPS 11-July-2012
+      private Map<String,String> equivalents; // DPS 11-July-2012
    	// The 8 escaped characters are: single quote, double quote, backslash, newline (linefeed),
    	// tab, backspace, return, form feed.  The characters and their corresponding decimal codes:
       private static final String escapedCharacters = "'\"\\ntbrf0";
@@ -72,30 +72,37 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public Tokenizer(MIPSprogram program){
          errors = new ErrorList();
          sourceMIPSprogram = program;
+         equivalents = new HashMap<>();
       }
    
    /**
     * Will tokenize a complete MIPS program.  MIPS is line oriented (not free format),
     * so we will be line-oriented too.
     *
-    * @param p The MIPSprogram to be tokenized.
-    * @return An ArrayList representing the tokenized program.  Each list member is a TokenList
+    * @return An List representing the tokenized program.  Each list member is a TokenList
     * that represents a tokenized source statement from the MIPS program.
     **/
    
-       public ArrayList tokenize(MIPSprogram p) throws ProcessingException {
-         sourceMIPSprogram = p;
-         equivalents = new HashMap<String,String>(); // DPS 11-July-2012
+       public List<TokenList> tokenize() {
+
+         equivalents = new HashMap<>(); // DPS 11-July-2012
+
+           List<String> lines = sourceMIPSprogram.getSourceList();
+           List<TokenList> tokenizedLines = new ArrayList<>(lines.size());
+           for (int i = 0; i < lines.size(); i++) {
+               TokenList tokens = tokenizeLine(sourceMIPSprogram, i + 1, lines.get(i), false);
+               tokenizedLines.add(tokens);
+           }
+           return tokenizedLines;
+           /*
          ArrayList tokenList = new ArrayList();
          //ArrayList source = p.getSourceList();
          ArrayList<SourceLine> source = processIncludes(p, new HashMap<String,String>()); // DPS 9-Jan-2013
          p.setSourceLineList(source);
-         TokenList currentLineTokens;
          String sourceLine;
          for (int i=0; i<source.size(); i++) {
             sourceLine = source.get(i).getSource(); 
-            currentLineTokens = this.tokenizeLine(i+1, sourceLine);
-            tokenList.add(currentLineTokens); 
+            tokenList.add(tokenizeLine(i + 1, sourceLine)); 
             // DPS 03-Jan-2013. Related to 11-July-2012. If source code substitution was made
          	// based on .eqv directive during tokenizing, the processed line, a String, is 
          	// not the same object as the original line.  Thus I can use != instead of !equals()
@@ -108,7 +115,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          if (errors.errorsOccurred()) {
             throw new ProcessingException(errors);
          }
-         return tokenList;
+         return tokenList;*/
       }
    
    
@@ -182,8 +189,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     **/
    
        public TokenList tokenizeExampleInstruction(String example) throws ProcessingException {
-         TokenList result = new TokenList();
-         result = tokenizeLine(sourceMIPSprogram, 0, example, false);
+         TokenList result = tokenizeLine(sourceMIPSprogram, 0, example, false);
          if (errors.errorsOccurred()) {
             throw new ProcessingException(errors);
          }
@@ -276,7 +282,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * 
     **/		
        public TokenList tokenizeLine(MIPSprogram program, int lineNum, String theLine, boolean doEqvSubstitutes) {
-         TokenTypes tokenType;
          TokenList result = new TokenList();
          if (theLine.length() == 0)
             return result;

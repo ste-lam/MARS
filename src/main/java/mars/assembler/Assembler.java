@@ -220,9 +220,9 @@
          // sourceList is an ArrayList of String objects, one per source line.
          // tokenList is an ArrayList of TokenList objects, one per source line;
          // each ArrayList in tokenList consists of Token objects.
-            ArrayList<SourceLine> sourceLineList = fileCurrentlyBeingAssembled.getSourceLineList();
-            ArrayList tokenList = fileCurrentlyBeingAssembled.getTokenList();
-            ArrayList parsedList = fileCurrentlyBeingAssembled.createParsedList();
+            List<SourceLine> sourceLineList = fileCurrentlyBeingAssembled.getSourceLineList();
+            List<TokenList> tokenList = fileCurrentlyBeingAssembled.getTokenList();
+            List<ProgramStatement> parsedList = fileCurrentlyBeingAssembled.createParsedList();
          // each file keeps its own macro definitions
             MacroPool macroPool = fileCurrentlyBeingAssembled.createMacroPool();
          // FIRST PASS OF ASSEMBLER VERIFIES SYNTAX, GENERATES SYMBOL TABLE,
@@ -285,7 +285,7 @@
             if (errors.errorLimitExceeded())
                break;
             this.fileCurrentlyBeingAssembled = (MIPSprogram) tokenizedProgramFiles.get(fileIndex);
-            ArrayList parsedList = fileCurrentlyBeingAssembled.getParsedList();
+            List<ProgramStatement> parsedList = fileCurrentlyBeingAssembled.getParsedList();
             ProgramStatement statement;
             for (int i = 0; i < parsedList.size(); i++) {
                statement = (ProgramStatement) parsedList.get(i);
@@ -703,6 +703,9 @@
                + "\" directive is invalid or not implemented in MARS"));
             return;
          }
+         else if (direct == Directives.INCLUDE) {
+            // Do nothing.  This was vetted and processed during preprocessing.
+         } 
          else if (direct == Directives.EQV) { /* EQV added by DPS 11 July 2012 */
             // Do nothing.  This was vetted and processed during tokenizing.
          } 
