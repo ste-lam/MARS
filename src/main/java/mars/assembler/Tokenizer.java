@@ -1,5 +1,7 @@
    package mars.assembler;
    import mars.*;
+
+   import java.nio.file.Paths;
    import java.util.*;
    import java.io.*;
 
@@ -87,6 +89,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
            List<TokenList> tokenizedLines = new ArrayList<>(lines.size());
            for (int i = 0; i < lines.size(); i++) {
                TokenList tokens = tokenizeLine(sourceMIPSprogram, i + 1, lines.get(i));
+
+               // another MARS hack, fix it after tokenize
+               if (tokens.size() >= 2) {
+                   if (tokens.get(0).getType() == TokenTypes.OPERATOR && tokens.get(1).getType() == TokenTypes.COLON)  {
+                       tokens.get(0).setType(TokenTypes.IDENTIFIER);
+                   }
+               }
+               
                tokenizedLines.add(tokens);
            }
            return tokenizedLines;

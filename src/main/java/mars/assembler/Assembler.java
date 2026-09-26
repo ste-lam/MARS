@@ -667,10 +667,6 @@
          else {
             Token token = tokens.get(0);
             if (tokenListBeginsWithLabel(tokens)) {
-               if (token.getType() == TokenTypes.OPERATOR) {
-                  // an instruction name was used as label (e.g. lw:), so change its token type
-                  token.setType(TokenTypes.IDENTIFIER);
-               }
                fileCurrentlyBeingAssembled.getLocalSymbolTable().addSymbol(token,
                   (this.inDataSegment) ? dataAddress.get() : textAddress.get(),
                   this.inDataSegment, this.errors);
@@ -686,8 +682,7 @@
       // 2-July-2010. DPS. Remove prohibition of operator names as labels
          if (tokens.size() < 2)
             return false;
-         return (tokens.get(0).getType() == TokenTypes.IDENTIFIER || tokens.get(0).getType() == TokenTypes.OPERATOR)
-            && tokens.get(1).getType() == TokenTypes.COLON;
+         return tokens.get(0).getType() == TokenTypes.IDENTIFIER && tokens.get(1).getType() == TokenTypes.COLON;
       }
    
    // //////////////////////////////////////////////////////////////////////////////////
