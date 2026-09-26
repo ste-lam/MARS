@@ -86,7 +86,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
            List<String> lines = sourceMIPSprogram.getSourceList();
            List<TokenList> tokenizedLines = new ArrayList<>(lines.size());
            for (int i = 0; i < lines.size(); i++) {
-               TokenList tokens = tokenizeLine(sourceMIPSprogram, i + 1, lines.get(i), false);
+               TokenList tokens = tokenizeLine(sourceMIPSprogram, i + 1, lines.get(i));
                tokenizedLines.add(tokens);
            }
            return tokenizedLines;
@@ -107,7 +107,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     **/
    
        public TokenList tokenizeExampleInstruction(String example) throws ProcessingException {
-         TokenList result = tokenizeLine(sourceMIPSprogram, 0, example, false);
+         TokenList result = tokenizeLine(sourceMIPSprogram, 0, example);
          if (errors.errorsOccurred()) {
             throw new ProcessingException(errors);
          }
@@ -144,7 +144,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
    // Modified for release 4.3, to preserve existing API.
        public TokenList tokenizeLine(int lineNum, String theLine) {
-         return tokenizeLine(sourceMIPSprogram, lineNum, theLine, true);
+         return tokenizeLine(lineNum, theLine, errors, true);
       }
 
    /**
@@ -182,7 +182,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public TokenList tokenizeLine(int lineNum, String theLine, ErrorList callerErrorList, boolean doEqvSubstitutes) {
          ErrorList saveList = this.errors;
          this.errors = callerErrorList;
-         TokenList tokens = this.tokenizeLine(sourceMIPSprogram, lineNum, theLine,doEqvSubstitutes);
+         TokenList tokens = this.tokenizeLine(sourceMIPSprogram, lineNum, theLine);
+         if (doEqvSubstitutes) {
+             tokens = processEqv(sourceMIPSprogram, lineNum, theLine, tokens);
+         }
          this.errors = saveList;
          return tokens;
       }	
@@ -195,11 +198,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * @param program  MIPSprogram containing this line of source
     * @param lineNum  line number from source code (used in error message)
     * @param theLine String containing source code
-    * @param doEqvSubstitutes boolean param set true to perform .eqv substitutions, else false
     * @return the generated token list for that line
     * 
     **/		
-       public TokenList tokenizeLine(MIPSprogram program, int lineNum, String theLine, boolean doEqvSubstitutes) {
+       public TokenList tokenizeLine(MIPSprogram program, int lineNum, String theLine) {
          TokenList result = new TokenList();
          if (theLine.length() == 0)
             return result;
@@ -359,10 +361,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }  // while
          if (tokenPos > 0) {
             this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
-            tokenPos = 0;
-         }
-         if (doEqvSubstitutes) {
-            result = processEqv(program, lineNum, theLine, result); // DPS 11-July-2012
          }
          return result;
       }
