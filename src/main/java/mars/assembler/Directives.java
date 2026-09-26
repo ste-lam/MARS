@@ -72,10 +72,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private String description; // help text
    
        private Directives() {
-      // private ctor assures no objects can be created other than those above.
-         this.descriptor  = "generic";
-         this.description = "";
-         directiveList.add(this);
       }
    
        private Directives(String name, String description) {
@@ -83,7 +79,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.description = description;
          directiveList.add(this);
       }
-   
+
+    public boolean matches(String str) {
+        return descriptor.equalsIgnoreCase(str);
+    }
+
+    public boolean matchesPrefix(String str) {
+        return str != null 
+            && str.length() <= descriptor.length()
+            && descriptor.regionMatches(true, 0, str, 0, str.length());
+    }
+    
    /**
     * Find Directive object, if any, which matches the given String.
     * 
@@ -95,7 +101,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          Directives match;
          for (int i=0; i<directiveList.size(); i++) {
             match = (Directives) directiveList.get(i);
-            if (str.equalsIgnoreCase(match.descriptor)) {
+            if (match.matches(str)) {
                return match;
             }
          }
@@ -114,7 +120,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public static ArrayList prefixMatchDirectives(String str) {
          ArrayList matches = null;
          for (int i=0; i<directiveList.size(); i++) {
-            if (((Directives) directiveList.get(i)).descriptor.toLowerCase().startsWith(str.toLowerCase())) {
+            if (((Directives) directiveList.get(i)).matchesPrefix(str)) {
                if (matches == null) {
                   matches = new ArrayList();
                }
