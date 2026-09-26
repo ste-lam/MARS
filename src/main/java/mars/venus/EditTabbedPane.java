@@ -7,6 +7,7 @@
    import java.awt.*;
    import java.awt.event.*;
    import javax.swing.undo.*;
+   import java.nio.file.Paths;
    import java.text.*;
    import java.util.*;
    import java.io.*;
@@ -618,7 +619,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             if (theFile.canRead()) {
                Globals.program = new MIPSprogram();
                try {
-                  Globals.program.readSource(currentFilePath);
+                  Globals.program.readSource(Paths.get(currentFilePath));
                } 
                    catch (ProcessingException pe) {
                   }

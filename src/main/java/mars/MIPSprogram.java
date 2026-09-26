@@ -4,7 +4,10 @@
    import mars.assembler.*;
    import mars.simulator.*;
    import mars.mips.hardware.*;
-	
+
+   import java.nio.charset.*;
+   import java.nio.file.Path;
+   import java.nio.file.Paths;
    import java.util.*;
    import java.io.*;
    import java.awt.event.*;
@@ -52,7 +55,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    // See explanation of method inSteppedExecution() below.
       private boolean steppedExecution = false;
    
-      private String filename;
+      private Path source;
       private ArrayList sourceList;
       private ArrayList tokenList;
       private ArrayList parsedList;
@@ -101,7 +104,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     **/
     
        public String getFilename() {
-         return filename;
+         return source.toString();
       }
    
    /**
@@ -180,51 +183,35 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          else
             return null;
       }
-   
-   
-   /**
-    * Reads MIPS source code from file into structure.  Will always read from file.
-    * It is GUI responsibility to assure that source edits are written to file
-    * when user selects compile or run/step options.
-    * 
-    * @param file String containing name of MIPS source code file.
-    * @throws ProcessingException Will throw exception if there is any problem reading the file.
-    **/
-   
-       public void readSource(String file) throws ProcessingException {
-         this.filename = file;
-         this.sourceList = new ArrayList();
-         ErrorList errors = null;
-         BufferedReader inputFile;
-         String line;
-         int lengthSoFar = 0;
-         try {
-            inputFile = new BufferedReader(new FileReader(file));
-            line = inputFile.readLine();
-            while (line != null) {
-               sourceList.add(line);
-               line = inputFile.readLine();
-            }
-         } 
-             catch (Exception e) {
-               errors = new ErrorList();
-               errors.add(new ErrorMessage((MIPSprogram)null,0,0,e.toString()));
-               throw new ProcessingException(errors);
-            }
-         return;
-      }
-   
-   /**
-    * Tokenizes the MIPS source program. Program must have already been read from file.
-    * @throws ProcessingException Will throw exception if errors occured while tokenizing.
-    **/
-   
-       public void tokenize() throws ProcessingException {
-         this.tokenizer = new Tokenizer();
-         this.tokenList = tokenizer.tokenize(this);
-         this.localSymbolTable = new SymbolTable(this.filename); // prepare for assembly
-         return;
-      }
+
+
+    /**
+     * Reads MIPS source code from file into structure.  Will always read from file.
+     * It is GUI responsibility to assure that source edits are written to file
+     * when user selects compile or run/step options.
+     *
+     * @param path Path containing name of MIPS source code file.
+     * @throws ProcessingException Will throw exception if there is any problem reading the file.
+     **/
+    public void readSource(Path path) throws ProcessingException {
+        try {
+            source = path;
+            sourceList = Files.readAllLines(path);
+        } catch (Exception e) {
+            ErrorList errors = new ErrorList();
+            errors.add(new ErrorMessage((MIPSprogram) null, 0, 0, e.toString()));
+            throw new ProcessingException(errors);
+        }
+    }
+
+    /**
+     * Tokenizes the MIPS source program. Program must have already been read from file.
+     **/
+    public void tokenize() {
+        this.tokenizer = new Tokenizer();
+        this.tokenList = tokenizer.tokenize(this);
+        this.localSymbolTable = new SymbolTable(getFilename()); // prepare for assembly
+    }
    
    /**
     * Prepares the given list of files for assembly.  This involves
@@ -251,7 +238,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          for (int i=0; i<filenames.size(); i++) {
             String filename = (String) filenames.get(i);  
             MIPSprogram preparee = (filename.equals(leadFilename)) ? this : new MIPSprogram();
-            preparee.readSource(filename);
+            preparee.readSource(Paths.get(filename));
             preparee.tokenize();
          	// I want "this" MIPSprogram to be the first in the list...except for exception handler
             if (preparee == this && MIPSprogramsToAssemble.size()>0) {
