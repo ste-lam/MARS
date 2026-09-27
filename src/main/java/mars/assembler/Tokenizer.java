@@ -88,7 +88,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
            List<String> lines = sourceMIPSprogram.getSourceList();
            List<TokenList> tokenizedLines = new ArrayList<>(lines.size());
            for (int i = 0; i < lines.size(); i++) {
-               TokenList tokens = tokenizeLine(sourceMIPSprogram, i + 1, lines.get(i));
+               TokenList tokens = tokenizeLine(i + 1, lines.get(i));
 
                // another MARS hack, fix it after tokenize
                if (tokens.size() >= 2) {
@@ -117,7 +117,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     **/
    
        public TokenList tokenizeExampleInstruction(String example) throws ProcessingException {
-         TokenList result = tokenizeLine(sourceMIPSprogram, 0, example);
+         TokenList result = tokenizeLine(0, example);
          if (errors.errorsOccurred()) {
             throw new ProcessingException(errors);
          }
@@ -152,11 +152,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     * Given all the above, it is just as easy to "roll my own" as to use StringTokenizer
     */
    
-   // Modified for release 4.3, to preserve existing API.
-       public TokenList tokenizeLine(int lineNum, String theLine) {
-         return tokenizeLine(lineNum, theLine, errors, true);
-      }
-
    /**
     * Will tokenize one line of source code.  If lexical errors are discovered,
     * they are noted in an ErrorMessage object which is added to the provided ErrorList
@@ -171,7 +166,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public TokenList tokenizeLine(int lineNum, String theLine, ErrorList callerErrorList) {
          ErrorList saveList = this.errors;
          this.errors = callerErrorList;
-         TokenList tokens = this.tokenizeLine(lineNum, theLine);
+         TokenList tokens = tokenizeLine(lineNum, theLine);
          this.errors = saveList;
          return tokens;
       }
@@ -184,34 +179,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     *
     * @param lineNum  line number from source code (used in error message)
     * @param theLine String containing source code
-    * @param callerErrorList errors will go into this list instead of tokenizer's list.
-    * @param doEqvSubstitutes boolean param set true to perform .eqv substitutions, else false
     * @return the generated token list for that line
     * 
     **/		
-       public TokenList tokenizeLine(int lineNum, String theLine, ErrorList callerErrorList, boolean doEqvSubstitutes) {
-         ErrorList saveList = this.errors;
-         this.errors = callerErrorList;
-         TokenList tokens = this.tokenizeLine(sourceMIPSprogram, lineNum, theLine);
-         if (doEqvSubstitutes) {
-             tokens = processEqv(sourceMIPSprogram, lineNum, theLine, tokens);
-         }
-         this.errors = saveList;
-         return tokens;
-      }	
-
-   /**
-    * Will tokenize one line of source code.  If lexical errors are discovered,
-    * they are noted in an ErrorMessage object which is added to the provided ErrorList
-    * instead of the Tokenizer's error list. Will NOT throw an exception.
-    *
-    * @param program  MIPSprogram containing this line of source
-    * @param lineNum  line number from source code (used in error message)
-    * @param theLine String containing source code
-    * @return the generated token list for that line
-    * 
-    **/		
-       public TokenList tokenizeLine(MIPSprogram program, int lineNum, String theLine) {
+       public TokenList tokenizeLine(int lineNum, String theLine) {
          TokenList result = new TokenList();
          if (theLine.length() == 0)
             return result;
@@ -231,7 +202,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             if (insideQuotedString) { // everything goes into token
                token[tokenPos++] = c;
                if (c == '"' && token[tokenPos-2] != '\\') { // If quote not preceded by backslash, this is end
-                  this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                  this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                   tokenPos = 0;
                   insideQuotedString = false;
                } 
@@ -240,13 +211,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                switch(c) {
                   case '#' :  // # denotes comment that takes remainder of line
                      if (tokenPos > 0) {
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                      }
                      tokenStartPos = linePos+1;
                      tokenPos = line.length-linePos;
                      System.arraycopy(line, linePos, token, 0, tokenPos);
-                     this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                     this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                      linePos = line.length;
                      tokenPos = 0;
                      break;
@@ -254,7 +225,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                   case '\t':
                   case ',' : // space, tab or comma is delimiter
                      if (tokenPos > 0) {
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                      }
                      break;
@@ -273,7 +244,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                      }
                   	 // End of REAL hack.  
                      if (tokenPos > 0) {
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                      }
                      tokenStartPos = linePos+1;
@@ -281,7 +252,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                      if ( !((result.isEmpty() || ((Token)result.get(result.size()-1)).getType() != TokenTypes.IDENTIFIER) &&
                            (line.length >= linePos+2 && Character.isDigit(line[linePos+1]))) ) {
                            // treat it as binary.....
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                      }
                      break; 
@@ -290,17 +261,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                   case '(' :
                   case ')' :
                      if (tokenPos > 0) {
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                      }
                      tokenStartPos = linePos+1;
                      token[tokenPos++] = c;
-                     this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                     this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                      tokenPos = 0;
                      break; 
                   case '"' : // we're not inside a quoted string, so start a new token...
                      if (tokenPos > 0) {
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                      }
                      tokenStartPos = linePos+1;
@@ -309,7 +280,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                      break;
                   case '\'' : // start of character constant (single quote).
                      if (tokenPos > 0) {
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                      }
                   	// Our strategy is to process the whole thing right now...
@@ -327,7 +298,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                      token[tokenPos++] = c; // grab third character, put it in token[2]
                      // Process if we've either reached second, non-escaped, quote or end of line.
                      if (c == '\'' && token[1] != '\\' || lookaheadChars==2) { 
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                         tokenStartPos = linePos+1;
                         break;
@@ -339,7 +310,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                      token[tokenPos++] = c; // grab fourth character, put it in token[3]
                   	// Process, if this is ending quote for escaped character or if at end of line
                      if (c == '\'' || lookaheadChars==3) { 
-                        this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                        this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                         tokenPos = 0;
                         tokenStartPos = linePos+1;
                         break;
@@ -356,7 +327,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                         }
                      }
                   	// process no matter what...we either have a valid character by now or not
-                     this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+                     this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
                      tokenPos = 0;
                      tokenStartPos = linePos+1;
                      break;																			
@@ -370,7 +341,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             linePos++;
          }  // while
          if (tokenPos > 0) {
-            this.processCandidateToken(token, program, lineNum, theLine, tokenPos, tokenStartPos, result);
+            this.processCandidateToken(token, lineNum, theLine, tokenPos, tokenStartPos, result);
          }
          return result;
       }
@@ -387,16 +358,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    	 
    
    // Given candidate token and its position, will classify and record it.
-       private void processCandidateToken(char[] token, MIPSprogram program, int line, String theLine, 
+       private void processCandidateToken(char[] token, int line, String theLine, 
        int tokenPos, int tokenStartPos, TokenList tokenList) {
          String value = new String(token, 0, tokenPos);
          if (value.length() > 0 && value.charAt(0)=='\'') value = preprocessCharacterLiteral(value);
          TokenTypes type = TokenTypes.matchTokenType(value);
          if (type == TokenTypes.ERROR) {
-            errors.add(new ErrorMessage(program, line, tokenStartPos, 
+            errors.add(new ErrorMessage(sourceMIPSprogram, line, tokenStartPos, 
                        theLine+"\nInvalid language element: "+value));
          }
-         Token toke = new Token(type, value, program, line, tokenStartPos);
+         Token toke = new Token(type, value, sourceMIPSprogram, line, tokenStartPos);
          tokenList.add(toke);
          return;
       }

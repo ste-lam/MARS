@@ -322,7 +322,7 @@
                   String basicAssembly = statement.getBasicAssemblyStatement();
                   int sourceLine = statement.getSourceLine();
                   TokenList theTokenList = new Tokenizer().tokenizeLine(sourceLine,
-                     basicAssembly, errors, false);
+                     basicAssembly, errors);
                
                // ////////////////////////////////////////////////////////////////////////////
                // If we are using compact memory config and there is a compact expansion, use it
@@ -356,7 +356,7 @@
                   // For generated instruction: tokenize, build program
                   // statement, add to list.
                      TokenList newTokenList = new Tokenizer().tokenizeLine(sourceLine,
-                        instruction, errors,false);
+                        instruction, errors);
                      ArrayList instrMatches = this.matchInstruction(newTokenList.get(0));
                      Instruction instr = OperandFormat.bestOperandMatch(newTokenList,
                         instrMatches);
