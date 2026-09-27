@@ -6,6 +6,7 @@
    import mars.mips.hardware.*;
 
    import java.nio.charset.*;
+   import java.nio.file.Files;
    import java.nio.file.Path;
    import java.nio.file.Paths;
    import java.util.*;
@@ -56,7 +57,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private boolean steppedExecution = false;
    
       private Path source;
-      private ArrayList sourceList;
       private ArrayList tokenList;
       private ArrayList parsedList;
       private ArrayList machineList;
@@ -66,26 +66,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		private Tokenizer tokenizer;
    
    /**
-    * Produces list of source statements that comprise the program.
-    * @return ArrayList of String.  Each String is one line of MIPS source code.
-    **/
-    
-       public ArrayList getSourceList() {
-         return sourceList;
-      }
-   
-   /**
     * Set list of source statements that comprise the program.
     * @param sourceLineList ArrayList of SourceLine.  
 	 * Each SourceLine represents one line of MIPS source code.
     **/
    	
-       public void setSourceLineList(ArrayList<SourceLine> sourceLineList) { 
-         this.sourceLineList = sourceLineList; 
-         sourceList = new ArrayList();
-         for (SourceLine sl : sourceLineList) {
-            sourceList.add(sl.getSource());
-         } 
+       public void setSourceLineList(ArrayList<SourceLine> sourceLineList) {
+         this.sourceLineList.clear();
+         this.sourceLineList.addAll(sourceLineList);
       }
    
    /**
@@ -178,8 +166,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     **/
     
        public String getSourceLine(int i) {
-         if ( (i >= 1) && (i <= sourceList.size()) )
-            return (String) sourceList.get(i-1);
+         if ( (i >= 1) && (i <= sourceLineList.size()) )
+            return sourceLineList.get(i-1).getSource();
          else
             return null;
       }
@@ -196,7 +184,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     public void readSource(Path path) throws ProcessingException {
         try {
             source = path;
-            sourceList = Files.readAllLines(path);
+
+            int lineNumber = 0;
+            for (String line : Files.readAllLines(path)) {
+                sourceLineList.add(new SourceLine(line, this, ++lineNumber));
+            }
+            
         } catch (Exception e) {
             ErrorList errors = new ErrorList();
             errors.add(new ErrorMessage((MIPSprogram) null, 0, 0, e.toString()));
