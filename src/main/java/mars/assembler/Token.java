@@ -43,9 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private String value;
       private MIPSprogram sourceMIPSprogram;
       private int sourceLine, sourcePos;
-   // original program and line will differ from the above if token was defined in an included file
-      private MIPSprogram originalMIPSprogram;
-      private int originalSourceLine;  
+
    /**
     * Constructor for Token class.
     * 
@@ -63,44 +61,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.sourceMIPSprogram = sourceMIPSprogram;
          this.sourceLine = line;
          this.sourcePos = start; 
-         this.originalMIPSprogram = sourceMIPSprogram;
-         this.originalSourceLine = line;
       }
 
-   
-   /**
-    * Set original program and line number for this token.
-	 * Line number or both may change during pre-assembly as a result
-	 * of the ".include" directive, and we need to keep the original
-	 * for later reference (error messages, text segment display).
-    * 
-    * @param origProgram MIPS program containing this token.
-    * @param origSourceLine Line within that program of this token.
-    **/  		
-       public void setOriginal(MIPSprogram origProgram, int origSourceLine) {
-         this.originalMIPSprogram = origProgram;
-         this.originalSourceLine = origSourceLine;
-      }
-		
-   /**
-    * Produces original program containing this token.
-    * 
-    * @return MIPSprogram of origin for this token.
-    **/
-       public MIPSprogram getOriginalProgram() {
-         return this.originalMIPSprogram;
-      }
-		
-   /**
-    * Produces original line number of this token. It could change as result
-	 * of ".include"
-    * 
-    * @return original line number of this token.
-    **/   
-       public int getOriginalSourceLine() {
-         return this.originalSourceLine;
-      }
-   
    /**
     * Produces token type of this token.
     * 

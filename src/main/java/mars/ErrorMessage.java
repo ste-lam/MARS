@@ -139,19 +139,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.isWarning = isWarning;
          if (sourceMIPSprogram == null) {
             this.filename = "";
-            this.line = line;
          } 
          else {
-            if (sourceMIPSprogram.getSourceLineList() == null) {
-               this.filename = sourceMIPSprogram.getFilename();
-               this.line = line;
-            } 
-            else {
-               mars.assembler.SourceLine sourceLine = sourceMIPSprogram.getSourceLineList().get(line-1);
-               this.filename = sourceLine.getFilename();
-               this.line = sourceLine.getLineNumber();
-            }
+            this.filename = sourceMIPSprogram.getFilename();
          }
+         this.line = line;
          this.position = position;
          this.message = message;
          this.macroExpansionHistory = getExpansionHistory(sourceMIPSprogram);

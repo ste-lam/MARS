@@ -231,11 +231,6 @@
             for (int i = 0; i < tokenList.size(); i++) {
                if (errors.errorLimitExceeded())
                   break; 
-               for (int z=0; z<((TokenList)tokenList.get(i)).size(); z++) { 
-                  Token t = ((TokenList) tokenList.get(i)).get(z);
-               	// record this token's original source program and line #. Differs from final, if .include used
-                  t.setOriginal(sourceLineList.get(i).getMIPSprogram(),sourceLineList.get(i).getLineNumber());
-               }           	
                statements = this.parseLine((TokenList) tokenList.get(i),
                   sourceLineList.get(i).getSource(), 
                   sourceLineList.get(i).getLineNumber(), 

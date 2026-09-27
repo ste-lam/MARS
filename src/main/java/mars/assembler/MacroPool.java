@@ -57,7 +57,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     */
       private Macro current;
       private ArrayList<Integer> callStack;
-      private ArrayList<Integer> callStackOrigLines;
    /**
     * @see #getNextCounter()
     */
@@ -72,7 +71,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.program = mipsProgram;
          macroList = new ArrayList<Macro>();
          callStack=new ArrayList<Integer>();
-         callStackOrigLines=new ArrayList<Integer>();
          current = null;
          counter = 0;
       }
@@ -92,7 +90,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          current = new Macro();
          current.setName(nameToken.getValue());
          current.setFromLine(nameToken.getSourceLine());
-         current.setOriginalFromLine(nameToken.getOriginalSourceLine());
          current.setProgram(program);
       }	   
    
@@ -107,7 +104,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
        public void commitMacro(Token endToken) {
          current.setToLine(endToken.getSourceLine());
-         current.setOriginalToLine(endToken.getOriginalSourceLine());
          current.readyForCommit();
          macroList.add(current);
          current = null;
@@ -176,26 +172,23 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
        public boolean pushOnCallStack(Token token) { //returns true if detected expansion loop
          int sourceLine = token.getSourceLine();
-         int origSourceLine = token.getOriginalSourceLine();
          if (callStack.contains(sourceLine))
             return true;
          callStack.add(sourceLine);
-         callStackOrigLines.add(origSourceLine);
          return false;
       }
    
        public void popFromCallStack() {
          callStack.remove(callStack.size()-1);
-         callStackOrigLines.remove(callStackOrigLines.size()-1);
       }
    
    
        public String getExpansionHistory() {
          String ret="";
-         for (int i=0; i<callStackOrigLines.size(); i++){
+         for (int i=0; i<callStack.size(); i++){
             if (i>0)
                ret+="->";
-            ret+=callStackOrigLines.get(i).toString();
+            ret+=callStack.get(i).toString();
          }
          return ret;
       }
