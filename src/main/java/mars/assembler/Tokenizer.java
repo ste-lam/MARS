@@ -51,7 +51,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
       private ErrorList errors;
       private MIPSprogram sourceMIPSprogram;
-      private Map<String,String> equivalents; // DPS 11-July-2012
    	// The 8 escaped characters are: single quote, double quote, backslash, newline (linefeed),
    	// tab, backspace, return, form feed.  The characters and their corresponding decimal codes:
       private static final String escapedCharacters = "'\"\\ntbrf0";
@@ -72,7 +71,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public Tokenizer(MIPSprogram program){
          errors = new ErrorList();
          sourceMIPSprogram = program;
-         equivalents = new HashMap<>();
       }
    
    /**
@@ -85,8 +83,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
        public List<TokenList> tokenize() {
 
-         equivalents = new HashMap<>(); // DPS 11-July-2012
-
            List<String> lines = sourceMIPSprogram.getSourceList();
            List<TokenList> tokenizedLines = new ArrayList<>(lines.size());
            for (int i = 0; i < lines.size(); i++) {
@@ -94,86 +90,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                tokenizedLines.add(tokens);
            }
            return tokenizedLines;
-           /*
-         ArrayList tokenList = new ArrayList();
-         //ArrayList source = p.getSourceList();
-         ArrayList<SourceLine> source = processIncludes(p, new HashMap<String,String>()); // DPS 9-Jan-2013
-         p.setSourceLineList(source);
-         String sourceLine;
-         for (int i=0; i<source.size(); i++) {
-            sourceLine = source.get(i).getSource(); 
-            tokenList.add(tokenizeLine(i + 1, sourceLine)); 
-            // DPS 03-Jan-2013. Related to 11-July-2012. If source code substitution was made
-         	// based on .eqv directive during tokenizing, the processed line, a String, is 
-         	// not the same object as the original line.  Thus I can use != instead of !equals()
-         	// This IF statement will replace original source with source modified by .eqv substitution.
-         	// Not needed by assembler, but looks better in the Text Segment Display.
-            if (sourceLine.length() > 0 && sourceLine != currentLineTokens.getProcessedLine()) {
-               source.set(i,new SourceLine(currentLineTokens.getProcessedLine(),source.get(i).getMIPSprogram(), source.get(i).getLineNumber())); 
-            } 
-         }
-         if (errors.errorsOccurred()) {
-            throw new ProcessingException(errors);
-         }
-         return tokenList;*/
       }
    
-   
-     
-   // pre-pre-processing pass through source code to process any ".include" directives.
-   // When one is encountered, the contents of the included file are inserted at that 
-   // point.  If no .include statements, the return value is a new array list but
-   // with the same lines of source code.  Uses recursion to correctly process included
-   // files that themselves have .include.  Plus it will detect and report recursive
-   // includes both direct and indirect.
-   // DPS 11-Jan-2013
-       private ArrayList<SourceLine> processIncludes(MIPSprogram program, Map<String,String> inclFiles) throws ProcessingException {
-         ArrayList source = program.getSourceList();
-         ArrayList<SourceLine> result = new ArrayList<SourceLine>(source.size());
-         for (int i=0; i<source.size(); i++) {
-            String line = (String) source.get(i);
-            TokenList tl = tokenizeLine(program, i+1, line, false);
-            boolean hasInclude = false;
-            for (int ii=0; ii<tl.size(); ii++) {
-               if (tl.get(ii).getValue().equalsIgnoreCase(Directives.INCLUDE.getName()) 
-                      && (tl.size() > ii+1) 
-                      && tl.get(ii+1).getType() == TokenTypes.QUOTED_STRING) {
-                  String filename = tl.get(ii+1).getValue();
-                  filename = filename.substring(1, filename.length()-1); // get rid of quotes
-                  // Handle either absolute or relative pathname for .include file
-                  if (!new File(filename).isAbsolute()) {
-                     filename = new File(program.getFilename()).getParent()+File.separator+filename;
-                  }
-                  if (inclFiles.containsKey(filename)) {
-                     // This is a recursive include.  Generate error message and return immediately.
-                     Token t = tl.get(ii+1);
-                     errors.add(new ErrorMessage(program, t.getSourceLine(),t.getStartPos(), 
-                        "Recursive include of file "+filename));
-                     throw new ProcessingException(errors);
-                  }
-                  inclFiles.put(filename, filename);
-                  MIPSprogram incl = new MIPSprogram();
-                  try {
-                     incl.readSource(filename);
-                  }
-                      catch (ProcessingException p) {
-                        Token t = tl.get(ii+1);
-                        errors.add(new ErrorMessage(program, t.getSourceLine(),t.getStartPos(), 
-                           "Error reading include file "+filename));	
-                        throw new ProcessingException(errors);
-                     }
-                  ArrayList<SourceLine> allLines = processIncludes(incl, inclFiles);
-                  result.addAll(allLines);
-                  hasInclude = true;
-                  break;                  	
-               } 
-            }
-            if (!hasInclude){
-               result.add(new SourceLine(line, program, i+1));//line);
-            }
-         }
-         return result;
-      }
    	
    /**
     * Used only to create a token list for the example provided with each instruction
@@ -449,79 +367,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          return result;
       }
    
-      // Process the .eqv directive, which needs to be applied prior to tokenizing of subsequent statements.
-   	// This handles detecting that theLine contains a .eqv directive, in which case it needs
-   	// to be added to the HashMap of equivalents.  It also handles detecting that theLine
-   	// contains a symbol that was previously defined in an .eqv directive, in which case
-   	// the substitution needs to be made.
-   	// DPS 11-July-2012
-       private TokenList processEqv(MIPSprogram program, int lineNum, String theLine, TokenList tokens) {
-      	// See if it is .eqv directive.  If so, record it...
-      	// Have to assure it is a well-formed statement right now (can't wait for assembler).
-      
-         if (tokens.size()>2 && (tokens.get(0).getType() == TokenTypes.DIRECTIVE || tokens.get(2).getType() == TokenTypes.DIRECTIVE)) {
-            // There should not be a label but if there is, the directive is in token position 2 (ident, colon, directive).
-            int dirPos = (tokens.get(0).getType() == TokenTypes.DIRECTIVE) ? 0 : 2; 
-            if (Directives.matchDirective(tokens.get(dirPos).getValue()) == Directives.EQV) {
-               // Get position in token list of last non-comment token
-               int tokenPosLastOperand = tokens.size() - ((tokens.get(tokens.size()-1).getType()==TokenTypes.COMMENT)? 2 : 1);
-               // There have to be at least two non-comment tokens beyond the directive
-               if (tokenPosLastOperand < dirPos+2) {
-                  errors.add(new ErrorMessage(program, lineNum,tokens.get(dirPos).getStartPos(), 
-                       "Too few operands for "+Directives.EQV.getName()+" directive"));
-                  return tokens;
-               }
-               // Token following the directive has to be IDENTIFIER
-               if (tokens.get(dirPos+1).getType() != TokenTypes.IDENTIFIER) {
-                  errors.add(new ErrorMessage(program, lineNum,tokens.get(dirPos).getStartPos(), 
-                       "Malformed "+Directives.EQV.getName()+" directive"));
-                  return tokens;
-               }
-               String symbol = tokens.get(dirPos+1).getValue();
-            	// Make sure the symbol is not contained in the expression.  Not likely to occur but if left
-            	// undetected it will result in infinite recursion.  e.g.  .eqv ONE, (ONE)
-               for (int i=dirPos+2; i<tokens.size(); i++) {
-                  if (tokens.get(i).getValue().equals(symbol)) {
-                     errors.add(new ErrorMessage(program, lineNum,tokens.get(dirPos).getStartPos(), 
-                        "Cannot substitute "+symbol+" for itself in "+Directives.EQV.getName()+" directive"));
-                     return tokens;
-                  }
-               }
-               // Expected syntax is symbol, expression.  I'm allowing the expression to comprise
-               // multiple tokens, so I want to get everything from the IDENTIFIER to either the
-            	// COMMENT or to the end.
-               int startExpression = tokens.get(dirPos+2).getStartPos();
-               int endExpression = tokens.get(tokenPosLastOperand).getStartPos() + tokens.get(tokenPosLastOperand).getValue().length();
-               String expression = theLine.substring(startExpression-1,endExpression-1);
-            	// Symbol cannot be redefined - the only reason for this is to act like the Gnu .eqv
-               if (equivalents.containsKey(symbol) && !equivalents.get(symbol).equals(expression)) { 
-                  errors.add(new ErrorMessage(program, lineNum,tokens.get(dirPos+1).getStartPos(), 
-                       "\""+symbol+"\" is already defined"));
-                  return tokens;
-               }
-               equivalents.put(symbol, expression);
-               return tokens;
-            }
-         }
-      	// Check if a substitution from defined .eqv is to be made.  If so, make one.
-         boolean substitutionMade = false;
-         for (int i=0; i<tokens.size(); i++) {
-            Token token = tokens.get(i);
-            if (token.getType() == TokenTypes.IDENTIFIER && equivalents != null && equivalents.containsKey(token.getValue())) {
-               // do the substitution
-               String sub = equivalents.get(token.getValue());
-               int startPos = token.getStartPos(); 
-               theLine = theLine.substring(0,startPos-1) + sub + theLine.substring(startPos+token.getValue().length()-1);
-               substitutionMade = true;             	// one substitution per call.  If there are multiple, will catch next one on the recursion
-               break; 
-            }
-         }
-         tokens.setProcessedLine(theLine); // DPS 03-Jan-2013. Related to changes of 11-July-2012.
-      
-         return (substitutionMade) ? tokenizeLine(lineNum, theLine) : tokens;
-      }
-   	
-	
    
    /** 
     * Fetch this Tokenizer's error list.
