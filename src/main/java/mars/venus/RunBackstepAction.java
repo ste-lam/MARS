@@ -1,7 +1,8 @@
    package mars.venus;
    import mars.*;
    import mars.mips.hardware.*;
-   import java.awt.*;
+   import mars.simulator.Simulator;
+
    import java.awt.event.*;
    import javax.swing.*;
 	
@@ -61,12 +62,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          executePane.getTextSegmentWindow().setCodeHighlighting(true);
       		
          if (Globals.getSettings().getBackSteppingEnabled()) {
-            boolean inDelaySlot = Globals.program.getBackStepper().inDelaySlot(); // Added 25 June 2007
+            boolean inDelaySlot = Simulator.getInstance().backStepper.inDelaySlot(); // Added 25 June 2007
 				Memory.getInstance().addObserver(executePane.getDataSegmentWindow());
 				RegisterFile.addRegistersObserver(executePane.getRegistersWindow());
 				Coprocessor0.addRegistersObserver(executePane.getCoprocessor0Window());
 				Coprocessor1.addRegistersObserver(executePane.getCoprocessor1Window());
-            Globals.program.getBackStepper().backStep();
+            Simulator.getInstance().backStepper.backStep();
 				Memory.getInstance().deleteObserver(executePane.getDataSegmentWindow());
 				RegisterFile.deleteRegistersObserver(executePane.getRegistersWindow());
             executePane.getRegistersWindow().updateRegisters();
@@ -76,7 +77,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             executePane.getTextSegmentWindow().highlightStepAtPC(inDelaySlot); // Argument aded 25 June 2007
             FileStatus.set(FileStatus.RUNNABLE);
          // if we've backed all the way, disable the button
-         //    if (Globals.program.getBackStepper().empty()) {
+         //    if (Globals.backStepper.empty()) {
          //     ((AbstractAction)((AbstractButton)e.getSource()).getAction()).setEnabled(false);
          //}
          /*

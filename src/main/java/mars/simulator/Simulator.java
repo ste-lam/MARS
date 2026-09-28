@@ -59,6 +59,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       public static final int NORMAL_TERMINATION = 4;
       public static final int CLIFF_TERMINATION = 5; // run off bottom of program
       public static final int PAUSE_OR_STOP = 6;
+      public final BackStepper backStepper = new BackStepper();
    
       /**
    	 * Returns the Simulator object
@@ -347,7 +348,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                   	
                   	// IF statement added 7/26/06 (explanation above)
                      if (Globals.getSettings().getBackSteppingEnabled()) {
-                        Globals.program.getBackStepper().addDoNothing(pc);
+                        backStepper.addDoNothing(pc);
                      }
                   } 
                       catch (ProcessingException pe) {

@@ -1,4 +1,5 @@
    package mars.mips.hardware;
+   import mars.simulator.Simulator;
    import mars.util.*;
    import mars.Globals;
    import java.util.*;
@@ -330,7 +331,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          for (int i=0; i< registers.length; i++){
             if(registers[i].getNumber()== num) {
                old = (Globals.getSettings().getBackSteppingEnabled())
-                        ? Globals.program.getBackStepper().addCoprocessor1Restore(num,registers[i].setValue(val))
+                        ? Simulator.getInstance().backStepper.addCoprocessor1Restore(num,registers[i].setValue(val))
                   		: registers[i].setValue(val);
                break;
             }
@@ -443,10 +444,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             condition.setValue(Binary.setBit(condition.getValue(),flag));
             if (Globals.getSettings().getBackSteppingEnabled())
                if (old==0) {
-                  Globals.program.getBackStepper().addConditionFlagClear(flag);
+                  Simulator.getInstance().backStepper.addConditionFlagClear(flag);
                } 
                else {
-                  Globals.program.getBackStepper().addConditionFlagSet(flag);
+                  Simulator.getInstance().backStepper.addConditionFlagSet(flag);
                }
          }
          return old;
@@ -465,10 +466,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             condition.setValue(Binary.clearBit(condition.getValue(),flag));
             if (Globals.getSettings().getBackSteppingEnabled())
                if (old==0) {
-                  Globals.program.getBackStepper().addConditionFlagClear(flag);
+                   Simulator.getInstance().backStepper.addConditionFlagClear(flag);
                } 
                else {
-                  Globals.program.getBackStepper().addConditionFlagSet(flag);
+                   Simulator.getInstance().backStepper.addConditionFlagSet(flag);
                }
          }
          return old;

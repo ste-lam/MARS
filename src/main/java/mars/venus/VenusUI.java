@@ -1,11 +1,11 @@
    package mars.venus;
    import mars.*;
    import mars.mips.dump.*;
+   import mars.simulator.Simulator;
+
    import javax.swing.*;
    import java.awt.*;
    import java.awt.event.*;
-   import javax.swing.event.*;
-   import java.io.*;
    import java.net.*;
 
 /*
@@ -953,7 +953,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          runGoAction.setEnabled(true);
          runStepAction.setEnabled(true);
          runBackstepAction.setEnabled(
-            (Globals.getSettings().getBackSteppingEnabled()&& !Globals.program.getBackStepper().empty())
+            (Globals.getSettings().getBackSteppingEnabled()&& !Simulator.getInstance().backStepper.empty())
              ? true : false);
          runResetAction.setEnabled(true);
          runStopAction.setEnabled(false);
@@ -1024,7 +1024,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          runGoAction.setEnabled(false);
          runStepAction.setEnabled(false);
          runBackstepAction.setEnabled(
-            (Globals.getSettings().getBackSteppingEnabled()&& !Globals.program.getBackStepper().empty())
+            (Globals.getSettings().getBackSteppingEnabled()&& !Simulator.getInstance().backStepper.empty())
              ? true : false);
          runResetAction.setEnabled(true);
          runStopAction.setEnabled(false);

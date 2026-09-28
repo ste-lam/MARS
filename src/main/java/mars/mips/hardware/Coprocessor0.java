@@ -1,5 +1,7 @@
    package mars.mips.hardware;
    import mars.Globals;
+   import mars.simulator.Simulator;
+
    import java.util.*;
 
 /*
@@ -100,7 +102,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          for (int i=0; i< registers.length; i++){
             if(registers[i].getNumber()== num) {
                old = (Globals.getSettings().getBackSteppingEnabled())
-                        ? Globals.program.getBackStepper().addCoprocessor0Restore(num,registers[i].setValue(val))
+                        ? Simulator.getInstance().backStepper.addCoprocessor0Restore(num,registers[i].setValue(val))
                   		: registers[i].setValue(val);
                break;
             }

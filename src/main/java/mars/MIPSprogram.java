@@ -57,7 +57,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private ArrayList tokenList;
       private ArrayList parsedList;
       private ArrayList machineList;
-      private BackStepper backStepper;
       private SymbolTable localSymbolTable;
       private MacroPool macroPool;
       private ArrayList<SourceLine> sourceLineList;
@@ -158,17 +157,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public ArrayList getMachineList() {
          return machineList;
       }
-   
-   
-   /**
-    * Returns BackStepper associated with this program.  It is created upon successful assembly.
-    * @return BackStepper object, null if there is none.
-    **/
-    
-       public BackStepper getBackStepper() {
-         return backStepper;
-      }
-   
+
    /**
     * Returns SymbolTable associated with this program.  It is created at assembly time,
     * and stores local labels (those not declared using .globl directive).
@@ -176,15 +165,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
        public SymbolTable getLocalSymbolTable() {
          return localSymbolTable;
-      }
-   
-   /**
-    * Returns status of BackStepper associated with this program.  
-    * @return true if enabled, false if disabled or non-existant.
-    **/
-    
-       public boolean backSteppingEnabled() {
-         return (backStepper!=null && backStepper.enabled());
       }
    
    /**
@@ -313,10 +293,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     
        public ErrorList assemble(ArrayList MIPSprogramsToAssemble, boolean extendedAssemblerEnabled,
               boolean warningsAreErrors) throws ProcessingException {
-         this.backStepper = null;
          Assembler asm = new Assembler();
          this.machineList = asm.assemble(MIPSprogramsToAssemble, extendedAssemblerEnabled, warningsAreErrors);
-         this.backStepper = new BackStepper();
          return asm.getErrorList();
       }
    

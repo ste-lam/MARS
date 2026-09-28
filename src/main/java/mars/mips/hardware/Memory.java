@@ -479,7 +479,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
          notifyAnyObservers(AccessNotice.WRITE, address, WORD_LENGTH_BYTES, value);
          if (Globals.getSettings().getBackSteppingEnabled()) {
-            Globals.program.getBackStepper().addMemoryRestoreRawWord(address,oldValue);
+            Simulator.getInstance().backStepper.addMemoryRestoreRawWord(address,oldValue);
          }
          return oldValue;
       }
@@ -501,7 +501,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                Exceptions.ADDRESS_EXCEPTION_STORE,address);
          }
          return (Globals.getSettings().getBackSteppingEnabled())
-            ? Globals.program.getBackStepper().addMemoryRestoreWord(address,set(address, value, WORD_LENGTH_BYTES))
+            ? Simulator.getInstance().backStepper.addMemoryRestoreWord(address,set(address, value, WORD_LENGTH_BYTES))
             : set(address, value, WORD_LENGTH_BYTES);
       }
    
@@ -522,7 +522,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                Exceptions.ADDRESS_EXCEPTION_STORE, address);
          }
          return (Globals.getSettings().getBackSteppingEnabled())
-            ? Globals.program.getBackStepper().addMemoryRestoreHalf(address,set(address,value,2))
+            ? Simulator.getInstance().backStepper.addMemoryRestoreHalf(address,set(address,value,2))
             : set(address, value, 2);
       }
    
@@ -537,7 +537,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      
        public int setByte(int address, int value) throws AddressErrorException {
          return (Globals.getSettings().getBackSteppingEnabled())
-            ? Globals.program.getBackStepper().addMemoryRestoreByte(address,set(address,value,1))
+            ? Simulator.getInstance().backStepper.addMemoryRestoreByte(address,set(address,value,1))
             : set(address, value, 1);
       }
    

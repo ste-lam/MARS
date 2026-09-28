@@ -1,5 +1,6 @@
    package mars.venus;
    import mars.*;
+   import mars.simulator.Simulator;
    import mars.util.*;
    import mars.mips.hardware.*;
    import java.util.*;

@@ -5,6 +5,7 @@
    import mars.Globals;
    import mars.assembler.SymbolTable;
    import mars.mips.instructions.Instruction;
+   import mars.simulator.Simulator;
    import mars.util.Binary;
 
 /*
@@ -101,7 +102,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             for (int i=0; i< regFile.length; i++){
                if(regFile[i].getNumber()== num) {
                   old = (Globals.getSettings().getBackSteppingEnabled())
-                        ? Globals.program.getBackStepper().addRegisterFileRestore(num,regFile[i].setValue(val))
+                        ? Simulator.getInstance().backStepper.addRegisterFileRestore(num,regFile[i].setValue(val))
                      	: regFile[i].setValue(val);
                   break;
                }
@@ -109,12 +110,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          }
          if(num== 33){//updates the hi register
             old = (Globals.getSettings().getBackSteppingEnabled())
-               	      ? Globals.program.getBackStepper().addRegisterFileRestore(num,hi.setValue(val))
+               	      ? Simulator.getInstance().backStepper.addRegisterFileRestore(num,hi.setValue(val))
                			: hi.setValue(val);
          }
          else if(num== 34){// updates the low register
             old = (Globals.getSettings().getBackSteppingEnabled())
-               	      ? Globals.program.getBackStepper().addRegisterFileRestore(num,lo.setValue(val))
+               	      ? Simulator.getInstance().backStepper.addRegisterFileRestore(num,lo.setValue(val))
                			: lo.setValue(val);
          }
          return old;
@@ -254,7 +255,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          int old = programCounter.getValue();
          programCounter.setValue(value);
          if (Globals.getSettings().getBackSteppingEnabled()) {
-            Globals.program.getBackStepper().addPCRestore(old);
+            Simulator.getInstance().backStepper.addPCRestore(old);
          } 
          return old;
       }

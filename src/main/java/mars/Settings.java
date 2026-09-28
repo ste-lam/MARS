@@ -1,5 +1,6 @@
    package mars;
    import mars.*;
+   import mars.simulator.Simulator;
    import mars.util.*;
    import mars.venus.editors.jeditsyntax.*;
    import java.io.*;
@@ -305,7 +306,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @return true if backstepping is permitted, false otherwise.
      */
        public boolean getBackSteppingEnabled() {
-         return (Globals.program!=null && Globals.program.getBackStepper()!=null && Globals.program.getBackStepper().enabled());
+         return Simulator.getInstance().backStepper.enabled();
       }
    
    
