@@ -386,12 +386,11 @@
    	// if no matches.
        private ArrayList getTextFromDirectiveMatch(String tokenText, boolean exact) {
          ArrayList matches = null;
-         ArrayList directiveMatches = null;
+         List<Directives> directiveMatches = Collections.emptyList();
          if (exact) {
-            Object dir = Directives.matchDirective(tokenText);
+            Directives dir = Directives.matchDirective(tokenText);
             if (dir != null) {
-               directiveMatches = new ArrayList();
-               directiveMatches.add(dir);
+               directiveMatches = Collections.singletonList(dir);
             }
          } 
          else {
@@ -483,9 +482,8 @@
                cKeywords.add( ((mars.mips.instructions.Instruction)instructionSet.get(i)).getName(), Token.KEYWORD1 );
             }
          	// add assembler directives
-            java.util.ArrayList directiveSet = mars.assembler.Directives.getDirectiveList();
-            for (int i=0; i< directiveSet.size(); i++) {
-               cKeywords.add( ((mars.assembler.Directives)directiveSet.get(i)).getName(), Token.KEYWORD2 );
+            for (Directives o : Directives.values()) {
+                cKeywords.add(o.getName(), Token.KEYWORD2);
             }
          	// add integer register file
             mars.mips.hardware.Register[] registerFile = mars.mips.hardware.RegisterFile.getRegisters();

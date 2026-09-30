@@ -281,10 +281,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        private JScrollPane createMipsDirectivesHelpPane() {
          Vector exampleList = new Vector();
          String blanks = "            ";  // 12 blanks
-         Directives direct;
-         Iterator it = Directives.getDirectiveList().iterator();
-         while (it.hasNext()) {
-            direct = (Directives)it.next();
+         for (Directives direct : Directives.values()) {
             exampleList.add(direct.toString()
                             + blanks.substring(0,Math.max(0,blanks.length()-direct.toString().length()))
                      			  + direct.getDescription());
