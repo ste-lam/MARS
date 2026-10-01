@@ -60,7 +60,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             mainUI.messagesPane.setSelectedComponent(mainUI.messagesPane.runTab);
             executePane.getTextSegmentWindow().setCodeHighlighting(true);
             try {
-               done = Globals.program.simulateStepAtPC(this);
+                done = Simulator.getInstance().simulate(Globals.program, RegisterFile.getProgramCounter(), 1, new int[0], this);
             } 
                 catch (ProcessingException ev) {}
          }

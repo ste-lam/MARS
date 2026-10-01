@@ -7,8 +7,8 @@
    import java.util.*;
    import java.io.*;
    import mars.*;
+   import mars.simulator.Simulator;
    import mars.util.*;
-   import mars.tools.*;
    import mars.mips.hardware.*;
 
 /*
@@ -744,7 +744,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             String terminatingMessage = "Normal termination: ";
             try {
                operationStatusMessages.displayNonTerminatingMessage("Running "+fileToAssemble);
-               program.simulate(-1); // unlimited steps
+               // unlimited steps
+               Simulator.getInstance().simulate(program, RegisterFile.getProgramCounter(), -1, new int[0], null);
             }
                 catch (NullPointerException npe) { 
                  // This will occur if program execution is interrupted by Stop button.

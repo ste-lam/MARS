@@ -6,10 +6,8 @@
    import mars.simulator.*;
    import java.io.*;
    import java.util.*;
-   import java.awt.*;
    import java.util.stream.Collectors;
    import javax.swing.*;
-   import javax.swing.JOptionPane;   // KENV 9/8/2004
 
 /*
 Copyright (c) 2003-2012,  Pete Sanderson and Kenneth Vollmar
@@ -514,7 +512,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                   out.println("--------  SIMULATION BEGINS  -----------");
                }
                programRan = true;
-               boolean done = code.simulate(maxSteps);
+               boolean done = Simulator.getInstance().simulate(code, RegisterFile.getProgramCounter(), maxSteps, new int[0], null);
                if (!done) {
                   out.println("\nProgram terminated when maximum step limit "+maxSteps+" reached.");
                }

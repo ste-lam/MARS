@@ -75,7 +75,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                mainUI.setMenuState(FileStatus.RUNNING);
                try {
                   int[] breakPoints = executePane.getTextSegmentWindow().getSortedBreakPointsArray();
-                  boolean done = Globals.program.simulateFromPC(breakPoints,maxSteps,this);
+                  Simulator.getInstance().simulate(Globals.program, RegisterFile.getProgramCounter(), maxSteps, breakPoints, this);
                } 
                    catch (ProcessingException pe) {
                   }

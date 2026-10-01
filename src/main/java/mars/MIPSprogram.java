@@ -53,10 +53,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 
     public class MIPSprogram {
-   
-   // See explanation of method inSteppedExecution() below.
-      private boolean steppedExecution = false;
-   
       private Path source;
       final private List<TokenList> tokenList = new ArrayList<>();
       private List<ProgramStatement> parsedList;
@@ -466,77 +462,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.machineList = asm.assemble(MIPSprogramsToAssemble, extendedAssemblerEnabled, warningsAreErrors);
          return asm.getErrorList();
       }
-   
-   
-   /**
-    * Simulates execution of the MIPS program. Program must have already been assembled.
-    * Begins simulation at beginning of text segment and continues to completion.
-    * @param breakPoints int array of breakpoints (PC addresses).  Can be null.
-    * @return true if execution completed and false otherwise
-    * @throws ProcessingException Will throw exception if errors occured while simulating.
-    **/
-    
-       public boolean simulate(int[] breakPoints) throws ProcessingException {
-         return this.simulateFromPC(breakPoints, -1, null);
-      }
-   
-   
-   /**
-    * Simulates execution of the MIPS program. Program must have already been assembled.
-    * Begins simulation at beginning of text segment and continues to completion or
-    * until the specified maximum number of steps are simulated.
-    * @param maxSteps  maximum number of steps to simulate.
-    * @return true if execution completed and false otherwise
-    * @throws ProcessingException Will throw exception if errors occured while simulating.
-    **/
-    
-       public boolean simulate(int maxSteps) throws ProcessingException {
-         return this.simulateFromPC(null, maxSteps, null);
-      }	
-   
-   /**
-    * Simulates execution of the MIPS program. Program must have already been assembled.
-    * Begins simulation at current program counter address and continues until stopped,
-    * paused, maximum steps exceeded, or exception occurs.
-    * @param breakPoints int array of breakpoints (PC addresses).  Can be null.
-    * @param maxSteps maximum number of instruction executions.  Default -1 means no maximum.
-    * @param a the GUI component responsible for this call (GO normally).  set to null if none.
-    * @return true if execution completed and false otherwise
-    * @throws ProcessingException Will throw exception if errors occured while simulating.
-    **/	
-       public boolean simulateFromPC(int[] breakPoints, int maxSteps, AbstractAction a) throws ProcessingException {
-         steppedExecution = false;
-         Simulator sim = Simulator.getInstance();
-         return sim.simulate(this, RegisterFile.getProgramCounter(), maxSteps, breakPoints, a);
-      }
-   
-   
-   
-   /**
-    * Simulates execution of the MIPS program. Program must have already been assembled.
-    * Begins simulation at current program counter address and executes one step.
-    * @param a the GUI component responsible for this call (STEP normally). Set to null if none.
-    * @return true if execution completed and false otherwise
-    * @throws ProcessingException Will throw exception if errors occured while simulating.
-    **/
-       public boolean simulateStepAtPC(AbstractAction a) throws ProcessingException {
-         steppedExecution = true;
-         Simulator sim = Simulator.getInstance();
-         boolean done = sim.simulate(this, RegisterFile.getProgramCounter(), 1, null,a);
-         return done;
-      }
-   
-   /** Will be true only while in process of simulating a program statement
-   * in step mode (e.g. returning to GUI after each step).  This is used to
-   * prevent spurious AccessNotices from being sent from Memory and Register
-   * to observers at other times (e.g. while updating the data and register
-   * displays, while assembling program's data segment, etc).
-   */
-       public boolean inSteppedExecution() {
-         return steppedExecution;
-      }
-   
-   /**
+
+
+    /**
     * Instantiates a new {@link MacroPool} and sends reference of this
     * {@link MIPSprogram} to it
     * 
