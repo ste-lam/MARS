@@ -72,7 +72,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       
    	// When step is completed, control returns here (from execution thread, indirectly) 
    	// to update the GUI.
-       public void stepped(boolean done, int reason, ProcessingException pe) {
+       public void stepped(boolean done, Simulator.State reason, ProcessingException pe) {
          executePane.getRegistersWindow().updateRegisters();
          executePane.getCoprocessor1Window().updateRegisters();
          executePane.getCoprocessor0Window().updateRegisters();
@@ -89,11 +89,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          if (done && pe == null) {
             mainUI.getMessagesPane().postMarsMessage(
                              "\n"+name+": execution "+
-									  ((reason==Simulator.CLIFF_TERMINATION) ? "terminated due to null instruction."
+									  ((reason==Simulator.State.CLIFF_TERMINATION) ? "terminated due to null instruction."
 									                                         : "completed successfully.")+"\n\n");
             mainUI.getMessagesPane().postRunMessage(
                              "\n-- program is finished running "+
-									  ((reason==Simulator.CLIFF_TERMINATION)? "(dropped off bottom)" : "") +" --\n\n");
+									  ((reason==Simulator.State.CLIFF_TERMINATION)? "(dropped off bottom)" : "") +" --\n\n");
             mainUI.getMessagesPane().selectRunMessageTab();
          }
          if (pe !=null) {

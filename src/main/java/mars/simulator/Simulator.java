@@ -7,6 +7,7 @@
    import java.util.*;
    import javax.swing.*;
    import java.awt.event.*;
+   import static mars.simulator.Simulator.State.*;
 	
 	/*
 Copyright (c) 2003-2010,  Pete Sanderson and Kenneth Vollmar
@@ -53,12 +54,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       public static final int NO_DEVICE = 0;
       public static volatile int externalInterruptingDevice = NO_DEVICE;
    	/** various reasons for simulate to end... */
-      public static final int BREAKPOINT = 1;
-      public static final int EXCEPTION  = 2;
-      public static final int MAX_STEPS  = 3;  // includes step mode (where maxSteps is 1)
-      public static final int NORMAL_TERMINATION = 4;
-      public static final int CLIFF_TERMINATION = 5; // run off bottom of program
-      public static final int PAUSE_OR_STOP = 6;
+    public enum State {
+        BREAKPOINT,
+        EXCEPTION,
+        MAX_STEPS,  // includes step mode (where maxSteps is 1)
+        NORMAL_TERMINATION,
+        CLIFF_TERMINATION, // run off bottom of program
+        PAUSE_OR_STOP,
+    }
       public final BackStepper backStepper = new BackStepper();
    
       /**
@@ -207,7 +210,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          private volatile boolean stop = false;
          private volatile AbstractAction stopper;
          private AbstractAction starter;
-         private int constructReturnReason;
+         private Simulator.State constructReturnReason;
       
       
          /**
