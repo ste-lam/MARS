@@ -66,9 +66,11 @@ To be able to execute the syscalls, every syscall function is mapped to a unique
 The full class name is added to the global symbol table, so that every syscall can be referenced by its full class name.
 For instance, the syscall <tt>mars.mips.instructions.syscalls.SyscallPrintInt</tt> can be called
 like an ordinary function: <tt>jal mars.mips.instructions.syscalls.SyscallPrintInt</tt>.
-Therefore, MARS introduced a <i>default exception handler</i> that implements a tiny syscall number dispatcher.
+Therefore, MARS Release 4.6 introduced a <i>default exception handler</i> that implements a tiny syscall number dispatcher.
 This allows programs to keep working as long as no <i>custom exception handler</i> is used.
 <u>A <i>custom exception handler</i> now must implement syscall dispatching and syscall number mapping by itself.</u>
+As <i>exception handlers</i> now need to implement the syscall dispatching, the service number was removed from
+the <tt>mars.mips.instructions.syscalls.Syscall</tt> interface.
 
 
 <p><b>Reassigning syscall numbers:</b> the <i>default exception handler</i> dispatches syscalls with a
@@ -100,7 +102,7 @@ Therefore, it should be considered whether using a <i>custom exception handler</
 <p><b>Adding a syscall:</b> MARS finds syscall classes with the Java Service Provider Interface (SPI). 
 A custom syscall implements the <tt>mars.mips.instructions.syscalls.Syscall</tt> interface. It is listed in
 <tt>META-INF/services/mars.mips.instructions.syscalls.Syscall</tt> of the JAR file that contains your custom class.
-The class itself must be compiled into a ".class" file. The JAR file needs to be part of the MARS class path.
+The JAR file needs to be part of the MARS class path.
 
 
 <p><b>Existing syscall classes:</b> a class written for Release 4.5 or earlier needs one change:
@@ -111,29 +113,6 @@ with the number that the class had before.  Putting the class into the
 <tt>mars/mips/instructions/syscalls</tt> directory or entering its number in
 <tt>Syscall.properties</tt> has no effect anymore.
 
-<p><b>Custom exception handlers:</b> a custom exception handler does not use the table in
-<tt>kernel_syscalls.s</tt>, so when you write your own exception handler, you need to implement the
-syscall dispatching yourself.  As shown above, it can call the syscall classes like normal
-functions.  The class reads its arguments from the registers and writes its results to the
-registers, in the same way as for the <tt>syscall</tt> instruction.  This small exception handler
-handles only syscall 1 (print integer), whatever service number is in <tt>$v0</tt>:
-<pre>
-.ktext 0x80000180
-   mfc0  $k0, $14          # EPC, the address of the syscall instruction
-   addiu $k0, $k0, 4       # continue after the syscall instruction
-   move  $k1, $ra          # keep the $ra of the user program
-   jal   mars.mips.instructions.syscalls.SyscallPrintInt
-   nop
-   move  $ra, $k1          # restore the $ra of the user program
-   mtc0  $k0, $14
-   eret
-</pre>
-A real exception handler also checks the Cause register and the service number.  Note that this
-is a function call, not a system call.  Do not execute the <tt>syscall</tt> instruction inside an
-exception handler, because it would overwrite the EPC and Cause registers of the exception that is being
-handled.  An exception handler that was written for SPIM or for an older MARS release does not dispatch syscalls,
-because the simulator executed them itself.  Such a handler must be extended with the syscall
-dispatching described here.
 
 <p>Follow the Tutorial Materials link on the MARS homepage to find a tutorial 
 that covers development of system calls.
