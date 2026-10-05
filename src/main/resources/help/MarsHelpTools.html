@@ -59,30 +59,6 @@ Beginning with Release 3.1, system calls (<tt>syscall</tt> instruction) are impl
 a technique similar to that for tools.  This permits anyone to add a new syscall by defining
 a new class.
 
-<!-- we have 2 main groups that would read the following paragraphs:
-   1) default exception handler users
-      - they want to know how to change syscall numbers now
-      - how to add a new syscall
-      - how to migrate existing custom syscalls
-      - how to change syscalls numbers
-   2) custom exception handler users
-      - they want to know how to change syscall numbers now
-      - how to register a new syscall
-      - how to migrate existing custom syscalls
-      - how to change syscalls numbers
-      - want to know why syscall no longer work when a custom exception handler is used
-   
-   both groups want to know similar things but for different reasons and different implications. 
-   
-   The first one, they want to know how to add new syscalls, and how existing ones are migrated.
-   The usually don't care how the dispatching is done as it's not important. as the default exception handler is
-   not explicitly mentioned anywhere they may be not even aware of it.
-      
-   The second one does not care about the default kernel.
-   They want to know how syscall dispatching can be added to their kernel and how it works. And also how new syscalls
-   can be added or existing ones need be migrated.
--->
-
 <p><b>How syscalls are implemented:</b> up to Release 4.5, the <tt>syscall</tt> instruction
 dispatched the known syscall numbers directly and raised an exception when a syscall number was unknown.
 Since Release 4.6, the <tt>syscall</tt> instruction always raises an exception, to simulate real MIPS hardware.
@@ -103,11 +79,8 @@ so on.  For instance, the entry marked <tt># Syscall Number: 30</tt> contains
 <tt>.word mars.mips.instructions.syscalls.SyscallTime</tt>, so <tt>$v0</tt> = 30 runs
 <tt>SyscallTime</tt>.  An entry that is not assigned contains a NULL pointer, written as <tt>.word 0</tt>.
 
-<p>Syscalls and syscall number assignments in MARS match those of SPIM for syscalls 1 through 17.
-However, if you wish to change syscall number assignments, you may do so by editing
-<tt>kernel_syscalls.s</tt> (this requires extraction from the JAR file).  The position of an entry
-is its service number, so do not insert or delete lines.  This example moves <tt>SyscallTime</tt>
-from service number 30 to 46.  Before:
+<p>The following example registers <tt>SyscallTime</tt> to service number 30 and 46.  
+Before:
 <pre>
 .word mars.mips.instructions.syscalls.SyscallTime    # Syscall Number: 30
 ...
@@ -115,47 +88,20 @@ from service number 30 to 46.  Before:
 </pre>
 After:
 <pre>
-.word 0                                              # Syscall Number: 30
+.word mars.mips.instructions.syscalls.SyscallTime    # Syscall Number: 30
 ...
 .word mars.mips.instructions.syscalls.SyscallTime    # Syscall Number: 46
 </pre>
 
+Programs that rely on changed service numbers do not run with a standard MARS installation.
+Therefore, it should be considered whether using a <i>custom exception handler</i> would be more appropriate.
 
-<p><b>Adding a syscall:</b> a new syscall is a public class with a public constructor that takes
-no arguments.  It implements the <tt>mars.mips.instructions.syscalls.Syscall</tt> interface, or
-extends the <tt>mars.mips.instructions.syscalls.AbstractSyscall</tt> class (which already provides
-everything except the <tt>simulate()</tt> method).  The class must be compiled into a ".class" file
-that is on the MARS class path.  This example adds a class <tt>SyscallHello</tt> as service number 45.
 
-<p>1. Write the class:
-<pre>
-public class SyscallHello extends AbstractSyscall {
-   public SyscallHello() {
-      super("Hello");
-   }
-   // simulate() ...
-}
-</pre>
+<p><b>Adding a syscall:</b> MARS finds syscall classes with the Java Service Provider Interface (SPI). 
+A custom syscall implements the <tt>mars.mips.instructions.syscalls.Syscall</tt> interface. It is listed in
+<tt>META-INF/services/mars.mips.instructions.syscalls.Syscall</tt> of the JAR file that contains your custom class.
+The class itself must be compiled into a ".class" file. The JAR file needs to be part of the MARS class path.
 
-<p>2. MARS finds syscall classes with the Java Service Provider Interface (SPI).  List the full
-class name (including the package) on a line of its own in the provider-configuration file
-<tt>META-INF/services/mars.mips.instructions.syscalls.Syscall</tt>.  This file belongs to the JAR
-file that contains your class.  MARS reads this file from every JAR file on
-its class path, so your syscalls can be delivered as their own JAR file, and several JAR files can add
-syscalls independently of each other.  For the example, the file contains this line:
-<pre>
-mars.mips.instructions.syscalls.SyscallHello
-</pre>
-
-<p>3. With the <i>default exception handler</i>, replace the entry for service number 45 in
-<tt>kernel_syscalls.s</tt>.  Before:
-<pre>
-.word 0                                              # Syscall Number: 45
-</pre>
-After:
-<pre>
-.word mars.mips.instructions.syscalls.SyscallHello   # Syscall Number: 45
-</pre>
 
 <p><b>Existing syscall classes:</b> a class written for Release 4.5 or earlier needs one change:
 remove its service number.  That is the number argument of the <tt>AbstractSyscall</tt> constructor,
@@ -185,7 +131,9 @@ handles only syscall 1 (print integer), whatever service number is in <tt>$v0</t
 A real exception handler also checks the Cause register and the service number.  Note that this
 is a function call, not a system call.  Do not execute the <tt>syscall</tt> instruction inside an
 exception handler, because it would overwrite the EPC and Cause registers of the exception that is being
-handled.
+handled.  An exception handler that was written for SPIM or for an older MARS release does not dispatch syscalls,
+because the simulator executed them itself.  Such a handler must be extended with the syscall
+dispatching described here.
 
 <p>Follow the Tutorial Materials link on the MARS homepage to find a tutorial 
 that covers development of system calls.
