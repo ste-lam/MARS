@@ -66,52 +66,18 @@ To be able to execute the syscalls, every syscall function is mapped to a unique
 The full class name is added to the global symbol table, so that every syscall can be referenced by its full class name.
 For instance, the syscall <tt>mars.mips.instructions.syscalls.SyscallPrintInt</tt> can be called
 like an ordinary function: <tt>jal mars.mips.instructions.syscalls.SyscallPrintInt</tt>.
-Therefore, MARS Release 4.6 introduced a <i>default exception handler</i> that implements a tiny syscall number dispatcher.
+Therefore, MARS Release 4.6 introduced a <i>default exception handler</i> (<tt>kernel.s</tt>) that implements a tiny syscall number dispatcher.
 This allows programs to keep working as long as no <i>custom exception handler</i> is used.
 <u>A <i>custom exception handler</i> now must implement syscall dispatching and syscall number mapping by itself.</u>
-As <i>exception handlers</i> now need to implement the syscall dispatching, the service number was removed from
-the <tt>mars.mips.instructions.syscalls.Syscall</tt> interface.
-
-
-<p><b>Reassigning syscall numbers:</b> the <i>default exception handler</i> dispatches syscalls with a
-<b>Function Pointer Table</b> in the file <tt>kernel_syscalls.s</tt>.  Each entry of the table is the
-address of a syscall function, written as the full class name of the syscall.  The service number in
-register <tt>$v0</tt> selects the entry: the first entry is service number 0, the next one is 1, and
-so on.  For instance, the entry marked <tt># Syscall Number: 30</tt> contains
-<tt>.word mars.mips.instructions.syscalls.SyscallTime</tt>, so <tt>$v0</tt> = 30 runs
-<tt>SyscallTime</tt>.  An entry that is not assigned contains a NULL pointer, written as <tt>.word 0</tt>.
-
-<p>The following example registers <tt>SyscallTime</tt> to service number 30 and 46.  
-Before:
-<pre>
-.word mars.mips.instructions.syscalls.SyscallTime    # Syscall Number: 30
-...
-.word 0                                              # Syscall Number: 46
-</pre>
-After:
-<pre>
-.word mars.mips.instructions.syscalls.SyscallTime    # Syscall Number: 30
-...
-.word mars.mips.instructions.syscalls.SyscallTime    # Syscall Number: 46
-</pre>
-
-Programs that rely on changed service numbers do not run with a standard MARS installation.
-Therefore, it should be considered whether using a <i>custom exception handler</i> would be more appropriate.
+As <i>exception handlers</i> now need to implement the syscall dispatching, the syscall number was removed from
+the <tt>mars.mips.instructions.syscalls.Syscall</tt> interface. When programs rely on changed syscall numbers, 
+it should be considered whether using a <i>custom exception handler</i> is appropriate.
 
 
 <p><b>Adding a syscall:</b> MARS finds syscall classes with the Java Service Provider Interface (SPI). 
 A custom syscall implements the <tt>mars.mips.instructions.syscalls.Syscall</tt> interface. It is listed in
 <tt>META-INF/services/mars.mips.instructions.syscalls.Syscall</tt> of the JAR file that contains your custom class.
 The JAR file needs to be part of the MARS class path.
-
-
-<p><b>Existing syscall classes:</b> a class written for Release 4.5 or earlier needs one change:
-remove its service number.  That is the number argument of the <tt>AbstractSyscall</tt> constructor,
-so <tt>super(45, "Hello")</tt> becomes <tt>super("Hello")</tt>, or the methods <tt>getNumber()</tt>
-and <tt>setNumber()</tt> if the class implements <tt>Syscall</tt> directly.  Then do steps 2 and 3
-with the number that the class had before.  Putting the class into the
-<tt>mars/mips/instructions/syscalls</tt> directory or entering its number in
-<tt>Syscall.properties</tt> has no effect anymore.
 
 
 <p>Follow the Tutorial Materials link on the MARS homepage to find a tutorial 
