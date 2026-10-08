@@ -1,0 +1,14 @@
+mars.tools.BHTSimulator
+mars.tools.BitmapDisplay
+mars.tools.CacheSimulator
+mars.tools.DigitalLabSim
+mars.tools.FloatRepresentation
+mars.tools.InstructionCounter
+mars.tools.InstructionStatistics
+mars.tools.IntroToTools
+mars.tools.KeyboardAndDisplaySimulator
+mars.tools.MarsBot
+mars.tools.MemoryReferenceVisualization
+mars.tools.MipsXray
+mars.tools.ScavengerHunt
+mars.tools.ScreenMagnifier
