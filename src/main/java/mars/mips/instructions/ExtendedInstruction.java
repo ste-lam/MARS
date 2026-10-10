@@ -236,7 +236,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             		// If bit 15 is 1, that means lower 16 bits will become a negative offset!  To
             	// compensate if that is the case, we need to add 1 to the high 16 bits.
                int extra = Binary.bitValue(addr,15);
-               instruction = substitute(instruction,"LH"+op+"P"+add,String.valueOf((addr >> 16)+extra));
+               instruction = substitute(instruction,"LH"+op+"P"+add,String.valueOf((addr >>> 16)+extra));
             }
          // substitute upper 16 bits of label address
          // NOTE: form LHnPm will not match here since it is discovered and substituted above.
@@ -253,7 +253,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             		// If bit 15 is 1, that means lower 16 bits will become a negative offset!  To
             	// compensate if that is the case, we need to add 1 to the high 16 bits.
                int extra = Binary.bitValue(addr,15);
-               instruction = substitute(instruction,"LH"+op,String.valueOf((addr >> 16)+extra));
+               instruction = substitute(instruction,"LH"+op,String.valueOf((addr >>> 16)+extra));
             }
          // substitute lower 16 bits of label address, after adding single digit that follows P
             if ((index=instruction.indexOf("LL"+op+"P"))>=0) {
@@ -300,7 +300,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                    catch (NumberFormatException e) {
                    // this won't happen...
                   }
-               instruction = substitute(instruction,"VHL"+op+"P"+add,String.valueOf(val >> 16));
+               instruction = substitute(instruction,"VHL"+op+"P"+add,String.valueOf(val >>> 16));
             }	         
          // substitute upper 16 bits of value after adding 1,2,3,4, then adjust
          // if necessary, if resulting bit 15 is 1 (see "extra" below)
@@ -317,7 +317,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             	// If bit 15 is 1, that means lower 16 bits will become a negative offset!  To
             	// compensate if that is the case, we need to add 1 to the high 16 bits.
                int extra = Binary.bitValue(val,15);
-               instruction = substitute(instruction,"VH"+op+"P"+add,String.valueOf((val >> 16)+extra));
+               instruction = substitute(instruction,"VH"+op+"P"+add,String.valueOf((val >>> 16)+extra));
             }
          // substitute upper 16 bits of value, adjusted if necessary (see "extra" below)
          // NOTE: if VHnPm appears it will not match here; already substituted by code above
@@ -333,7 +333,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             	// If bit 15 is 1, that means lower 16 bits will become a negative offset!  To
             	// compensate if that is the case, we need to add 1 to the high 16 bits.
                int extra = Binary.bitValue(val,15);
-               instruction = substitute(instruction,"VH"+op,String.valueOf((val >> 16)+extra));
+               instruction = substitute(instruction,"VH"+op,String.valueOf((val >>> 16)+extra));
             }	
          // substitute lower 16 bits of value after adding specified amount (1,2,3,4)
             if ((index=instruction.indexOf("VL"+op+"P"))>=0) {
@@ -381,7 +381,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                    catch (NumberFormatException e) {
                    // this won't happen...
                   }
-               instruction = substitute(instruction,"VHL"+op,String.valueOf(val >> 16));
+               instruction = substitute(instruction,"VHL"+op,String.valueOf(val >>> 16));
             }
          }
          // substitute upper 16 bits of label address for "la"
@@ -395,7 +395,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 catch (NumberFormatException e) {
                    // this won't happen...
                }
-            instruction = substitute(instruction,"LHL",String.valueOf(addr >> 16));
+            instruction = substitute(instruction,"LHL",String.valueOf(addr >>> 16));
          }	
       
          // substitute upper 16 bits of label address after adding the digit that follows "P" and
@@ -417,7 +417,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          		// If bit 15 is 1, that means lower 16 bits will become a negative offset!  To
          		// compensate if that is the case, we need to add 1 to the high 16 bits.
             int extra = Binary.bitValue(addr,15);
-            instruction = substitute(instruction,"LHPAP"+add,String.valueOf((addr >> 16) + extra));
+            instruction = substitute(instruction,"LHPAP"+add,String.valueOf((addr >>> 16) + extra));
          }		
          // substitute upper 16 bits of label address after adding constant e.g. here+4($s0)
       	// Address will be resolved using addition, so need to add 1 to upper half if bit 15 is 1.
@@ -437,7 +437,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          		// If bit 15 is 1, that means lower 16 bits will become a negative offset!  To
          		// compensate if that is the case, we need to add 1 to the high 16 bits.
             int extra = Binary.bitValue(addr,15);
-            instruction = substitute(instruction,"LHPA",String.valueOf((addr >> 16) + extra));
+            instruction = substitute(instruction,"LHPA",String.valueOf((addr >>> 16) + extra));
          }	
          // substitute upper 16 bits of label address after adding constant e.g. here+4($s0)
       	// Address will be resolved using "ori", so DO NOT adjust upper 16 if bit 15 is 1.
@@ -454,7 +454,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 catch (NumberFormatException e) {
                    // this won't happen...
                }
-            instruction = substitute(instruction,"LHPN",String.valueOf(addr >> 16));
+            instruction = substitute(instruction,"LHPN",String.valueOf(addr >>> 16));
          }	
          // substitute lower 16 bits of label address after adding immediate value e.g. here+44($s0)
       	// and also adding the digit following LLPP in the spec.

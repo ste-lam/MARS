@@ -39,55 +39,36 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @version August 2003
  **/
 
-    public final class TokenTypes {
+    public enum TokenTypes {
    
-      public static final String TOKEN_DELIMITERS = "\t ,()";
-      public static final TokenTypes COMMENT       = new TokenTypes("COMMENT");
-      public static final TokenTypes DIRECTIVE     = new TokenTypes("DIRECTIVE");
-      public static final TokenTypes OPERATOR      = new TokenTypes("OPERATOR");
-      public static final TokenTypes DELIMITER     = new TokenTypes("DELIMITER");
+      COMMENT,
+      DIRECTIVE,
+      OPERATOR,
+      DELIMITER,
    /** note: REGISTER_NAME is token of form $zero whereas REGISTER_NUMBER is token
    *       of form $0.  The former is part of extended assembler, and latter is part
    *       of basic assembler.  
    **/
-      public static final TokenTypes REGISTER_NAME = new TokenTypes("REGISTER_NAME"); // mnemonic
-      public static final TokenTypes REGISTER_NUMBER = new TokenTypes("REGISTER_NUMBER");
-      public static final TokenTypes FP_REGISTER_NAME = new TokenTypes("FP_REGISTER_NAME");		
-      public static final TokenTypes IDENTIFIER    = new TokenTypes("IDENTIFIER");
-      public static final TokenTypes LEFT_PAREN    = new TokenTypes("LEFT_PAREN");
-      public static final TokenTypes RIGHT_PAREN   = new TokenTypes("RIGHT_PAREN");
-   //public static final TokenTypes INTEGER       = new TokenTypes("INTEGER");
-      public static final TokenTypes INTEGER_5     = new TokenTypes("INTEGER_5");
-      public static final TokenTypes INTEGER_16    = new TokenTypes("INTEGER_16");
-      public static final TokenTypes INTEGER_16U    = new TokenTypes("INTEGER_16U");
-      public static final TokenTypes INTEGER_32    = new TokenTypes("INTEGER_32");
-      public static final TokenTypes REAL_NUMBER   = new TokenTypes("REAL_NUMBER");
-      public static final TokenTypes QUOTED_STRING = new TokenTypes("QUOTED_STRING");
-      public static final TokenTypes PLUS          = new TokenTypes("PLUS");
-      public static final TokenTypes MINUS         = new TokenTypes("MINUS");
-      public static final TokenTypes COLON         = new TokenTypes("COLON");
-      public static final TokenTypes ERROR         = new TokenTypes("ERROR");
-      public static final TokenTypes MACRO_PARAMETER = new TokenTypes("MACRO_PARAMETER");
-   
-      private String descriptor;
-   
-       private TokenTypes() {
-      // private ctor assures no objects can be created other than those above.
-         descriptor = "generic";
-      }
-   
-       private TokenTypes(String name) {
-         descriptor = name;
-      }
-   
-   /**
-    * Produces String equivalent of this token type, which is its name.
-    * 
-    * @return String containing descriptive name for token type.
-    **/
-       public String toString() {
-         return descriptor;
-      }
+      REGISTER_NAME, // mnemonic
+      REGISTER_NUMBER,
+      FP_REGISTER_NAME,
+      IDENTIFIER,
+      LEFT_PAREN,
+      RIGHT_PAREN,
+   //INTEGER,
+      INTEGER_5,
+      INTEGER_16,
+      INTEGER_16U,
+      INTEGER_32,
+      REAL_NUMBER,
+      QUOTED_STRING,
+      PLUS,
+      MINUS,
+      COLON,
+      ERROR,
+      MACRO_PARAMETER;
+
+      public static final String TOKEN_DELIMITERS = "\t ,()";
    
    /**
     * Classifies the given token into one of the MIPS types.
