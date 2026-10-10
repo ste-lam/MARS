@@ -1,8 +1,6 @@
    package mars.assembler;
 
-   import java.util.ArrayList;
-   import java.util.Collections;
-   import java.util.Comparator;
+   import java.util.*;
 
    import mars.ErrorList;
    import mars.ErrorMessage;
@@ -10,14 +8,15 @@
    import mars.MIPSprogram;
    import mars.ProcessingException;
    import mars.ProgramStatement;
-   import mars.mips.hardware.AddressErrorException;
-   import mars.mips.hardware.Memory;
+   import mars.mips.hardware.*;
    import mars.mips.instructions.BasicInstruction;
    import mars.mips.instructions.ExtendedInstruction;
    import mars.mips.instructions.Instruction;
    import mars.util.Binary;
    import mars.util.SystemIO;
 
+   import static mars.Settings.DELAYED_BRANCHING_ENABLED;
+   import static mars.assembler.TokenTypes.*;
    import static mars.mips.instructions.Instruction.INSTRUCTION_LENGTH;
 
 /*
@@ -580,6 +579,7 @@
                errors.add(new ErrorMessage(token.getSourceMIPSprogram(), token.getSourceLine(),
                   token.getStartPos(),
                   "Extended (pseudo) instruction or format not permitted.  See Settings."));
+               return null;
             }
 
             if (! OperandFormat.tokenOperandMatch(tokens, inst, errors, allowRawAddressing))
@@ -617,20 +617,29 @@
 
    private ArrayList<ProgramStatement> parsePseudoInstruction(String source, int sourceLineNumber, ExtendedInstruction extendedInstruction, TokenList tokens) {
       ArrayList<ProgramStatement> ret = new ArrayList<>();
-
+      
+      Map<String, String> substitutions = buildSubstitutionMap(tokens);
+      
       boolean first = true;
-      for (String template : extendedInstruction.getInstructionTemplateList()) {
-         String instruction = ExtendedInstruction.makeTemplateSubstitutions(
-                 this.fileCurrentlyBeingAssembled, template, tokens);
+      for (String instruction : extendedInstruction.getInstructionTemplateList()) {
          // 23 Jan 2008 by DPS. Template substitution may result in no instruction.
          // If this is the case, skip remainder of loop iteration. This should only
          // happen if template substitution was for "nop" instruction but delayed branching
          // is disabled so the "nop" is not generated.
-         if (instruction == null || instruction.isEmpty()) {
-            continue;
+         assert instruction != null && !instruction.isEmpty();
+
+         if (instruction.equals("DBNOP")) {
+            if (!Globals.getSettings().getBooleanSetting(DELAYED_BRANCHING_ENABLED)) {
+               continue;
+            }
+            instruction = "nop";
          }
 
-         TokenList newTokenList = new Tokenizer().tokenizeLine(sourceLineNumber, instruction, errors, false);
+         // tokenizeLine with doEqvSubstitutes=true will apply transformations recursively until it's done - which is wrong!
+         Tokenizer tokenizer = new Tokenizer();
+         TokenList newTokenList = tokenizer.tokenizeLine(sourceLineNumber, instruction, errors, false);
+         substituteTemplateTokens(newTokenList, substitutions);
+         
          ArrayList<ProgramStatement> extendedLines = parseLine(newTokenList, first ? source : "", sourceLineNumber, false, true);
 
          if (extendedLines != null)
@@ -640,8 +649,188 @@
       }
       return ret;
    }
-   
-      private void detectLabels(TokenList tokens, Macro current) {
+
+
+
+   /**
+    * Builds a substitution map for a tokenized pseudo-opcode.
+    *
+    * <p>The following substitutions are supported:</p>
+    *
+    * <ul>
+    *    <li>{@code Rn}: Substitutes the register in the {@code n}-th token
+    *        with the corresponding register.</li>
+    *    <li>{@code RnP1}: Substitutes the next register after the register
+    *        in the {@code n}-th token, if one exists.</li>
+    *    <li>{@code OPn}: Substitutes the {@code n}-th source token unchanged.</li>
+    *    <li>{@code DBNOP}: Expands to {@code nop} when delayed branching is
+    *        enabled, or to an empty value otherwise.</li>
+    * </ul>
+    *
+    * <p>Integer and address substitutions use the naming scheme
+    * {@code [LUH]n(P[1-4])?}, where {@code N} is the zero-based source
+    * token index.</p>
+    *
+    * <ul>
+    *    <li>{@code L}: The least significant 16 bits of the value.</li>
+    *    <li>{@code U}: The most significant 16 bits of the value, obtained
+    *        using an unsigned right shift by 16 bits.</li>
+    *    <li>{@code H}: The adjusted upper 16 bits, calculated as
+    *        {@code (V - signExtend16(L)) >>> 16}, where {@code V} is the
+    *        original value and {@code L} is its least significant 16 bits.
+    *        This allows the value to be reconstructed when the lower 16 bits
+    *        are interpreted as a signed 16-bit integer.</li>
+    *    <li>{@code P1} through {@code P4}: An optional offset of 1 through 4
+    *        added to the original value before its parts are calculated.
+    *        Without this suffix, the offset is zero.</li>
+    * </ul>
+    *
+    * @param theTokenList the tokenized pseudo-opcode
+    * @return a map of substitution names to replacement tokens
+    */
+   private Map<String, String> buildSubstitutionMap(TokenList theTokenList) {
+      Map<String, String> substitutions = new HashMap<>();
+
+      if (theTokenList.isEmpty())
+         return substitutions;
+      
+      final int size = theTokenList.size();
+      for (int tokenId = 0; tokenId < size; ++tokenId) {
+         final int currentTokenId = tokenId;
+         final Token token = theTokenList.get(tokenId);
+
+         switch (token.getType()) {
+            case IDENTIFIER: {
+               Symbol sym = fileCurrentlyBeingAssembled.getLocalSymbolTable().getSymbol(token.getValue());
+               
+               int v = 0xDEAD_BEEF;
+               if (sym == null) {
+                  // log an error but use fallback value to be able to calculate the instruction offsets
+                  errors.add(new ErrorMessage(fileCurrentlyBeingAssembled, token.getSourceLine(), token.getStartPos(),
+                          "Symbol \"" + token.getValue() + "\" not found in symbol table."));
+               }
+               else {
+                  v = sym.getAddress();
+               }
+               
+               // check if this a complex label
+               // TODO: Replace this workaround when the assembler supports expressions.
+               if (tokenId + 2 < size) {
+                  Token tokenOperator = theTokenList.get(tokenId + 1);
+                  Token tokenOffset = theTokenList.get(tokenId + 2);
+                  if ((tokenOperator.getType() == PLUS) && (TokenTypes.isIntegerTokenType(tokenOffset.getType()))) {
+                     v += Binary.stringToInt(tokenOffset.getValue());
+                     tokenId += 2;
+                  }
+               }
+               
+               substitutions.putAll(buildIntegerSubstitutions(currentTokenId, v));
+               break;
+            }
+
+            case INTEGER_5:
+            case INTEGER_16:
+            case INTEGER_16U:
+            case INTEGER_32: {
+               int v = Binary.stringToInt(token.getValue());
+               
+               // check if this WAS a complex label
+               // TODO: Replace this workaround when the assembler supports expressions.
+               if (tokenId + 2 < size) {
+                  Token tokenOperator = theTokenList.get(tokenId + 1);
+                  Token tokenOffset = theTokenList.get(tokenId + 2);
+                  if ((tokenOperator.getType() == PLUS) && (TokenTypes.isIntegerTokenType(tokenOffset.getType()))) {
+                     v += Binary.stringToInt(tokenOffset.getValue());
+                     tokenId += 2;
+                  }
+               }
+               
+               substitutions.putAll(buildIntegerSubstitutions(currentTokenId, v));
+               break;
+            }
+
+            case REGISTER_NUMBER:
+            case REGISTER_NAME: {
+               Register register = Objects.requireNonNull(RegisterFile.getUserRegister(token.getValue()));
+               substitutions.put("R" + tokenId, "$" + register.getNumber());
+               if (register.getNumber() < 31) {
+                  substitutions.put("R" + tokenId + "P1", "$" + (register.getNumber() + 1));
+               }
+               break;
+            }
+
+            case FP_REGISTER_NAME: {
+               Register register0 = Coprocessor1.getRegister(token.getValue());
+               substitutions.put("R" + tokenId, register0.getName());
+               if (register0.getNumber() < 31) {
+                  Register register1 = Coprocessor1.getRegisters()[register0.getNumber() + 1];
+                  substitutions.put("R" + tokenId + "P1", register1.getName());
+               }
+               break;
+            }
+         }
+      }
+
+      for (int tokenId = 0; tokenId < size; ++tokenId) {
+         substitutions.put("OP" + tokenId, theTokenList.get(tokenId).getValue());
+      }
+
+      // TODO: Replace this workaround when the assembler supports expressions.
+      Token lastToken = theTokenList.get(theTokenList.size() - 1);
+      if (TokenTypes.isIntegerTokenType(lastToken.getType())) {
+         String value = lastToken.getValue();
+         substitutions.put("S32", Binary.intToHalfHexString((-Binary.stringToInt(value)) & 31));
+      }
+      
+      return substitutions;
+   }
+
+   private static Map<String, String> buildIntegerSubstitutions(int tokenId, int address) {
+      Map<String, String> substitutions = new HashMap<>(); 
+      for (int i = 0; i <= 4; ++i) {
+         String m = tokenId + ((i > 0) ? "P" + i : "");
+         int vi = address + i;
+         
+         int lo = vi & 0xFFFF;
+         int up = vi >>> 16;
+         
+         int si = (lo << 16) >> 16;
+         int hi = (vi - si) >>> 16;
+
+         substitutions.put("L" + m, Binary.intToHalfHexString(lo));
+         substitutions.put("U" + m, Binary.intToHalfHexString(up));
+         substitutions.put("H" + m, Binary.intToHalfHexString(hi));
+      }
+      
+      return substitutions;
+   }
+
+   private static boolean substituteTemplateTokens(TokenList tokens, Map<String, String> substitutions) {
+      boolean modified = false;
+      int size = tokens.size();
+      for (int tokenId = 0; tokenId < size; ++tokenId) {
+         final Token token = tokens.get(tokenId);
+         if (token.getType() != IDENTIFIER)
+            continue;
+
+         String substitution = substitutions.get(token.getValue());
+         if (substitution == null)
+            continue;
+
+         Token substitutedToken = new Token(
+                 TokenTypes.matchTokenType(substitution),
+                 substitution,
+                 token.getSourceMIPSprogram(),
+                 token.getSourceLine(),
+                 token.getStartPos());
+         tokens.set(tokenId, substitutedToken);
+         modified = true;
+      }
+      return modified;
+   }
+
+
+   private void detectLabels(TokenList tokens, Macro current) {
          if (tokenListBeginsWithLabel(tokens))
             current.addLabel(tokens.get(0).getValue());
       }

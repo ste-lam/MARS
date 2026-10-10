@@ -72,6 +72,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
        public Tokenizer(MIPSprogram program){
          errors = new ErrorList();
          sourceMIPSprogram = program;
+         equivalents = new HashMap<>(); // DPS 11-July-2012
       }
    
    /**
@@ -85,7 +86,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    
        public ArrayList tokenize(MIPSprogram p) throws ProcessingException {
          sourceMIPSprogram = p;
-         equivalents = new HashMap<String,String>(); // DPS 11-July-2012
+         equivalents.clear(); // DPS 11-July-2012
          ArrayList tokenList = new ArrayList();
          //ArrayList source = p.getSourceList();
          ArrayList<SourceLine> source = processIncludes(p, new HashMap<String,String>()); // DPS 9-Jan-2013

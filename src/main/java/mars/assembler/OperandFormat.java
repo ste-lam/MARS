@@ -128,11 +128,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
            // end 2-July-2010 addition
             
            // allow raw addressing as it's used in pseudo-ops
-            if (allowRawAddressing && specType == TokenTypes.IDENTIFIER) {
-               if (candType == TokenTypes.INTEGER_5) continue;
-               if (candType == TokenTypes.INTEGER_16) continue;
-               if (candType == TokenTypes.INTEGER_16U) continue;
-               if (candType == TokenTypes.INTEGER_32) continue;
+            if (allowRawAddressing) {
+               if (specType == TokenTypes.IDENTIFIER && candType == TokenTypes.INTEGER_5) continue;
+               if (specType == TokenTypes.IDENTIFIER && candType == TokenTypes.INTEGER_16) continue;
+               if (specType == TokenTypes.IDENTIFIER && candType == TokenTypes.INTEGER_16U) continue;
+               if (specType == TokenTypes.IDENTIFIER && candType == TokenTypes.INTEGER_32) continue;
+               
+               // pseudo-op expansion works with bits, as long as this
+               if (specType == TokenTypes.INTEGER_16U && candType == TokenTypes.INTEGER_16) continue;
+               if (specType == TokenTypes.INTEGER_16 && candType == TokenTypes.INTEGER_16U) continue;
             }
             
             // note: REGISTER_NUMBER cannot be substituted with REGISTER_NAME, as for instance COP0 supports only numbers
