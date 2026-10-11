@@ -154,7 +154,7 @@ public class InstructionSet {
                   {
                      int[] operands = statement.getOperands();
                      int add1 = RegisterFile.getValue(operands[1]);
-                     int add2 = operands[2] << 16 >> 16;
+                     int add2 = signExtend16(operands[2]);
                      int sum = add1 + add2;
                   // overflow on A+B detected when A and B have same sign and A+B has other sign.
                      if ((add1 >= 0 && add2 >= 0 && sum < 0)
@@ -208,7 +208,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      RegisterFile.updateRegister(operands[0],
                         RegisterFile.getValue(operands[1])
-                        + (operands[2] << 16 >> 16));
+                        + signExtend16(operands[2]));
                   }
                }));
          instructionList.add(
@@ -494,7 +494,7 @@ public class InstructionSet {
                   // ANDing with 0x0000FFFF zero-extends the immediate (high 16 bits always 0).
                      RegisterFile.updateRegister(operands[0],
                         RegisterFile.getValue(operands[1])
-                        & (operands[2] & 0x0000FFFF));
+                        & zeroExtend16(operands[2]));
                   }
                }));
          instructionList.add(
@@ -510,7 +510,7 @@ public class InstructionSet {
                   // ANDing with 0x0000FFFF zero-extends the immediate (high 16 bits always 0).
                      RegisterFile.updateRegister(operands[0],
                         RegisterFile.getValue(operands[1])
-                        | (operands[2] & 0x0000FFFF));
+                        | zeroExtend16(operands[2]));
                   }
                }));
          instructionList.add(
@@ -556,7 +556,7 @@ public class InstructionSet {
                   // ANDing with 0x0000FFFF zero-extends the immediate (high 16 bits always 0).
                      RegisterFile.updateRegister(operands[0],
                         RegisterFile.getValue(operands[1])
-                        ^ (operands[2] & 0x0000FFFF));
+                        ^ zeroExtend16(operands[2]));
                   }
                }));					
          instructionList.add(
@@ -665,7 +665,7 @@ public class InstructionSet {
                      {
                         RegisterFile.updateRegister(operands[0],
                             Globals.memory.getWord(
-                            RegisterFile.getValue(operands[2]) + operands[1]));
+                            RegisterFile.getValue(operands[2]) + signExtend16(operands[1])));
                      } 
                          catch (AddressErrorException e)
                         {
@@ -695,7 +695,7 @@ public class InstructionSet {
                      {
                         RegisterFile.updateRegister(operands[0],
                             Globals.memory.getWord(
-                            RegisterFile.getValue(operands[2]) + operands[1]));
+                            RegisterFile.getValue(operands[2]) + signExtend16(operands[1])));
                      } 
                          catch (AddressErrorException e)
                         {
@@ -715,7 +715,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      try
                      {
-                        int address = RegisterFile.getValue(operands[2]) + operands[1];
+                        int address = RegisterFile.getValue(operands[2]) + signExtend16(operands[1]);
                         int result = RegisterFile.getValue(operands[0]);
                         for (int i=0; i<=address % Globals.memory.WORD_LENGTH_BYTES; i++) {
                            result = Binary.setByte(result,3-i,Globals.memory.getByte(address-i));
@@ -740,7 +740,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      try
                      {
-                        int address = RegisterFile.getValue(operands[2]) + operands[1];
+                        int address = RegisterFile.getValue(operands[2]) + signExtend16(operands[1]);
                         int result = RegisterFile.getValue(operands[0]);
                         for (int i=0; i<=3-(address % Globals.memory.WORD_LENGTH_BYTES); i++) {
                            result = Binary.setByte(result,i,Globals.memory.getByte(address+i));
@@ -766,7 +766,7 @@ public class InstructionSet {
                      try
                      {
                         Globals.memory.setWord(
-                            RegisterFile.getValue(operands[2]) + operands[1],
+                            RegisterFile.getValue(operands[2]) + signExtend16(operands[1]),
                             RegisterFile.getValue(operands[0]));
                      } 
                          catch (AddressErrorException e)
@@ -790,7 +790,7 @@ public class InstructionSet {
                      try
                      {
                         Globals.memory.setWord(
-                            RegisterFile.getValue(operands[2]) + operands[1],
+                            RegisterFile.getValue(operands[2]) + signExtend16(operands[1]),
                             RegisterFile.getValue(operands[0]));
                      } 
                          catch (AddressErrorException e)
@@ -812,7 +812,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      try
                      {
-                        int address = RegisterFile.getValue(operands[2]) + operands[1];
+                        int address = RegisterFile.getValue(operands[2]) + signExtend16(operands[1]);
                         int source = RegisterFile.getValue(operands[0]);
                         for (int i=0; i<=address % Globals.memory.WORD_LENGTH_BYTES; i++) {
                            Globals.memory.setByte(address-i,Binary.getByte(source,3-i));
@@ -836,7 +836,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      try
                      {
-                        int address = RegisterFile.getValue(operands[2]) + operands[1];
+                        int address = RegisterFile.getValue(operands[2]) + signExtend16(operands[1]);
                         int source = RegisterFile.getValue(operands[0]);
                         for (int i=0; i<=3-(address % Globals.memory.WORD_LENGTH_BYTES); i++) {
                            Globals.memory.setByte(address+i,Binary.getByte(source,i));
@@ -1054,7 +1054,7 @@ public class InstructionSet {
                   // 16 bit immediate value in operands[2] is sign-extended
                      RegisterFile.updateRegister(operands[0],
                         (RegisterFile.getValue(operands[1])
-                        < (operands[2] << 16 >> 16))
+                        < signExtend16(operands[2]))
                                 ? 1
                                 : 0);
                   }
@@ -1071,7 +1071,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      int first = RegisterFile.getValue(operands[1]);
                   // 16 bit immediate value in operands[2] is sign-extended
-                     int second = operands[2] << 16 >> 16;
+                     int second = signExtend16(operands[2]);
                      if (first >= 0 && second >= 0 || first < 0 && second < 0)
                      {
                         RegisterFile.updateRegister(operands[0],
@@ -1296,7 +1296,7 @@ public class InstructionSet {
                         RegisterFile.updateRegister(operands[0],
                             Globals.memory.getByte(
                             RegisterFile.getValue(operands[2])
-                                    + (operands[1] << 16 >> 16))
+                                    + signExtend16(operands[1]))
                                             << 24
                                             >> 24);
                      } 
@@ -1321,7 +1321,7 @@ public class InstructionSet {
                         RegisterFile.updateRegister(operands[0],
                             Globals.memory.getHalf(
                             RegisterFile.getValue(operands[2])
-                                    + (operands[1] << 16 >> 16))
+                                    + signExtend16(operands[1]))
                                             << 16
                                             >> 16);
                      } 
@@ -1347,7 +1347,7 @@ public class InstructionSet {
                         RegisterFile.updateRegister(operands[0],
                             Globals.memory.getHalf(
                             RegisterFile.getValue(operands[2])
-                                    + (operands[1] << 16 >> 16))
+                                    + signExtend16(operands[1]))
                                             & 0x0000ffff);
                      } 
                          catch (AddressErrorException e)
@@ -1371,7 +1371,7 @@ public class InstructionSet {
                         RegisterFile.updateRegister(operands[0],
                             Globals.memory.getByte(
                             RegisterFile.getValue(operands[2])
-                                    + (operands[1] << 16 >> 16))
+                                    + signExtend16(operands[1]))
                                             & 0x000000ff);
                      } 
                          catch (AddressErrorException e)
@@ -1394,7 +1394,7 @@ public class InstructionSet {
                      {
                         Globals.memory.setByte(
                             RegisterFile.getValue(operands[2])
-                                    + (operands[1] << 16 >> 16),
+                                    + signExtend16(operands[1]),
                                     RegisterFile.getValue(operands[0])
                                             & 0x000000ff);
                      } 
@@ -1418,7 +1418,7 @@ public class InstructionSet {
                      {
                         Globals.memory.setHalf(
                             RegisterFile.getValue(operands[2])
-                                    + (operands[1] << 16 >> 16),
+                                    + signExtend16(operands[1]),
                                     RegisterFile.getValue(operands[0])
                                             & 0x0000ffff);
                      } 
@@ -2865,7 +2865,7 @@ public class InstructionSet {
                    public void simulate(ProgramStatement statement) throws ProcessingException
                   {
                      int[] operands = statement.getOperands();
-                     if (RegisterFile.getValue(operands[0]) == (operands[1] << 16 >> 16)) 
+                     if (RegisterFile.getValue(operands[0]) == signExtend16(operands[1])) 
                      {
                         throw new ProcessingException(statement,
                             "trap",Exceptions.TRAP_EXCEPTION);
@@ -2899,7 +2899,7 @@ public class InstructionSet {
                    public void simulate(ProgramStatement statement) throws ProcessingException
                   {
                      int[] operands = statement.getOperands();
-                     if (RegisterFile.getValue(operands[0]) != (operands[1] << 16 >> 16)) 
+                     if (RegisterFile.getValue(operands[0]) != signExtend16(operands[1])) 
                      {
                         throw new ProcessingException(statement,
                             "trap",Exceptions.TRAP_EXCEPTION);
@@ -2953,7 +2953,7 @@ public class InstructionSet {
                    public void simulate(ProgramStatement statement) throws ProcessingException
                   {
                      int[] operands = statement.getOperands();
-                     if (RegisterFile.getValue(operands[0]) >= (operands[1] << 16 >> 16)) 
+                     if (RegisterFile.getValue(operands[0]) >= signExtend16(operands[1])) 
                      {
                         throw new ProcessingException(statement,
                             "trap",Exceptions.TRAP_EXCEPTION);
@@ -2972,7 +2972,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      int first = RegisterFile.getValue(operands[0]);
                      // 16 bit immediate value in operands[1] is sign-extended
-                     int second = operands[1] << 16 >> 16;
+                     int second = signExtend16(operands[1]);
                   	// if signs same, do straight compare; if signs differ & first negative then first greater else second
                      if ((first >= 0 && second >= 0 || first < 0 && second < 0) ? (first >= second) : (first < 0) ) 
                      {
@@ -3028,7 +3028,7 @@ public class InstructionSet {
                    public void simulate(ProgramStatement statement) throws ProcessingException
                   {
                      int[] operands = statement.getOperands();
-                     if (RegisterFile.getValue(operands[0]) < (operands[1] << 16 >> 16)) 
+                     if (RegisterFile.getValue(operands[0]) < signExtend16(operands[1])) 
                      {
                         throw new ProcessingException(statement,
                             "trap",Exceptions.TRAP_EXCEPTION);
@@ -3047,7 +3047,7 @@ public class InstructionSet {
                      int[] operands = statement.getOperands();
                      int first = RegisterFile.getValue(operands[0]);
                      // 16 bit immediate value in operands[1] is sign-extended
-                     int second = operands[1] << 16 >> 16;
+                     int second = signExtend16(operands[1]);
                   	// if signs same, do straight compare; if signs differ & first positive then first is less else second
                      if ((first >= 0 && second >= 0 || first < 0 && second < 0) ? (first < second) : (first >= 0) ) 
                      {
@@ -3276,15 +3276,16 @@ public class InstructionSet {
    	 // the bottom (currently line 194, heavily commented).
    	 
        private void processBranch(int displacement) {
+         displacement = signExtend16(displacement) << 2;  
          if (Globals.getSettings().getDelayedBranchingEnabled()) {
             // Register the branch target address (absolute byte address).
-            DelayedBranch.register(RegisterFile.getProgramCounter() + (displacement << 2));
+            DelayedBranch.register(RegisterFile.getProgramCounter() + displacement);
          } 
          else {
             // Decrement needed because PC has already been incremented
             RegisterFile.setProgramCounter(
                 RegisterFile.getProgramCounter()
-                  + (displacement << 2)); // - Instruction.INSTRUCTION_LENGTH);	
+                  + displacement); // - Instruction.INSTRUCTION_LENGTH);	
          }	 
       }
    
@@ -3324,6 +3325,14 @@ public class InstructionSet {
                  ((Globals.getSettings().getDelayedBranchingEnabled()) ? 
             	  Instruction.INSTRUCTION_LENGTH : 0) );	 
       }
+
+       private static int zeroExtend16(int i) {
+           return i & 0xFFFF;
+       }
+
+       private static int signExtend16(int i) {
+           return (i << 16) >> 16;
+       }
 
 	  private static class MatchMap implements Comparable {
 	  	private int mask;
