@@ -135,21 +135,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                if (candType == TokenTypes.INTEGER_32) continue;
             }
             
-            if ((specType == TokenTypes.REGISTER_NAME || specType == TokenTypes.REGISTER_NUMBER) && 
-               candType == TokenTypes.REGISTER_NAME) {
-               if (Globals.getSettings().getBareMachineEnabled()) {
-					   // On 10-Aug-2010, I noticed this cannot happen since the IDE provides no access 
-						// to this setting, whose default value is false.
-                  generateMessage(candToken, "Use register number instead of name.  See Settings.", errors);
-                  return false;
-               } 
-               else {
-                  continue;
-               }
-            }
-            if (specType == TokenTypes.REGISTER_NAME && 
-               candType == TokenTypes.REGISTER_NUMBER)
+            // note: REGISTER_NUMBER cannot be substituted with REGISTER_NAME, as for instance COP0 supports only numbers
+            if (specType == TokenTypes.REGISTER_NAME && candType == TokenTypes.REGISTER_NUMBER)
                continue;
+            
             if ((specType == TokenTypes.INTEGER_16 && candType == TokenTypes.INTEGER_5) ||
             	(specType == TokenTypes.INTEGER_16U && candType == TokenTypes.INTEGER_5) ||
             	(specType == TokenTypes.INTEGER_32 && candType == TokenTypes.INTEGER_5) ||

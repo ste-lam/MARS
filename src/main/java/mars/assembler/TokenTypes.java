@@ -118,13 +118,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          if (reg != null) 
             if (reg.getName().equals(value)) 
                return TokenTypes.REGISTER_NAME;
-            else
-               return TokenTypes.REGISTER_NUMBER;
+         
+       // all valid register numbers
+         if (value.matches("^[$](0|3[01]|[12]?\\d)$"))
+            return TokenTypes.REGISTER_NUMBER;
       
        // See if it is a floating point register
-       
-         reg = Coprocessor1.getRegister(value);
-         if (reg != null)
+          if (value.matches("^[$]f(0|3[01]|[12]?\\d)$"))
             return TokenTypes.FP_REGISTER_NAME;
        
        // See if it is an immediate (constant) integer value

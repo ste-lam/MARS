@@ -83,7 +83,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.basicStatementList = new BasicStatementList();
          this.binaryStatement = 0;  // nop, or sll $0, $0, 0  (32 bits of 0's)
          this.altered = false;
-      }
+         assert inst.getTokenList().size() == strippedTokenList.size();
+       }
    
    
     //////////////////////////////////////////////////////////////////////////////////
@@ -108,183 +109,180 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.numOperands = 0;
          this.instruction = instr;
       
-         BasicInstructionFormat instrFormat = instr.getInstructionFormat();
          for (char c : Instruction.operandMask) {
              int mask = instr.getOperandMask(c);
              if (mask == 0)
                  continue;
              int lsb =  Integer.numberOfTrailingZeros(mask);
              int opand = (binaryStatement & mask) >>> lsb;
-             
-             if (instrFormat.equals(BasicInstructionFormat.I_BRANCH_FORMAT) && numOperands == 2) {
-                 opand = opand << 16 >> 16;
-             }
-             else if (instrFormat.equals(BasicInstructionFormat.J_FORMAT) && numOperands == 0) {
-                 opand |= (textAddress >> 2) & 0x3C000000;
-             }
              this.operands[this.numOperands++] = opand;
          }
          this.altered = false;
          this.basicStatementList = buildBasicStatementListFromBinaryCode(binaryStatement, instr, operands, numOperands);
       }
-   	
-   
+
+
     /////////////////////////////////////////////////////////////////////////////
     /**
      * Given specification of BasicInstruction for this operator, build the
      * corresponding assembly statement in basic assembly format (e.g. substituting
      * register numbers for register names, replacing labels by values).
+     *
      * @param errors The list of assembly errors encountered so far.  May add to it here.
      **/
-       public void buildBasicStatementFromBasicInstruction(ErrorList errors) {
-         // never run on binary instructions
-         if (sourceMIPSprogram == null)
+    public void buildBasicStatementFromBasicInstruction(ErrorList errors) {
+        // never run on binary instructions
+        if (sourceMIPSprogram == null)
             return;
-         Token firstToken = strippedTokenList.get(0);
-         basicStatementList.addString(firstToken.getValue()+" "); // the operator
-         int registerNumber;
-         this.numOperands = 0;
-         for (int i=1; i<strippedTokenList.size(); i++) {
-            Token token = strippedTokenList.get(i);
-            TokenTypes tokenType = token.getType();
-            String tokenValue = token.getValue();
-            if (tokenType == TokenTypes.REGISTER_NUMBER) {
-               basicStatementList.addString(tokenValue);
-               try {
-                  registerNumber = RegisterFile.getUserRegister(tokenValue).getNumber();
-               } 
-                   catch (Exception e) {
-                    // should never happen; should be caught before now...
-                     errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),"invalid register name"));
-                     return;
-                  }
-               this.operands[this.numOperands++] = registerNumber;
-            } 
-            else if (tokenType == TokenTypes.REGISTER_NAME) {
-               registerNumber = RegisterFile.getNumber(tokenValue);
-               basicStatementList.addString("$" + registerNumber);
-               if (registerNumber < 0) {
-                    // should never happen; should be caught before now...
-                  errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),"invalid register name"));
-                  return;
-               }
-               this.operands[this.numOperands++] = registerNumber;
-            } 
-            else if (tokenType == TokenTypes.FP_REGISTER_NAME) {
-               registerNumber = Coprocessor1.getRegisterNumber(tokenValue);
-               basicStatementList.addString("$f" + registerNumber);
-               if (registerNumber < 0) {
-                    // should never happen; should be caught before now...
-                  errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),"invalid FPU register name"));
-                  return;
-               }
-               this.operands[this.numOperands++] = registerNumber;
-            } 
-            else if (tokenType == TokenTypes.IDENTIFIER) {
-               int address = this.sourceMIPSprogram.getLocalSymbolTable().getAddressLocalOrGlobal(tokenValue);
-               if (address == SymbolTable.NOT_FOUND) { // symbol used without being defined
-                  errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),
-                                   "Symbol \""+tokenValue+"\" not found in symbol table."));
-                  return;
-               }
-            	 //////////////////////////////////////////////////////////////////////
-            	 // added code 12-20-2004. If basic instruction with I_BRANCH format, then translate
-            	 // address from absolute to relative and shift left 2. 
-            	 //
-            	 // DPS 14 June 2007: Apply delayed branching if enabled.  This adds 4 bytes to the
-            	 // address used to calculate branch distance in relative words.
-            	 //
-            	 // DPS 4 January 2008: Apply the delayed branching 4-byte (instruction length) addition
-            	 // regardless of whether delayed branching is enabled or not.  This was in response to 
-            	 // several people complaining about machine code not matching that from the COD3 example
-            	 // on p 98-99.  In that example, the branch offset reflect delayed branching because
-            	 // all MIPS machines implement delayed branching.  But the topic of delayed branching
-            	 // is not yet introduced at that point, and instructors want to avoid the messiness
-            	 // that comes along with it.  Our original strategy was to do it like SPIM does, which
-            	 // the June 2007 mod (shown below as commented-out assignment to address) does.
-            	 // This mod must be made in conjunction with InstructionSet.java's processBranch()
-            	 // method.  There are some comments there as well.
 
-               boolean absoluteAddress = true;
-               if (instruction instanceof BasicInstruction) {
-                  BasicInstructionFormat format = ((BasicInstruction)instruction).getInstructionFormat();
-                  absoluteAddress = (format != BasicInstructionFormat.I_BRANCH_FORMAT);
-               }
-            	 //////////////////////////////////////////////////////////////////////
-               if (absoluteAddress) { // record as address if absolute, value if relative
-                  basicStatementList.addAddress(address);
-               } 
-               else {
-                  address = (address - (this.textAddress+Instruction.INSTRUCTION_LENGTH)) >> 2;
-                  basicStatementList.addValue(address);
-               }
-               this.operands[this.numOperands++] = address;
-            } 
-            else if (tokenType == TokenTypes.INTEGER_5 || tokenType == TokenTypes.INTEGER_16 ||
-                     tokenType == TokenTypes.INTEGER_16U || tokenType == TokenTypes.INTEGER_32) {
-            
-               int tempNumeric = Binary.stringToInt(tokenValue);
-            	
-            /***************************************************************************
-            *  MODIFICATION AND COMMENT, DPS 3-July-2008
-            *
-            * The modifications of January 2005 documented below are being rescinded.
-            * All hexadecimal immediate values are considered 32 bits in length and
-            * their classification as INTEGER_5, INTEGER_16, INTEGER_16U (new)
-            * or INTEGER_32 depends on their 32 bit value.  So 0xFFFF will be
-            * equivalent to 0x0000FFFF instead of 0xFFFFFFFF.  This change, along with
-            * the introduction of INTEGER_16U (adopted from Greg Gibeling of Berkeley),
-            * required extensive changes to instruction templates especially for
-            * pseudo-instructions.
-            *
-            * This modification also appears inbuildBasicStatementFromBasicInstruction()
-            * in mars.ProgramStatement. 
-            *		         
-            *  ///// Begin modification 1/4/05 KENV   ///////////////////////////////////////////
-            *  // We have decided to interpret non-signed (no + or -) 16-bit hexadecimal immediate  
-            *  // operands as signed values in the range -32768 to 32767. So 0xffff will represent
-            *  // -1, not 65535 (bit 15 as sign bit), 0x8000 will represent -32768 not 32768.
-            *  // NOTE: 32-bit hexadecimal immediate operands whose values fall into this range
-            *  // will be likewise affected, but they are used only in pseudo-instructions.  The
-            *  // code in ExtendedInstruction.java to split this number into upper 16 bits for "lui" 
-            *  // and lower 16 bits for "ori" works with the original source code token, so it is 
-            *  // not affected by this tweak.  32-bit immediates in data segment directives
-            *  // are also processed elsewhere so are not affected either.
-            *  ////////////////////////////////////////////////////////////////////////////////
-            *  
-            *        if (tokenType != TokenTypes.INTEGER_16U) { // part of the Berkeley mod...         
-            *           if ( Binary.isHex(tokenValue) &&
-            *             (tempNumeric >= 32768) &&
-            *             (tempNumeric <= 65535) )  // Range 0x8000 ... 0xffff
-            *           {
-            *              // Subtract the 0xffff bias, because strings in the
-            *              // range "0x8000" ... "0xffff" are used to represent
-            *              // 16-bit negative numbers, not positive numbers.
-            *              tempNumeric = tempNumeric - 65536;
-            *              // Note: no action needed for range 0xffff8000 ... 0xffffffff
-            *           }
-            *        }
-            **************************  END DPS 3-July-2008 COMMENTS *******************************/
-            
-               basicStatementList.addValue(tempNumeric);  
-               this.operands[this.numOperands++] = tempNumeric;
-                ///// End modification 1/7/05 KENV   ///////////////////////////////////////////
-            } 
-            else {
-               basicStatementList.addString(tokenValue);
+        // use the instruction types, not the resolved ones!
+        TokenList signatureTypes = instruction.getTokenList();
+
+        Token firstToken = signatureTypes.get(0);
+        basicStatementList.addString(firstToken.getValue() + " "); // the operator
+        this.numOperands = 0;
+        
+        for (int i = 1; i < signatureTypes.size(); i++) {
+            Token token = strippedTokenList.get(i);
+            String tokenValue = strippedTokenList.get(i).getValue();
+            TokenTypes signatureTokenType = signatureTypes.get(i).getType();
+            switch (signatureTokenType) {
+                case REGISTER_NUMBER: {
+                    // REGISTER_NUMBER ensures, that tokenValue is one of: $0, ..., $31 
+                    basicStatementList.addString(tokenValue);
+                    this.operands[this.numOperands++] = Integer.parseUnsignedInt(tokenValue.substring(1));
+                    break;
+                }
+
+                case REGISTER_NAME: {
+                    // REGISTER_NAME ensures, that tokenValue is an ABI o32 register name 
+                    basicStatementList.addString(tokenValue);
+                    this.operands[this.numOperands++] = RegisterFile.getUserRegister(tokenValue).getNumber();
+                    break;
+                }
+
+                case FP_REGISTER_NAME: {
+                    // FP_REGISTER_NAME ensures, that tokenValue is one of: $f0, ..., $f31 
+                    basicStatementList.addString(tokenValue);
+                    this.operands[this.numOperands++] = Integer.parseUnsignedInt(tokenValue.substring(2));
+                    break;
+                }
+
+                case IDENTIFIER: {
+                    int address;
+                    if (TokenTypes.IDENTIFIER == token.getType()) {
+                        address = this.sourceMIPSprogram.getLocalSymbolTable().getAddressLocalOrGlobal(tokenValue);
+                        if (address == SymbolTable.NOT_FOUND) { // symbol used without being defined
+                            errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),
+                                    "Symbol \"" + tokenValue + "\" not found in symbol table."));
+                            return;
+                        }
+
+                        // resolve symbols, but don't propagate the value when pseudo-ops are used
+                        if (! (instruction instanceof BasicInstruction)) {
+                            basicStatementList.addString(tokenValue);
+                            break;
+                        }
+                        
+                        BasicInstructionFormat format = ((BasicInstruction) instruction).getInstructionFormat();
+                        switch (format) {
+                            case I_BRANCH_FORMAT: {
+                                address -= (this.textAddress + Instruction.INSTRUCTION_LENGTH);
+
+                                if ((address & 3) != 0) {
+                                    errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
+                                            "Target Address is not word-aligned"));
+                                    return;
+                                }
+                                if ((address << 14 >> 14) != address) {
+                                    errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
+                                            "Target address not reachable"));
+                                    return;
+                                }
+
+                                address >>>= 2;
+                                address &= 0x0000_FFFF;
+
+                                basicStatementList.addAddress(address);
+                                break;
+                            }
+
+                            case J_FORMAT: {
+                                if ((address & 3) != 0) {
+                                    errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
+                                            "Target Address is not word-aligned"));
+                                    return;
+                                }
+                                if ((this.textAddress & 0xF000_0000) != (address & 0xF000_0000)) {
+                                    // attempt to jump beyond 28-bit byte (26-bit word) address range. 
+                                    // SPIM flags as warning, I'll flag as error b/c MARS text segment not long enough for it to be OK.
+                                    errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
+                                            "Jump target word address beyond 26-bit range"));
+                                    return;
+                                }
+                                
+                                address >>>= 2;
+                                address &= 0x03FF_FFFF;
+                                
+                                basicStatementList.addAddress(address);
+                                break;
+                            }
+                            
+                            case I_FORMAT:
+                            case R_FORMAT:
+                                basicStatementList.addString(tokenValue);
+                                break;
+                        }
+                    } else {
+                        // already resolved, use the tokenValue as it is
+                        assert TokenTypes.isIntegerTokenType(token.getType());
+                        address = Binary.stringToInt(tokenValue);
+                        basicStatementList.addAddress(address);
+                    }
+
+                    this.operands[this.numOperands++] = address;
+                    break;
+                }
+
+                case INTEGER_5: {
+                    int tempNumeric = Binary.stringToInt(tokenValue) & 0x1F;
+                    basicStatementList.addValue(tempNumeric);
+                    this.operands[this.numOperands++] = tempNumeric;
+                    break;
+                }
+                
+                case INTEGER_16:
+                case INTEGER_16U: {
+                    int tempNumeric = Binary.stringToInt(tokenValue) & 0xFFFF;
+                    basicStatementList.addValue(tempNumeric);
+                    this.operands[this.numOperands++] = tempNumeric;
+                    break;
+                }
+
+                case INTEGER_32: {
+                    assert instruction instanceof ExtendedInstruction;
+                    int tempNumeric = Binary.stringToInt(tokenValue);
+                    basicStatementList.addValue(tempNumeric);
+                    this.operands[this.numOperands++] = tempNumeric;
+                    break;
+                }
+
+                default:
+                    basicStatementList.addString(tokenValue);
+                    break;
             }
+            
             // add separator if not at end of token list AND neither current nor 
             // next token is a parenthesis
-            if ((i+1 < strippedTokenList.size())) {
-               TokenTypes nextTokenType = strippedTokenList.get(i+1).getType();
-               if (tokenType != TokenTypes.LEFT_PAREN  &&  tokenType != TokenTypes.RIGHT_PAREN  &&
-                   nextTokenType != TokenTypes.LEFT_PAREN && nextTokenType != TokenTypes.RIGHT_PAREN)
-               {
-                  basicStatementList.addString(",");
-               }
+            if ((i + 1 < strippedTokenList.size())) {
+                TokenTypes nextTokenType = strippedTokenList.get(i + 1).getType();
+                if (signatureTokenType != TokenTypes.LEFT_PAREN && signatureTokenType != TokenTypes.RIGHT_PAREN &&
+                        nextTokenType != TokenTypes.LEFT_PAREN && nextTokenType != TokenTypes.RIGHT_PAREN) {
+                    basicStatementList.addString(",");
+                }
             }
-         }
-      } //buildBasicStatementFromBasicInstruction()
+        }
+    } //buildBasicStatementFromBasicInstruction()
     
     
    
@@ -292,40 +290,25 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     /**
      * Given the current statement in Basic Assembly format (see above), build the
      * 32-bit binary machine code statement.
+     *
      * @param errors The list of assembly errors encountered so far.  May add to it here.
      **/
-       public void buildMachineStatementFromBasicStatement(ErrorList errors) {
-           // never run on binary instructions
-           if (sourceMIPSprogram == null)
-               return;
-           
-           if (!(instruction instanceof BasicInstruction)) {
-               errors.add(new ErrorMessage(this.sourceMIPSprogram,this.sourceLine,0,
-                       "INTERNAL ERROR: pseudo-instruction expansion contained a pseudo-instruction"));
-               return;
-           }
-           BasicInstruction basicInstruction = (BasicInstruction) instruction;
-           BasicInstructionFormat format = basicInstruction.getInstructionFormat();
+    public void buildMachineStatementFromBasicStatement(ErrorList errors) {
+        // never run on binary instructions
+        if (sourceMIPSprogram == null)
+            return;
 
-           this.binaryStatement = basicInstruction.getOpcodeMatch();
+        if (!(instruction instanceof BasicInstruction)) {
+            errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
+                    "INTERNAL ERROR: pseudo-instruction expansion contained a pseudo-instruction"));
+            return;
+        }
+        BasicInstruction basicInstruction = (BasicInstruction) instruction;
+        this.binaryStatement = basicInstruction.getOpcodeMatch();
 
-         if (format == BasicInstructionFormat.J_FORMAT) {
-            if ((this.textAddress & 0xF0000000) != (this.operands[0] & 0xF0000000)) {
-               // attempt to jump beyond 28-bit byte (26-bit word) address range. 
-            	// SPIM flags as warning, I'll flag as error b/c MARS text segment not long enough for it to be OK.
-               errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
-                          "Jump target word address beyond 26-bit range"));
-               return;
-            }
-            // Note the  bit shift to make this a word address.
-            this.operands[0] = this.operands[0] >>> 2;
-            this.insertBinaryCode(this.operands[0], Instruction.operandMask[0], errors);          
-         }
-         else {  // R_FORMAT or I_FORMAT
-            for (int i=0; i<this.numOperands; i++)
-               this.insertBinaryCode(this.operands[i], Instruction.operandMask[i], errors);
-         }
-      } // buildMachineStatementFromBasicStatement(
+        for (int i = 0; i < this.numOperands; i++)
+            this.insertBinaryCode(this.operands[i], Instruction.operandMask[i], errors);
+    } // buildMachineStatementFromBasicStatement(
         
     
     
