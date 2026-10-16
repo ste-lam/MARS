@@ -287,14 +287,14 @@
                break;
             this.fileCurrentlyBeingAssembled = (MIPSprogram) tokenizedProgramFiles.get(fileIndex);
             ArrayList parsedList = fileCurrentlyBeingAssembled.getParsedList();
-            ProgramStatement statement;
             for (int i = 0; i < parsedList.size(); i++) {
-               statement = (ProgramStatement) parsedList.get(i);
-               statement.buildBasicStatementFromBasicInstruction(errors);
-               if (errors.errorsOccurred()) {
-                  throw new ProcessingException(errors);
-               }
+               ProgramStatement statement = (ProgramStatement) parsedList.get(i);
+
                if (statement.getInstruction() instanceof BasicInstruction) {
+                  statement.buildBasicStatementFromBasicInstruction(errors);
+                  if (errors.errorsOccurred()) {
+                     throw new ProcessingException(errors);
+                  }
                   this.machineList.add(statement);
                } 
                else {
@@ -320,10 +320,8 @@
                // instruction, this method performs the necessary
                // translation correctly.
                   ExtendedInstruction inst = (ExtendedInstruction) statement.getInstruction();
-                  String basicAssembly = statement.getPrintableBasicAssemblyStatement();
                   int sourceLine = statement.getSourceLine();
-                  TokenList theTokenList = new Tokenizer().tokenizeLine(sourceLine,
-                     basicAssembly, errors, false);
+                  TokenList theTokenList = statement.getStrippedTokenList();
                
                // subsequent ProgramStatement constructor needs the correct text segment address.
                   textAddress.set(statement.getAddress());

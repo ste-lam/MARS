@@ -48,14 +48,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       private String source;
       private TokenList originalTokenList, strippedTokenList;
       private BasicStatementList basicStatementList;
-      private int[] operands;
-      private int numOperands;
+      private int[] operands = new int[0];
       private Instruction instruction;
       private int textAddress;
       private int sourceLine;
       private int binaryStatement;
       private boolean altered;
-      private static final String invalidOperator = "<INVALID>";
     
     //////////////////////////////////////////////////////////////////////////////////
     /**
@@ -75,8 +73,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.source = Objects.requireNonNull(source);
          this.originalTokenList = Objects.requireNonNull(origTokenList);
          this.strippedTokenList = Objects.requireNonNull(strippedTokenList);
-         this.operands = new int[4];
-         this.numOperands = 0;
          this.instruction = inst;
          this.textAddress = textAddress;
          this.sourceLine = sourceLine;
@@ -98,28 +94,30 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @param textAddress The Text Segment address in memory where the binary machine code for this statement
      * is stored.
      **/
-       public ProgramStatement(int binaryStatement, int textAddress) {
-         this.sourceMIPSprogram = null;
-         this.binaryStatement = binaryStatement;
-         this.textAddress = textAddress;
-         this.originalTokenList = this.strippedTokenList = null;
-         this.source = "";
-         BasicInstruction instr = Globals.instructionSet.findByBinaryCode(binaryStatement);
-         this.operands = new int[4];
-         this.numOperands = 0;
-         this.instruction = instr;
-      
-         for (char c : Instruction.operandMask) {
-             int mask = instr.getOperandMask(c);
-             if (mask == 0)
-                 continue;
-             int lsb =  Integer.numberOfTrailingZeros(mask);
-             int opand = (binaryStatement & mask) >>> lsb;
-             this.operands[this.numOperands++] = opand;
-         }
-         this.altered = false;
-         this.basicStatementList = buildBasicStatementListFromBinaryCode(binaryStatement, instr, operands, numOperands);
-      }
+    public ProgramStatement(int binaryStatement, int textAddress) {
+        this.sourceMIPSprogram = null;
+        this.binaryStatement = binaryStatement;
+        this.textAddress = textAddress;
+        this.originalTokenList = this.strippedTokenList = null;
+        this.source = "";
+        BasicInstruction instr = Globals.instructionSet.findByBinaryCode(binaryStatement);
+        int[] operands = new int[Instruction.operandMask.length];
+        int numOperands = 0;
+
+        for (char c : Instruction.operandMask) {
+            int mask = instr.getOperandMask(c);
+            if (mask == 0)
+                continue;
+            int lsb = Integer.numberOfTrailingZeros(mask);
+            int opand = (binaryStatement & mask) >>> lsb;
+            operands[numOperands++] = opand;
+        }
+        this.operands = Arrays.copyOf(operands, numOperands);
+
+        this.altered = false;
+        this.instruction = instr;
+        this.basicStatementList = buildBasicStatementList();
+    }
 
 
     /////////////////////////////////////////////////////////////////////////////
@@ -131,6 +129,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @param errors The list of assembly errors encountered so far.  May add to it here.
      **/
     public void buildBasicStatementFromBasicInstruction(ErrorList errors) {
+        if (!(instruction instanceof BasicInstruction)) {
+            errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
+                    "INTERNAL ERROR: pseudo-instruction cannot be constructed"));
+            return;
+        }
+        
         // never run on binary instructions
         if (sourceMIPSprogram == null)
             return;
@@ -138,33 +142,29 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         // use the instruction types, not the resolved ones!
         TokenList signatureTypes = instruction.getTokenList();
 
-        Token firstToken = signatureTypes.get(0);
-        basicStatementList.addString(firstToken.getValue() + " "); // the operator
-        this.numOperands = 0;
+        int numOperands = 0;
+        int[] operands = new int[Instruction.operandMask.length];
         
-        for (int i = 1; i < signatureTypes.size(); i++) {
+        for (int i = 0; i < signatureTypes.size(); i++) {
             Token token = strippedTokenList.get(i);
             String tokenValue = strippedTokenList.get(i).getValue();
-            TokenTypes signatureTokenType = signatureTypes.get(i).getType();
-            switch (signatureTokenType) {
+            
+            switch ( signatureTypes.get(i).getType()) {
                 case REGISTER_NUMBER: {
-                    // REGISTER_NUMBER ensures, that tokenValue is one of: $0, ..., $31 
-                    basicStatementList.addString(tokenValue);
-                    this.operands[this.numOperands++] = Integer.parseUnsignedInt(tokenValue.substring(1));
+                    // REGISTER_NUMBER ensures, that tokenValue is one of: $0, ..., $31
+                    operands[numOperands++] = Integer.parseUnsignedInt(tokenValue.substring(1));
                     break;
                 }
 
                 case REGISTER_NAME: {
                     // REGISTER_NAME ensures, that tokenValue is an ABI o32 register name 
-                    basicStatementList.addString(tokenValue);
-                    this.operands[this.numOperands++] = RegisterFile.getUserRegister(tokenValue).getNumber();
+                    operands[numOperands++] = RegisterFile.getUserRegister(tokenValue).getNumber();
                     break;
                 }
 
                 case FP_REGISTER_NAME: {
-                    // FP_REGISTER_NAME ensures, that tokenValue is one of: $f0, ..., $f31 
-                    basicStatementList.addString(tokenValue);
-                    this.operands[this.numOperands++] = Integer.parseUnsignedInt(tokenValue.substring(2));
+                    // FP_REGISTER_NAME ensures, that tokenValue is one of: $f0, ..., $f31
+                    operands[numOperands++] = Integer.parseUnsignedInt(tokenValue.substring(2));
                     break;
                 }
 
@@ -176,12 +176,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                             errors.add(new ErrorMessage(this.sourceMIPSprogram, token.getSourceLine(), token.getStartPos(),
                                     "Symbol \"" + tokenValue + "\" not found in symbol table."));
                             return;
-                        }
-
-                        // resolve symbols, but don't propagate the value when pseudo-ops are used
-                        if (! (instruction instanceof BasicInstruction)) {
-                            basicStatementList.addString(tokenValue);
-                            break;
                         }
                         
                         BasicInstructionFormat format = ((BasicInstruction) instruction).getInstructionFormat();
@@ -202,8 +196,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
                                 address >>>= 2;
                                 address &= 0x0000_FFFF;
-
-                                basicStatementList.addAddress(address);
                                 break;
                             }
 
@@ -223,65 +215,36 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                                 
                                 address >>>= 2;
                                 address &= 0x03FF_FFFF;
-                                
-                                basicStatementList.addAddress(address);
                                 break;
                             }
-                            
-                            case I_FORMAT:
-                            case R_FORMAT:
-                                basicStatementList.addString(tokenValue);
-                                break;
                         }
                     } else {
                         // already resolved, use the tokenValue as it is
                         assert TokenTypes.isIntegerTokenType(token.getType());
                         address = Binary.stringToInt(tokenValue);
-                        basicStatementList.addAddress(address);
                     }
 
-                    this.operands[this.numOperands++] = address;
+                    operands[numOperands++] = address;
                     break;
                 }
 
                 case INTEGER_5: {
                     int tempNumeric = Binary.stringToInt(tokenValue) & 0x1F;
-                    basicStatementList.addValue(tempNumeric);
-                    this.operands[this.numOperands++] = tempNumeric;
+                    operands[numOperands++] = tempNumeric;
                     break;
                 }
                 
                 case INTEGER_16:
                 case INTEGER_16U: {
                     int tempNumeric = Binary.stringToInt(tokenValue) & 0xFFFF;
-                    basicStatementList.addValue(tempNumeric);
-                    this.operands[this.numOperands++] = tempNumeric;
+                    operands[numOperands++] = tempNumeric;
                     break;
-                }
-
-                case INTEGER_32: {
-                    assert instruction instanceof ExtendedInstruction;
-                    int tempNumeric = Binary.stringToInt(tokenValue);
-                    basicStatementList.addValue(tempNumeric);
-                    this.operands[this.numOperands++] = tempNumeric;
-                    break;
-                }
-
-                default:
-                    basicStatementList.addString(tokenValue);
-                    break;
-            }
-            
-            // add separator if not at end of token list AND neither current nor 
-            // next token is a parenthesis
-            if ((i + 1 < strippedTokenList.size())) {
-                TokenTypes nextTokenType = strippedTokenList.get(i + 1).getType();
-                if (signatureTokenType != TokenTypes.LEFT_PAREN && signatureTokenType != TokenTypes.RIGHT_PAREN &&
-                        nextTokenType != TokenTypes.LEFT_PAREN && nextTokenType != TokenTypes.RIGHT_PAREN) {
-                    basicStatementList.addString(",");
                 }
             }
         }
+
+        this.operands = Arrays.copyOf(operands, numOperands);
+        this.basicStatementList = buildBasicStatementList();
     } //buildBasicStatementFromBasicInstruction()
     
     
@@ -294,19 +257,21 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @param errors The list of assembly errors encountered so far.  May add to it here.
      **/
     public void buildMachineStatementFromBasicStatement(ErrorList errors) {
-        // never run on binary instructions
-        if (sourceMIPSprogram == null)
-            return;
-
         if (!(instruction instanceof BasicInstruction)) {
             errors.add(new ErrorMessage(this.sourceMIPSprogram, this.sourceLine, 0,
                     "INTERNAL ERROR: pseudo-instruction expansion contained a pseudo-instruction"));
             return;
         }
+        
+        // never run on binary instructions
+        if (sourceMIPSprogram == null)
+            return;
+
+
         BasicInstruction basicInstruction = (BasicInstruction) instruction;
         this.binaryStatement = basicInstruction.getOpcodeMatch();
 
-        for (int i = 0; i < this.numOperands; i++)
+        for (int i = 0; i < this.operands.length; i++)
             this.insertBinaryCode(this.operands[i], Instruction.operandMask[i], errors);
     } // buildMachineStatementFromBasicStatement(
         
@@ -325,18 +290,21 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          if (! basicStatementList.list.isEmpty()) {
             String s = basicStatementList.toString(); 
             int firstSpace = s.indexOf(" ");
-            result += blanks.substring(0, 16-result.length()) + s.substring(0,firstSpace);
-            result += blanks.substring(0, 24-result.length()) + s.substring(firstSpace+1);;
+            if (firstSpace > 0) {
+                result += blanks.substring(0, 16 - result.length()) + s.substring(0, firstSpace);
+                result += blanks.substring(0, 24 - result.length()) + s.substring(firstSpace + 1);
+            } 
+            else {
+                result += s;
+            }
          } 
          else {
             result += blanks.substring(0, 16 - result.length()) + "0x" + Integer.toString(this.binaryStatement, 16);
          }
          result += blanks.substring(0, 40-result.length()) + ";  "; // this.source;
-         if (operands != null) {
-            for (int i=0; i<this.numOperands; i++) 
-            // result += operands[i] + " ";
-               result += Integer.toString(operands[i], 16) + " ";
-         }
+         // result += operands[i] + " ";
+         for (int operand : operands)
+            result += Integer.toString(operand, 16) + " ";
          if (! basicStatementList.list.isEmpty()) {
             String machineStatement = Binary.intToBinaryString(this.binaryStatement);
             result += "["+Binary.intToHexString(this.binaryStatement)+"]";
@@ -466,7 +434,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      * @return Operand value at given operand array position.  If &lt; 0 or &gt;= <code>numOperands</code>, it returns -1.
      **/   
        public int getOperand(int i) {
-         if (i >= 0 && i < this.numOperands) {
+         if (i >= 0 && i < operands.length) {
             return operands[i];
          } 
          else {
@@ -492,67 +460,96 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         this.binaryStatement &= ~insertMask;
         this.binaryStatement |= shiftedValue;
     }
-   
-   
-    //////////////////////////////////////////////////////////////////////////////
-   /*
-    *   Given a model BasicInstruction and the assembled (not source) operand array for a statement, 
-    *   this method will construct the corresponding basic instruction list.  This method is
-    *   used by the constructor that is given only the int address and binary code.  It is not
-    *   intended to be used when source code is available.  DPS 11-July-2013
-    */
-       private BasicStatementList buildBasicStatementListFromBinaryCode(int binary, BasicInstruction instr, int[] operands, int numOperands) {      
-         BasicStatementList statementList = new BasicStatementList();
-         int tokenListCounter = 1;  // index 0 is operator; operands start at index 1
-         if (instr == null) {
-            statementList.addString(invalidOperator);
+
+
+    /**
+     * Given a model BasicInstruction and the assembled (not source) operand array for a statement,
+     * this method will construct the corresponding basic instruction list.  This method is
+     * used by the constructor that is given only the int address and binary code.  It is not
+     * intended to be used when source code is available.  DPS 11-July-2013
+     */
+    private BasicStatementList buildBasicStatementList() {
+
+        BasicStatementList statementList = new BasicStatementList();
+
+        if (!(instruction instanceof BasicInstruction)) {
+            for (int i = 0; i < strippedTokenList.size(); ++i) {
+                statementList.addString(strippedTokenList.get(i).getValue());
+                statementList.addString(" ");
+            }
             return statementList;
-         } 
-         else {
-            statementList.addString(instr.getName()+" ");
-         }
-         for (int i=0; i<numOperands;i++) {
-            // add separator if not at end of token list AND neither current nor 
-            // next token is a parenthesis
-            if (tokenListCounter > 1 && tokenListCounter<instr.getTokenList().size()) {
-               TokenTypes thisTokenType = instr.getTokenList().get(tokenListCounter).getType();
-               if (thisTokenType != TokenTypes.LEFT_PAREN  &&  thisTokenType != TokenTypes.RIGHT_PAREN) {
-                  statementList.addString(",");
-               }					
+        }
+
+        int numOperands = 0;
+        String seperator = "";
+
+        TokenList signatureTypes = instruction.getTokenList();
+        for (int i = 0; i < signatureTypes.size(); i++) {
+            TokenTypes signatureTokenType = signatureTypes.get(i).getType();
+            
+            switch (signatureTokenType) {
+                case REGISTER_NUMBER: {
+                    statementList.addString(seperator);
+                    statementList.addString("$" + operands[numOperands++]);
+                    seperator = ",";
+                    break;
+                }
+
+                case REGISTER_NAME: {
+                    statementList.addString(seperator);
+                    statementList.addString(RegisterFile.getRegisters()[operands[numOperands++]].getName());
+                    seperator = ",";
+                    break;
+                }
+
+                case FP_REGISTER_NAME: {
+                    statementList.addString(seperator);
+                    statementList.addString(Coprocessor1.getRegisters()[operands[numOperands++]].getName());
+                    seperator = ",";
+                    break;
+                }
+
+                case IDENTIFIER:
+                    statementList.addString(seperator);
+                    statementList.addAddress(operands[numOperands++]);
+                    seperator = ",";
+                    break;
+
+                case INTEGER_5:
+                case INTEGER_16:
+                case INTEGER_16U:
+                case INTEGER_32:
+                    statementList.addString(seperator);
+                    statementList.addValue(operands[numOperands++]);
+                    seperator = ",";
+                    break;
+
+                case OPERATOR:
+                    statementList.addString(signatureTypes.get(i).getValue());
+                    seperator = " ";
+                    break;
+                    
+                case PLUS:
+                case MINUS:
+                case LEFT_PAREN:
+                    statementList.addString(signatureTypes.get(i).getValue());
+                    seperator = "";
+                    break;
+                    
+                case RIGHT_PAREN:
+                    statementList.addString(signatureTypes.get(i).getValue());
+                    seperator = ",";
+                    break;
+                    
+                default:
+                    statementList.addString(seperator);
+                    statementList.addString(signatureTypes.get(i).getValue());
+                    seperator = ",";
+                    break;
             }
-            boolean notOperand = true;
-            while (notOperand && tokenListCounter<instr.getTokenList().size()) {
-               TokenTypes tokenType = instr.getTokenList().get(tokenListCounter).getType();
-               if (tokenType.equals(TokenTypes.LEFT_PAREN)) {
-                  statementList.addString("(");
-               }
-               else if (tokenType.equals(TokenTypes.RIGHT_PAREN)) {
-                  statementList.addString(")");
-               }
-               else if (tokenType.toString().contains("REGISTER")) {
-                  String marker = (tokenType.toString().contains("FP_REGISTER")) ? "$f" : "$";
-                  statementList.addString(marker+operands[i]);
-                  notOperand = false;
-               }
-               else {
-                  statementList.addValue(operands[i]);
-                  notOperand = false;
-               }
-               tokenListCounter++;
-            }
-         }
-         while (tokenListCounter<instr.getTokenList().size()) {
-            TokenTypes tokenType = instr.getTokenList().get(tokenListCounter).getType();
-            if (tokenType.equals(TokenTypes.LEFT_PAREN)) {
-               statementList.addString("(");
-            }
-            else if (tokenType.equals(TokenTypes.RIGHT_PAREN)) {
-               statementList.addString(")");
-            }
-            tokenListCounter++;
-         }
-         return statementList;
-      } // buildBasicStatementListFromBinaryCode()
+        }
+        return statementList;
+    }
    
    
    
