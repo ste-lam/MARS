@@ -107,41 +107,32 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
          this.source = "";
          this.machineStatement = this.basicAssemblyStatement = null;
          BasicInstruction instr = Globals.instructionSet.findByBinaryCode(binaryStatement);
-         if (instr == null) {
-            this.operands = null;
-            this.numOperands = 0;
-            this.instruction = (binaryStatement==0) // this is a "nop" statement
-               			? (Instruction) Globals.instructionSet.matchOperator("nop").get(0)
-               				 : null;
-         } 
-         else {
-            this.operands = new int[4];
-            this.numOperands = 0;
-            this.instruction = instr;
-         
-            String opandCodes = "fst";
-            String fmt = instr.getOperationMask();
-            BasicInstructionFormat instrFormat = instr.getInstructionFormat();
-            int numOps = 0;
-            for (int i = 0; i < opandCodes.length(); i++) {
-               int code = opandCodes.charAt(i);
-               int j = fmt.indexOf(code);
-               if (j >= 0) {
-                  int k0 = 31 - fmt.lastIndexOf(code);
-                  int k1 = 31 - j;
-                  int opand = (binaryStatement >> k0) & ((1 << (k1 - k0 + 1)) - 1);
-                  if (instrFormat.equals(BasicInstructionFormat.I_BRANCH_FORMAT) && numOps == 2) {
-                     opand = opand << 16 >> 16;
-                  } 
-                  else if (instrFormat.equals(BasicInstructionFormat.J_FORMAT) && numOps == 0) {
-                     opand |= (textAddress >> 2) & 0x3C000000;
-                  }
-                  this.operands[numOps] = opand;
-                  numOps++;
+         this.operands = new int[4];
+         this.numOperands = 0;
+         this.instruction = instr;
+      
+         String opandCodes = "fst";
+         String fmt = instr.getOperationMask();
+         BasicInstructionFormat instrFormat = instr.getInstructionFormat();
+         int numOps = 0;
+         for (int i = 0; i < opandCodes.length(); i++) {
+            int code = opandCodes.charAt(i);
+            int j = fmt.indexOf(code);
+            if (j >= 0) {
+               int k0 = 31 - fmt.lastIndexOf(code);
+               int k1 = 31 - j;
+               int opand = (binaryStatement >> k0) & ((1 << (k1 - k0 + 1)) - 1);
+               if (instrFormat.equals(BasicInstructionFormat.I_BRANCH_FORMAT) && numOps == 2) {
+                  opand = opand << 16 >> 16;
+               } 
+               else if (instrFormat.equals(BasicInstructionFormat.J_FORMAT) && numOps == 0) {
+                  opand |= (textAddress >> 2) & 0x3C000000;
                }
+               this.operands[numOps] = opand;
+               numOps++;
             }
-            this.numOperands = numOps;
          }
+         this.numOperands = numOps;
          this.altered = false;
          this.basicStatementList = buildBasicStatementListFromBinaryCode(binaryStatement, instr, operands, numOperands);
       }

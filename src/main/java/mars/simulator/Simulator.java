@@ -336,12 +336,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                         Simulator.externalInterruptingDevice = NO_DEVICE;
                         throw new ProcessingException(statement, "External Interrupt", deviceInterruptCode);
                      }
+                     assert statement.getInstruction() instanceof BasicInstruction;
                      BasicInstruction instruction = (BasicInstruction)statement.getInstruction();
-                     if (instruction == null) {
-                        throw new ProcessingException(statement,
-                            "undefined instruction ("+Binary.intToHexString(statement.getBinaryStatement())+")",
-                            Exceptions.RESERVED_INSTRUCTION_EXCEPTION);
-                     }
+                     
                      // THIS IS WHERE THE INSTRUCTION EXECUTION IS ACTUALLY SIMULATED!
                      instruction.getSimulationCode().simulate(statement);
                   	

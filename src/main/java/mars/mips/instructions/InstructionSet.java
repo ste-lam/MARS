@@ -44,11 +44,18 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * @version August 2003-5
  */
 
-    public class InstructionSet
-   {
-      private ArrayList instructionList;
-	  private ArrayList opcodeMatchMaps;
-      private SyscallLoader syscallLoader;
+public class InstructionSet {
+    private final BasicInstruction invalidInstruction = new BasicInstruction("invalid", "invalid instruction mapper",
+            BasicInstructionFormat.R_FORMAT, "cccccccccccccccccccccccccccccccc", statement -> {
+        throw new ProcessingException(statement,
+                "undefined instruction (" + Binary.intToHexString(statement.getBinaryStatement()) + ")",
+                Exceptions.RESERVED_INSTRUCTION_EXCEPTION);
+    });
+
+    private ArrayList instructionList;
+    private ArrayList opcodeMatchMaps;
+    private SyscallLoader syscallLoader;
+
     /**
      * Creates a new InstructionSet object.
      */
@@ -3108,7 +3115,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			BasicInstruction ret = map.find(binaryInstr);
 			if (ret != null) return ret;
 		}
-		return null;
+		return invalidInstruction;
 	}
    	
     /*  METHOD TO ADD PSEUDO-INSTRUCTIONS
