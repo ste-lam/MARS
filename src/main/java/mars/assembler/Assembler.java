@@ -621,23 +621,23 @@
       Map<String, String> substitutions = buildSubstitutionMap(tokens);
       
       boolean first = true;
-      for (String instruction : extendedInstruction.getInstructionTemplateList()) {
+      for (TokenList instruction : extendedInstruction.getInstructionTemplateList()) {
          // 23 Jan 2008 by DPS. Template substitution may result in no instruction.
          // If this is the case, skip remainder of loop iteration. This should only
          // happen if template substitution was for "nop" instruction but delayed branching
          // is disabled so the "nop" is not generated.
          assert instruction != null && !instruction.isEmpty();
 
-         if (instruction.equals("DBNOP")) {
+         TokenList newTokenList = (TokenList) instruction.clone();
+         
+         if (newTokenList.get(0).getValue().equals("DBNOP")) {
             if (!Globals.getSettings().getBooleanSetting(DELAYED_BRANCHING_ENABLED)) {
                continue;
             }
-            instruction = "nop";
+            newTokenList.set(0, new Token(OPERATOR, "nop", newTokenList.get(0).getSourceMIPSprogram(), 
+                    newTokenList.get(0).getSourceLine(), newTokenList.get(0).getStartPos()));
          }
 
-         // tokenizeLine with doEqvSubstitutes=true will apply transformations recursively until it's done - which is wrong!
-         Tokenizer tokenizer = new Tokenizer();
-         TokenList newTokenList = tokenizer.tokenizeLine(sourceLineNumber, instruction, errors, false);
          substituteTemplateTokens(newTokenList, substitutions);
          
          ArrayList<ProgramStatement> extendedLines = parseLine(newTokenList, first ? source : "", sourceLineNumber, false, true);

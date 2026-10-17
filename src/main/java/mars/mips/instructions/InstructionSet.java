@@ -1,4 +1,5 @@
    package mars.mips.instructions;
+   import mars.assembler.*;
    import mars.simulator.*;
    import mars.mips.hardware.*;
    import mars.mips.instructions.syscalls.*;
@@ -3139,20 +3140,21 @@ public class InstructionSet {
             }
          try
          {
-            String line, pseudoOp, template, firstTemplate, token;
-            String description;
-            StringTokenizer tokenizer;
+            String line;
+            Tokenizer instructionTokenizer = new Tokenizer();
+            ErrorList errors = new ErrorList();
             while ((line = in.readLine()) != null) {
                 // skip over: comment lines, empty lines, lines starting with blank.
                if (!line.startsWith("#") && !line.startsWith(" ")
                         && line.length() > 0)  {  
-                  description = "";
-                  tokenizer = new StringTokenizer(line, "\t");
-                  pseudoOp = tokenizer.nextToken();
-                  template = "";
-                  firstTemplate = null;
+                  String description = "";
+                  StringTokenizer tokenizer = new StringTokenizer(line, "\t");
+                  int lineNumer = 0;
+                  String pseudoOp = tokenizer.nextToken();
+                  List<TokenList> sourceLinesCompact = new ArrayList<>();
+                  List<TokenList> sourceLinesNormal = sourceLinesCompact;
                   while (tokenizer.hasMoreTokens()) {
-                     token = tokenizer.nextToken();
+                      String token = tokenizer.nextToken();
                       if (token.contains("BROFF")) {
                           int index = token.indexOf("BROFF");
                           String newToken = token.substring(0, index) + token.substring(index + 6);
@@ -3165,24 +3167,32 @@ public class InstructionSet {
                         description = token.substring(1);
                         break;
                      }
+                      
                      if (token.startsWith("COMPACT")) {
-                        // has second template for Compact (16-bit) memory config -- added DPS 3 Aug 2009
-                        firstTemplate = template;
-                        template = "";
+                        // has second compactTemplate for Compact (16-bit) memory config -- added DPS 3 Aug 2009
+                        sourceLinesCompact = new ArrayList<>();
+                        lineNumer = 0;
                         continue;
-                     } 
-                     template = template + token;
-                     if (tokenizer.hasMoreTokens()) {
-                        template = template + "\n";
                      }
+
+                     // ensure that the tokens are not subsituted
+                     TokenList tokenList = instructionTokenizer.tokenizeLine(++lineNumer, token, errors, false);
+                     sourceLinesCompact.add(tokenList);
                   }
-                  ExtendedInstruction inst = (firstTemplate == null)
-                         ? new ExtendedInstruction(pseudoOp, template, description)
-                     	 : new ExtendedInstruction(pseudoOp, firstTemplate, template, description);
+                  
+                  ExtendedInstruction inst = new ExtendedInstruction(pseudoOp, sourceLinesNormal, sourceLinesCompact, description);
                   instructionList.add(inst);
-               	//if (firstTemplate != null) System.out.println("\npseudoOp: "+pseudoOp+"\ndefault template:\n"+firstTemplate+"\ncompact template:\n"+template);
                }
             }
+
+            if (errors.warningCount() >= 1) {
+                System.err.println(errors.generateWarningReport());
+            }
+            if (errors.errorCount() >= 1) {
+                System.err.println(errors.generateErrorReport());
+                System.exit(0);
+            }
+            
             in.close();
          } 
              catch (IOException ioe)
